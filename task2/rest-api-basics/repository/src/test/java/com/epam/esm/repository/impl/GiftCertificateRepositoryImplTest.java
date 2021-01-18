@@ -2,7 +2,7 @@ package com.epam.esm.repository.impl;
 
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.repository.GiftCertificateRepository;
-import com.epam.esm.repository.config.ContextConfig;
+import com.epam.esm.repository.config.RepositoryTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = ContextConfig.class)
+@ContextConfiguration(classes = RepositoryTestConfig.class)
 class GiftCertificateRepositoryImplTest {
 
     @Autowired

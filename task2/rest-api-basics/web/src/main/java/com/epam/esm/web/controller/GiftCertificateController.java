@@ -2,9 +2,6 @@ package com.epam.esm.web.controller;
 
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.service.GiftCertificateService;
-import com.epam.esm.service.exception.ServiceException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +11,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/gifts")
 public class GiftCertificateController {
-    private static final Logger logger = LogManager.getLogger(GiftCertificateController.class);
 
     @Autowired
     private GiftCertificateService giftCertificateService;
@@ -28,73 +25,38 @@ public class GiftCertificateController {
                 ));
     }
 
-    @GetMapping("/gifts_tags")
+    @GetMapping("/tags")
     public List<GiftCertificateDto> findAllGiftCertificatesWithTags(@RequestParam(required = false) MultiValueMap<String, String> requestParams) {
-        try {
-            return giftCertificateService.findAllWithTags(multiValueMapToMap(requestParams));
-        } catch (ServiceException e) {
-            logger.error(e);
-            throw e;
-        }
+        return giftCertificateService.findAllWithTags(multiValueMapToMap(requestParams));
     }
 
-    @GetMapping("/gifts")
+    @GetMapping
     public List<GiftCertificateDto> findAllGiftCertificates() {
-        try {
-            return giftCertificateService.findAll();
-        } catch (ServiceException e) {
-            logger.error(e);
-            throw e;
-        }
+        return giftCertificateService.findAll();
     }
 
-    @GetMapping("/gifts/tag/{name}")
+    @GetMapping("/tag/{name}")
     public List<GiftCertificateDto> findGiftCertificatesByTag(@PathVariable String name) {
-        try {
-            return giftCertificateService.findByTagName(name);
-        } catch (ServiceException e) {
-            logger.error(e);
-            throw e;
-        }
+        return giftCertificateService.findByTagName(name);
     }
 
-    @GetMapping("/gifts/{name}")
+    @GetMapping("/{name}")
     public GiftCertificateDto findGiftCertificateByName(@PathVariable String name) {
-        try {
-            return giftCertificateService.findByName(name);
-        } catch (ServiceException e) {
-            logger.error(e);
-            throw e;
-        }
+        return giftCertificateService.findByName(name);
     }
 
-    @PostMapping("/gifts")
+    @PostMapping
     public GiftCertificateDto saveGiftCertificate(@RequestBody GiftCertificateDto giftCertificateDto) {
-        try {
-            return giftCertificateService.save(giftCertificateDto);
-        } catch (ServiceException e) {
-            logger.error(e);
-            throw e;
-        }
+        return giftCertificateService.save(giftCertificateDto);
     }
 
-    @PutMapping("/gifts/{name}")
+    @PutMapping("/{name}")
     public GiftCertificateDto updateGiftCertificate(@PathVariable String name, @RequestBody GiftCertificateDto giftCertificateDto) {
-        try {
-            return giftCertificateService.updateByName(name, giftCertificateDto);
-        } catch (ServiceException e) {
-            logger.error(e);
-            throw e;
-        }
+        return giftCertificateService.updateByName(name, giftCertificateDto);
     }
 
-    @DeleteMapping("/gifts/{name}")
+    @DeleteMapping("/{name}")
     public void deleteGiftCertificateByName(@PathVariable String name) {
-        try {
-            giftCertificateService.deleteByName(name);
-        } catch (ServiceException e) {
-            logger.error(e);
-            throw e;
-        }
+        giftCertificateService.deleteByName(name);
     }
 }

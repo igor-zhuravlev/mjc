@@ -11,8 +11,6 @@ import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
 import com.epam.esm.service.exception.tag.UnableDeleteTagException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,13 +19,13 @@ import java.util.List;
 
 @Service
 public class TagServiceImpl implements TagService {
-    private static final Logger logger = LogManager.getLogger(TagServiceImpl.class);
 
     @Autowired
     private TagRepository tagRepository;
     @Autowired
     private Converter<Tag, TagDto> tagConverter;
 
+    @Transactional(readOnly = true)
     @Override
     public List<TagDto> findAll() throws ServiceException {
         try {
@@ -38,6 +36,7 @@ public class TagServiceImpl implements TagService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public TagDto findByName(String name) throws ServiceException {
         try {
@@ -52,6 +51,7 @@ public class TagServiceImpl implements TagService {
         }
     }
 
+    @Transactional
     @Override
     public TagDto save(TagDto tagDto) throws ServiceException {
         try {

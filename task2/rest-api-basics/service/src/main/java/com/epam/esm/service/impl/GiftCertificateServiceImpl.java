@@ -15,8 +15,6 @@ import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
 import com.epam.esm.service.exception.certificate.UnableUpdateGiftCertificate;
 import com.epam.esm.util.ParamsUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -28,7 +26,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
-    private static final Logger logger = LogManager.getLogger(GiftCertificateServiceImpl.class);
 
     @Autowired
     private GiftCertificateRepository giftCertificateRepository;
@@ -37,6 +34,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Autowired
     private Converter<GiftCertificate, GiftCertificateDto> giftCertificateConverter;
 
+    @Transactional(readOnly = true)
     @Override
     public List<GiftCertificateDto> findAllWithTags(Map<String, String[]> params) throws ServiceException {
         try {
@@ -103,6 +101,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<GiftCertificateDto> findAll() throws ServiceException {
         try {
@@ -113,6 +112,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public GiftCertificateDto findByName(String name) throws ServiceException {
         try {
@@ -129,6 +129,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<GiftCertificateDto> findByTagName(String name) throws ServiceException {
         try {

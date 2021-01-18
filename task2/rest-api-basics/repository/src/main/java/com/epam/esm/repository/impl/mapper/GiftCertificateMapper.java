@@ -19,7 +19,6 @@ public class GiftCertificateMapper implements RowMapper<GiftCertificate> {
     public static final String LAST_UPDATE_DATE = "last_update_date";
 
     public static final String SECONDARY_ID = "id";
-    public static final String SECONDARY_NAME = "name";
 
     @Override
     public GiftCertificate mapRow(ResultSet rs, int rowNum) throws SQLException {

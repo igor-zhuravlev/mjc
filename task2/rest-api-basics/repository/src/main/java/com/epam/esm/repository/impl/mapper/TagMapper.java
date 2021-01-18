@@ -12,7 +12,6 @@ public class TagMapper implements RowMapper<Tag> {
     public static final String NAME = "t_name";
 
     public static final String SECONDARY_ID = "id";
-    public static final String SECONDARY_NAME = "name";
 
     @Override
     public Tag mapRow(ResultSet rs, int rowNum) throws SQLException {

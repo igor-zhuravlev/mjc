@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 @PropertySource("classpath:database.properties")
 @ComponentScan("com.epam.esm.repository")
-public class ContextConfig {
+public class RepositoryTestConfig {
 
     @Autowired
     private Environment environment;

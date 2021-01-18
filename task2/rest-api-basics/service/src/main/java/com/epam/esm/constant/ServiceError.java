@@ -8,7 +8,9 @@ public enum ServiceError {
     GIFT_CERTIFICATE_NOT_FOUNT(Constants.CODE_2001),
     GIFT_CERTIFICATE_ALREADY_EXISTS(Constants.CODE_2002),
     GIFT_CERTIFICATE_UNABLE_DELETE(Constants.CODE_2003),
-    UNABLE_UPDATE_GIFT_CERTIFICATE(Constants.CODE_2004);
+    UNABLE_UPDATE_GIFT_CERTIFICATE(Constants.CODE_2004),
+
+    INTERNAL_SERVER_ERROR(Constants.CODE_0000);
 
     private final String code;
 
@@ -29,5 +31,7 @@ public enum ServiceError {
         private static final String CODE_2002 = "2002";
         private static final String CODE_2003 = "2003";
         private static final String CODE_2004 = "2004";
+
+        private static final String CODE_0000 = "0000";
     }
 }

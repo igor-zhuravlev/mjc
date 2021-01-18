@@ -7,8 +7,6 @@ import com.epam.esm.repository.util.QueryUtil;
 import com.epam.esm.repository.exception.RepositoryException;
 import com.epam.esm.repository.impl.mapper.GiftCertificateMapper;
 import com.epam.esm.repository.impl.mapper.TagMapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -26,7 +24,6 @@ import java.util.*;
 
 @Repository
 public class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
-    private static final Logger logger = LogManager.getLogger(GiftCertificateRepositoryImpl.class);
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
