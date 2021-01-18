@@ -1,55 +1,30 @@
-package com.epam.esm.web.config;
+package com.epam.esm.repository.config;
 
-import com.epam.esm.converter.impl.GiftCertificateConverter;
-import com.epam.esm.converter.impl.TagConverter;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.support.JdbcTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
 @Configuration
-@EnableTransactionManagement
+@ComponentScan("com.epam.esm.repository")
 @PropertySource("classpath:database.properties")
-@PropertySource("classpath:application.properties")
-public class WebAppConfig {
+public class RepositoryConfig {
 
     @Autowired
     private Environment environment;
 
     @Bean
-    public PlatformTransactionManager platformTransactionManager() {
-        JdbcTransactionManager jdbcTransactionManager = new JdbcTransactionManager(hikariDataSource());
-        return jdbcTransactionManager;
-    }
-
-    @Bean
     public JdbcTemplate jdbcTemplate() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(hikariDataSource());
         return jdbcTemplate;
-    }
-
-    @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
-    }
-
-    @Bean
-    public TagConverter tagConverter() {
-        return new TagConverter();
-    }
-
-    @Bean
-    public GiftCertificateConverter giftCertificateConverter() {
-        return new GiftCertificateConverter();
     }
 
     @Bean

@@ -28,7 +28,7 @@ public class GiftCertificateController {
                 ));
     }
 
-    @GetMapping("/gifts-tags")
+    @GetMapping("/gifts_tags")
     public List<GiftCertificateDto> findAllGiftCertificatesWithTags(@RequestParam(required = false) MultiValueMap<String, String> requestParams) {
         try {
             return giftCertificateService.findAllWithTags(multiValueMapToMap(requestParams));
@@ -37,7 +37,6 @@ public class GiftCertificateController {
             throw e;
         }
     }
-
 
     @GetMapping("/gifts")
     public List<GiftCertificateDto> findAllGiftCertificates() {

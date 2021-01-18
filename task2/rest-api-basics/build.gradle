@@ -9,16 +9,12 @@ def propertyDrivenProfiles
 
 if (project.hasProperty('prod')) {
     propertyDrivenProfiles = prodProfiles
-    apply from: rootProject.file('profile-prod.gradle')
 } else if (project.hasProperty('dev')) {
     propertyDrivenProfiles = devProfiles
-    apply from: rootProject.file('profile-dev.gradle')
 } else if (project.hasProperty('test')) {
     propertyDrivenProfiles = testProfiles
-    apply from: rootProject.file('profile-test.gradle')
 } else {
     propertyDrivenProfiles = devProfiles
-    apply from: rootProject.file('profile-dev.gradle')
 }
 println 'Using profile: "' + propertyDrivenProfiles + '" for ' + project.getName()
 
@@ -30,6 +26,22 @@ subprojects {
 
     ext {
         springVersion = '5.3.3'
+        springDataVersion = '2.4.2'
+
+        postgresqlVersion = '42.2.18'
+        h2Version = '1.4.200'
+        hikariVersion = '3.4.5'
+        liquibaseVersion = '4.2.2'
+        liquibasePluginVersion = '2.0.4'
+
+        jacksonVersion = '2.12.1'
+        servletVersion = '4.0.1'
+        modelmapperVersion = '2.3.9'
+
+        log4jVersion = '2.14.0'
+
+        junitVersion = '5.7.0'
+        mockitoVersion = '3.7.0'
     }
 
     java {
@@ -42,12 +54,12 @@ subprojects {
     }
 
     dependencies {
-        implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.0'
+        implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4jVersion}"
 
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: "${junitVersion}";
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-        testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.7.0'
-        testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.7.0'
+        testImplementation group: 'org.mockito', name: 'mockito-core', version: "${mockitoVersion}"
+        testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: "${mockitoVersion}"
     }
 
     tasks.named('test') {

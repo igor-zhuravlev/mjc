@@ -6,11 +6,9 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
 
-public class GiftCertificate implements Serializable {
+public class GiftCertificate extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = 7468316931994434280L;
 
-    private Long id;
-    private String name;
     private String description;
     private BigDecimal price;
     private Integer duration;
@@ -22,23 +20,7 @@ public class GiftCertificate implements Serializable {
     public GiftCertificate() {}
 
     public GiftCertificate(String name) {
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        super(name);
     }
 
     public String getDescription() {
@@ -93,10 +75,9 @@ public class GiftCertificate implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         GiftCertificate that = (GiftCertificate) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(name, that.name) &&
-                Objects.equals(description, that.description) &&
+        return Objects.equals(description, that.description) &&
                 Objects.equals(price, that.price) &&
                 Objects.equals(duration, that.duration) &&
                 Objects.equals(createDate, that.createDate) &&
@@ -105,14 +86,14 @@ public class GiftCertificate implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, price, duration, createDate, lastUpdateDate);
+        return Objects.hash(super.hashCode(), description, price, duration, createDate, lastUpdateDate);
     }
 
     @Override
     public String toString() {
         return "GiftCertificate{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "id=" + getId() +
+                ", name='" + getName() + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", duration=" + duration +

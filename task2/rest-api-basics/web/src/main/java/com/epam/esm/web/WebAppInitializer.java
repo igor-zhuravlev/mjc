@@ -1,6 +1,5 @@
 package com.epam.esm.web;
 
-import com.epam.esm.web.config.WebAppConfig;
 import com.epam.esm.web.config.WebMvcConfig;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
@@ -8,7 +7,7 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
 
     @Override
     protected Class<?>[] getRootConfigClasses() {
-        return new Class[] {WebAppConfig.class};
+        return null;
     }
 
     @Override
