@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+group 'edu.gradle'
+version '1.0'
+
+repositories {
+//    jcenter()
+//    mavenLocal()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+//    implementation "edu.gradle.lib:utils:1.3.5"
+
+    compile fileTree(dir: 'libs', include: '*.jar')
+}

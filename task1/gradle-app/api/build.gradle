@@ -1,0 +1,15 @@
+plugins {
+    id 'application'
+}
+
+group 'edu.gradle'
+version '1.0'
+
+dependencies {
+//    implementation project(':core')
+    compile project(':core')
+}
+
+application {
+    mainClass = 'edu.gradle.api.App'
+}
