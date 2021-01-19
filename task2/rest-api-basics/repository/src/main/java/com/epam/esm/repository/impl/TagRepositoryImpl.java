@@ -4,6 +4,8 @@ import com.epam.esm.repository.TagRepository;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.exception.RepositoryException;
 import com.epam.esm.repository.impl.mapper.TagMapper;
+import com.epam.esm.repository.criteria.Criteria;
+import com.epam.esm.repository.util.QueryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,16 +24,14 @@ public class TagRepositoryImpl implements TagRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private static final String FIND_ALL_QUERY = "SELECT id t_id, name t_name FROM tag";
-    private static final String FIND_BY_ID_QUERY = "SELECT id t_id, name t_name FROM tag WHERE id = ?";
-    private static final String FIND_BY_NAME_QUERY = "SELECT id t_id, name t_name FROM tag WHERE name = ?";
+    private static final String FIND_QUERY = "SELECT id t_id, name t_name FROM tag";
     private static final String SAVE_QUERY = "INSERT INTO tag (name) VALUES (?)";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM tag WHERE id = ?";
 
     @Override
     public List<Tag> findAll() throws RepositoryException {
         try {
-            return jdbcTemplate.query(FIND_ALL_QUERY, new TagMapper());
+            return jdbcTemplate.query(FIND_QUERY, new TagMapper());
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }
@@ -49,18 +49,10 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public Tag findById(Long id) throws RepositoryException {
+    public Tag find(Criteria criteria) throws RepositoryException {
         try {
-            return jdbcTemplate.query(FIND_BY_ID_QUERY, tagResultSetExtractor(), id);
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
-    public Tag findByName(String name) throws RepositoryException {
-        try {
-            return jdbcTemplate.query(FIND_BY_NAME_QUERY, tagResultSetExtractor(), name);
+            final String query = QueryUtil.buildQuery(FIND_QUERY, criteria, "");
+            return jdbcTemplate.query(query, tagResultSetExtractor());
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }

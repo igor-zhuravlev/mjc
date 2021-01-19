@@ -8,7 +8,8 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.repository.exception.RepositoryException;
-import com.epam.esm.repository.util.Criteria;
+import com.epam.esm.repository.criteria.Criteria;
+import com.epam.esm.repository.criteria.CriteriaSearch;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistException;
 import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
@@ -16,8 +17,6 @@ import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
 import com.epam.esm.service.exception.certificate.UnableUpdateGiftCertificate;
 import com.epam.esm.util.ParamsUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
-    private static final Logger logger = LogManager.getLogger(GiftCertificateServiceImpl.class);
 
     @Autowired
     private GiftCertificateRepository giftCertificateRepository;
@@ -55,7 +53,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public GiftCertificateDto findById(Long id) throws ServiceException {
         try {
             // TODO: 16-Jan-21 validate name
-            GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
+            Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
+            GiftCertificate giftCertificate = giftCertificateRepository.find(criteria);
             if (giftCertificate == null) {
                 throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
             }
@@ -72,13 +71,18 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             // TODO: 16-Jan-21 validate giftCertificateDto
             GiftCertificate giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
 
-            if (giftCertificateRepository.findByName(giftCertificate.getName()) != null) {
+            Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.NAME, giftCertificate.getName());
+            if (giftCertificateRepository.find(criteria) != null) {
                 throw new GiftCertificateAlreadyExistException(ServiceError.GIFT_CERTIFICATE_ALREADY_EXISTS.getCode());
             }
 
             if (giftCertificate.getTags() != null) {
                 Set<Tag> tags = giftCertificate.getTags().stream()
-                        .map(tag -> tagRepository.save(tag))
+                        .map(tag -> {
+                            Criteria tagCriteria = ParamsUtil.buildCriteria(CriteriaSearch.NAME, tag.getName());
+                            Tag foundTag = tagRepository.find(tagCriteria);
+                            return foundTag == null ? tagRepository.save(tag) : foundTag;
+                        })
                         .collect(Collectors.toSet());
                 giftCertificate.setTags(tags);
             }
@@ -97,20 +101,26 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public GiftCertificateDto updateById(Long id, GiftCertificateDto giftCertificateDto) throws ServiceException {
         try {
             // TODO: 16-Jan-21 validate name, giftCertificateDto
-            GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
+            Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
+            GiftCertificate giftCertificate = giftCertificateRepository.find(criteria);
 
             if (giftCertificate == null) {
                 throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
             }
 
+            Set<Tag> existedTags = new HashSet<>(giftCertificate.getTags());
             giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
 
-            Set<Tag> newTags = new HashSet<>();
             if (giftCertificate.getTags() != null) {
-                newTags = giftCertificate.getTags().stream()
-                        .map(tag -> tagRepository.save(tag))
+                Set<Tag> tags = giftCertificate.getTags().stream()
+                        .map(tag -> {
+                            Criteria tagCriteria = ParamsUtil.buildCriteria(CriteriaSearch.NAME, tag.getName());
+                            Tag foundTag = tagRepository.find(tagCriteria);
+                            return foundTag == null ? tagRepository.save(tag) : foundTag;
+                        })
+                        .filter(tag -> !existedTags.contains(tag))
                         .collect(Collectors.toSet());
-                giftCertificate.setTags(newTags);
+                giftCertificate.setTags(tags);
             }
 
             giftCertificate.setId(id);
@@ -121,8 +131,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 throw new UnableUpdateGiftCertificate(ServiceError.UNABLE_UPDATE_GIFT_CERTIFICATE.getCode());
             }
 
-            giftCertificate = giftCertificateRepository.findById(id);
-            giftCertificate.setTags(newTags);
+            criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
+            giftCertificate = giftCertificateRepository.find(criteria);
 
             return giftCertificateConverter.entityToDto(giftCertificate);
         } catch (RepositoryException e) {
@@ -135,7 +145,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public void deleteById(Long id) throws ServiceException {
         try {
             // TODO: 16-Jan-21 validate name
-            GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
+            Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
+            GiftCertificate giftCertificate = giftCertificateRepository.find(criteria);
             if (giftCertificate == null) {
                 throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
             }

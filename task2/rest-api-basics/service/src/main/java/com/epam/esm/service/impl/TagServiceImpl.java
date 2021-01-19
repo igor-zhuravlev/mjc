@@ -5,12 +5,15 @@ import com.epam.esm.converter.Converter;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.repository.exception.RepositoryException;
+import com.epam.esm.repository.criteria.Criteria;
+import com.epam.esm.repository.criteria.CriteriaSearch;
 import com.epam.esm.service.TagService;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
 import com.epam.esm.service.exception.tag.UnableDeleteTagException;
+import com.epam.esm.util.ParamsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +44,8 @@ public class TagServiceImpl implements TagService {
     public TagDto findById(Long id) throws ServiceException {
         try {
             // TODO: 15-Jan-21 validate name
-            Tag tag = tagRepository.findById(id);
+            Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
+            Tag tag = tagRepository.find(criteria);
             if (tag == null) {
                 throw new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode());
             }
@@ -57,7 +61,8 @@ public class TagServiceImpl implements TagService {
         try {
             // TODO: 15-Jan-21 validate tagDto
             Tag tag = tagConverter.dtoToEntity(tagDto);
-            if (tagRepository.findByName(tag.getName()) != null) {
+            Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.NAME, tag.getName());
+            if (tagRepository.find(criteria) != null) {
                 throw new TagAlreadyExistException(ServiceError.TAG_ALREADY_EXISTS.getCode());
             }
             return tagConverter.entityToDto(tagRepository.save(tag));
@@ -71,14 +76,12 @@ public class TagServiceImpl implements TagService {
     public void deleteById(Long id) throws ServiceException {
         try {
             // TODO: 16-Jan-21 validate name
-            Tag tag = tagRepository.findById(id);
-
+            Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
+            Tag tag = tagRepository.find(criteria);
             if (tag == null) {
                 throw new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode());
             }
-
             long count = tagRepository.deleteById(id);
-
             if (count == 0) {
                 throw new UnableDeleteTagException(ServiceError.TAG_UNABLE_DELETE.getCode());
             }

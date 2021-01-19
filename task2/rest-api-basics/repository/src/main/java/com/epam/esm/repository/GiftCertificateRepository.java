@@ -2,7 +2,7 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.repository.exception.RepositoryException;
-import com.epam.esm.repository.util.Criteria;
+import com.epam.esm.repository.criteria.Criteria;
 
 import java.util.List;
 

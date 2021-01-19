@@ -3,7 +3,7 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.GiftCertificateRepository;
-import com.epam.esm.repository.util.Criteria;
+import com.epam.esm.repository.criteria.Criteria;
 import com.epam.esm.repository.util.QueryUtil;
 import com.epam.esm.repository.exception.RepositoryException;
 import com.epam.esm.repository.impl.mapper.GiftCertificateMapper;
@@ -32,14 +32,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
             "FROM gift_certificate gc " +
             "LEFT JOIN gift_certificate_tag gct ON gc.id = gct.gift_certificate_id " +
             "LEFT JOIN tag t ON gct.tag_id = t.id";
-    private static final String FIND_BY_ID_QUERY =
-            "SELECT id gc_id, name gc_name, description, price, duration, create_date, last_update_date " +
-            "FROM gift_certificate " +
-            "WHERE id = ?";
-    private static final String FIND_BY_NAME_QUERY =
-            "SELECT id gc_id, name gc_name, description, price, duration, create_date, last_update_date " +
-            "FROM gift_certificate " +
-            "WHERE name = ?";
     private static final String SAVE_QUERY =
             "INSERT INTO gift_certificate (name, description, price, duration, create_date) " +
             "VALUES (?, ?, ?, ?, ?)";
@@ -57,24 +49,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
             "WHERE id = ?";
 
     @Override
-    public GiftCertificate findById(Long id) throws RepositoryException {
-        try {
-            return jdbcTemplate.query(FIND_BY_ID_QUERY, giftResultSetExtractor(), id);
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
-    public GiftCertificate findByName(String name) throws RepositoryException {
-        try {
-            return jdbcTemplate.query(FIND_BY_NAME_QUERY, giftResultSetExtractor(), name);
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
     public Long update(GiftCertificate giftCertificate) throws RepositoryException {
         try {
             final long count = jdbcTemplate.update(
@@ -87,9 +61,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                     giftCertificate.getId()
             );
 
-            if (giftCertificate.getTags() != null) {
-                saveGiftCertificateTagFK(giftCertificate.getId(), giftCertificate.getTags());
-            }
+            saveGiftCertificateTagFK(giftCertificate.getId(), giftCertificate.getTags());
 
             return count;
         } catch (DataAccessException e) {
@@ -100,8 +72,18 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     @Override
     public List<GiftCertificate> findAll(Criteria criteria) throws RepositoryException {
         try {
-            final String query = QueryUtil.buildQuery(FIND_ALL_QUERY, criteria);
+            final String query = QueryUtil.buildQuery(FIND_ALL_QUERY, criteria, QueryUtil.GIFT_CERTIFICATE_TABLE_PREFIX);
             return jdbcTemplate.query(query, giftListResultSetExtractor());
+        } catch (DataAccessException e) {
+            throw new RepositoryException(e);
+        }
+    }
+
+    @Override
+    public GiftCertificate find(Criteria criteria) throws RepositoryException {
+        try {
+            final String query = QueryUtil.buildQuery(FIND_ALL_QUERY, criteria, QueryUtil.GIFT_CERTIFICATE_TABLE_PREFIX);
+            return jdbcTemplate.query(query, giftResultSetExtractor());
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }
@@ -142,12 +124,19 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     private ResultSetExtractor<GiftCertificate> giftResultSetExtractor() {
         return rs -> {
-            GiftCertificate giftCertificate = null;
             GiftCertificateMapper giftCertificateMapper = new GiftCertificateMapper();
-            if (rs.next()) {
-                giftCertificate = giftCertificateMapper.mapRow(rs, rs.getRow());
+            TagMapper tagMapper = new TagMapper();
+            Map<GiftCertificate, Set<Tag>> map = new LinkedHashMap<>();
+            while (rs.next()) {
+                GiftCertificate gift = giftCertificateMapper.mapRow(rs, rs.getRow());
+                Tag tag = tagMapper.mapRow(rs, rs.getRow());
+                if (map.size() == 0) {
+                    map.put(gift, new HashSet<>());
+                }
+                map.get(gift).add(tag);
             }
-            return giftCertificate;
+            map.forEach(GiftCertificate::setTags);
+            return map.size() != 0 ? new ArrayList<>(map.keySet()).get(0) : null;
         };
     }
 
@@ -169,9 +158,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
             giftCertificate.setId((Long) keyHolder.getKeys().get(GiftCertificateMapper.SECONDARY_ID));
 
-            if (giftCertificate.getTags() != null) {
-                saveGiftCertificateTagFK(giftCertificate.getId(), giftCertificate.getTags());
-            }
+            saveGiftCertificateTagFK(giftCertificate.getId(), giftCertificate.getTags());
 
             return giftCertificate;
         } catch (DataAccessException e) {

@@ -1,5 +1,7 @@
 package com.epam.esm.repository.util;
 
+import com.epam.esm.repository.criteria.Criteria;
+import com.epam.esm.repository.criteria.CriteriaSearch;
 import org.springframework.data.domain.Sort;
 
 import java.util.Map;
@@ -23,18 +25,27 @@ public final class QueryUtil {
         return query + orderPostfix;
     }
 
-    public static String buildQuery(String query, Criteria criteria) {
-        Map<String, String> params = criteria.getParams();
+    public static String buildQuery(String query, Criteria criteria, String tablePrefix) {
+        Map<CriteriaSearch, String> params = criteria.getParams();
         if (params.size() == 0) {
-            return query;
+            return criteria.getSort() != null
+                    ? queryWithOrder(query, criteria.getSort(), GIFT_CERTIFICATE_TABLE_PREFIX)
+                    : query;
         }
 
         StringJoiner stringJoiner = new StringJoiner(" AND ", " WHERE ", "");
-        if (params.get("tag") != null) {
-            stringJoiner.add("t.name = '" + params.get("tag") + "'");
+
+        if (params.get(CriteriaSearch.ID) != null) {
+            stringJoiner.add(tablePrefix + "id = " + params.get(CriteriaSearch.ID));
+        } else if (params.get(CriteriaSearch.NAME) != null) {
+            stringJoiner.add(tablePrefix + "name = '" + params.get(CriteriaSearch.NAME) + "'");
         }
-        if (params.get("part") != null) {
-            String part = anyMatchLikePattern(params.get("part"));
+
+        if (params.get(CriteriaSearch.TAG) != null) {
+            stringJoiner.add("t.name = '" + params.get(CriteriaSearch.TAG) + "'");
+        }
+        if (params.get(CriteriaSearch.PART) != null) {
+            String part = anyMatchLikePattern(params.get(CriteriaSearch.PART));
             stringJoiner.add("(gc.name LIKE '" + part + "' OR " + "gc.description LIKE '" + part + "')");
         }
         String newQuery = query + stringJoiner.toString();
@@ -42,6 +53,7 @@ public final class QueryUtil {
         if (criteria.getSort() != null) {
             return queryWithOrder(newQuery, criteria.getSort(), GIFT_CERTIFICATE_TABLE_PREFIX);
         }
+
         return newQuery;
     }
 

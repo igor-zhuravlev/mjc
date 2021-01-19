@@ -1,12 +1,10 @@
 package com.epam.esm.util;
 
-import com.epam.esm.repository.util.Criteria;
+import com.epam.esm.repository.criteria.Criteria;
+import com.epam.esm.repository.criteria.CriteriaSearch;
 import org.springframework.data.domain.Sort;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class ParamsUtil {
     public static final String TAG_PARAM = "tag";
@@ -30,18 +28,26 @@ public final class ParamsUtil {
 
     public static Criteria buildCriteria(Map<String, String[]> params) {
         Criteria criteria = new Criteria();
-        Map<String, String> newParams = new HashMap<>();
+        Map<CriteriaSearch, String> criteriaParams = new HashMap<>();
         if (params.get(TAG_PARAM) != null) {
-            newParams.put(TAG_PARAM, params.get(TAG_PARAM)[0]);
+            criteriaParams.put(CriteriaSearch.TAG, params.get(TAG_PARAM)[0]);
         }
         if (params.get(PART_PARAM) != null) {
-            newParams.put(PART_PARAM, params.get(PART_PARAM)[0]);
+            criteriaParams.put(CriteriaSearch.PART, params.get(PART_PARAM)[0]);
         }
         if (params.get(SORT_PARAM) != null) {
             Sort sort = buildSortByParams(params.get(SORT_PARAM));
             criteria.setSort(sort);
         }
-        criteria.setParams(newParams);
+        criteria.setParams(criteriaParams);
+        return criteria;
+    }
+
+    public static Criteria buildCriteria(CriteriaSearch criteriaSearch, String param) {
+        Criteria criteria = new Criteria();
+        Map<CriteriaSearch, String> criteriaParams = new HashMap<>();
+        criteriaParams.put(criteriaSearch, param);
+        criteria.setParams(criteriaParams);
         return criteria;
     }
 }

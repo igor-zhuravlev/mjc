@@ -1,4 +1,4 @@
-package com.epam.esm.repository.util;
+package com.epam.esm.repository.criteria;
 
 import org.springframework.data.domain.Sort;
 
@@ -6,14 +6,14 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class Criteria {
-    private Map<String, String> params;
+    private Map<CriteriaSearch, String> params;
     private Sort sort;
 
-    public Map<String, String> getParams() {
+    public Map<CriteriaSearch, String> getParams() {
         return params;
     }
 
-    public void setParams(Map<String, String> params) {
+    public void setParams(Map<CriteriaSearch, String> params) {
         this.params = params;
     }
 
