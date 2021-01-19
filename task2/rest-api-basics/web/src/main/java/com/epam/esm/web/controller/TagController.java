@@ -14,23 +14,46 @@ public class TagController {
     @Autowired
     private TagService tagService;
 
-    @GetMapping
+    /**
+     * Finds all tags
+     * @return list of tags dto
+     */
+
+    @GetMapping("/tags")
     public List<TagDto> findAllTags() {
         return tagService.findAll();
     }
+
+    /**
+     * Search for a tag by name
+     * @param id - identifier of the tag
+     * @return tag dto
+     */
 
     @GetMapping("/{id}")
     public TagDto findTagById(@PathVariable Long id) {
         return tagService.findById(id);
     }
 
-    @PostMapping
+    /**
+     * Saves the tag
+     * @param tagDto - received tag dto
+     * @return found tag dto
+     */
+
+    @PostMapping(value = "/tags")
     public TagDto saveTag(@RequestBody TagDto tagDto) {
         return tagService.save(tagDto);
     }
 
+    /**
+     * Deletes a tag by id
+     * @param id - identifier of the tag
+     */
+
     @DeleteMapping("/{id}")
     public void deleteTagById(@PathVariable Long id) {
         tagService.deleteById(id);
+
     }
 }

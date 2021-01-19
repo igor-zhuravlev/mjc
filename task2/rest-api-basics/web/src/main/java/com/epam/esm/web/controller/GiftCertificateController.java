@@ -25,25 +25,64 @@ public class GiftCertificateController {
                 ));
     }
 
+    /**
+     * Finds all gift certificates with tags
+     * @param requestParams request params in url such as:
+     *                      tag - tag name
+     *                      part - part of name, description of the gift certificates
+     *                      sort - sort by name or/and date with asc or desc direction
+     *
+     *                      example: ?tag=tagName&part=ift&sort=name,asc&sort=date,desc
+     *
+     *                      request params aren't required
+     * @return list of gift certificates dto
+     */
+
     @GetMapping
     public List<GiftCertificateDto> findAllGiftCertificates(@RequestParam(required = false) MultiValueMap<String, String> requestParams) {
         return giftCertificateService.findAll(multiValueMapToMap(requestParams));
     }
+
+    /**
+     * Finds a gift certificate by id
+     * @param id - identifier of the gift certificate
+     *             id is required in url path
+     * @return the gift certificate dto if found
+     */
 
     @GetMapping("/{id}")
     public GiftCertificateDto findGiftCertificateById(@PathVariable Long id) {
         return giftCertificateService.findById(id);
     }
 
-    @PostMapping
+    /**
+     * Saves the gift certificate
+     * @param giftCertificateDto - gift certificate dto passed in request
+     * @return saved gift certificate dto
+     */
+
+    @PostMapping("/gifts")
     public GiftCertificateDto saveGiftCertificate(@RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.save(giftCertificateDto);
     }
+
+    /**
+     * Updates the gift certificate by id
+     * @param id - identifier of the gift certificate
+     *           id is required in url path
+     * @param giftCertificateDto gift certificate dto with updates
+     * @return updated gift certificate dto
+     */
 
     @PutMapping("/{id}")
     public GiftCertificateDto updateGiftCertificateById(@PathVariable Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.updateById(id, giftCertificateDto);
     }
+
+    /**
+     * Deletes the gift certificate by id
+     * @param id - identifier of the gift certificate
+     */
 
     @DeleteMapping("/{id}")
     public void deleteGiftCertificateById(@PathVariable Long id) {
