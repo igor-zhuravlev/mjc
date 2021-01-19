@@ -38,10 +38,10 @@ public class TagServiceImpl implements TagService {
 
     @Transactional(readOnly = true)
     @Override
-    public TagDto findByName(String name) throws ServiceException {
+    public TagDto findById(Long id) throws ServiceException {
         try {
             // TODO: 15-Jan-21 validate name
-            Tag tag = tagRepository.findByName(name);
+            Tag tag = tagRepository.findById(id);
             if (tag == null) {
                 throw new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode());
             }
@@ -68,16 +68,16 @@ public class TagServiceImpl implements TagService {
 
     @Transactional
     @Override
-    public void deleteByName(String name) throws ServiceException {
+    public void deleteById(Long id) throws ServiceException {
         try {
             // TODO: 16-Jan-21 validate name
-            Tag tag = tagRepository.findByName(name);
+            Tag tag = tagRepository.findById(id);
 
             if (tag == null) {
                 throw new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode());
             }
 
-            long count = tagRepository.deleteByName(name);
+            long count = tagRepository.deleteById(id);
 
             if (count == 0) {
                 throw new UnableDeleteTagException(ServiceError.TAG_UNABLE_DELETE.getCode());

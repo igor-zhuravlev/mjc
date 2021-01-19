@@ -3,14 +3,13 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.GiftCertificateRepository;
+import com.epam.esm.repository.util.Criteria;
 import com.epam.esm.repository.util.QueryUtil;
 import com.epam.esm.repository.exception.RepositoryException;
 import com.epam.esm.repository.impl.mapper.GiftCertificateMapper;
 import com.epam.esm.repository.impl.mapper.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -29,31 +28,10 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     private JdbcTemplate jdbcTemplate;
 
     private static final String FIND_ALL_QUERY =
-            "SELECT id gc_id, name gc_name, description, price, duration, create_date, last_update_date " +
-            "FROM gift_certificate";
-    private static final String FIND_ALL_WITH_TAGS_QUERY =
             "SELECT gc.id gc_id, gc.name gc_name, gc.description, gc.price, gc.duration, gc.create_date, gc.last_update_date, t.id t_id, t.name t_name " +
             "FROM gift_certificate gc " +
-            "JOIN gift_certificate_tag gct ON gc.id = gct.gift_certificate_id " +
-            "JOIN tag t ON gct.tag_id = t.id";
-    private static final String FIND_ALL_WITH_TAGS_BY_TAG_NAME_QUERY =
-            "SELECT gc.id gc_id, gc.name gc_name, gc.description, gc.price, gc.duration, gc.create_date, gc.last_update_date, t.id t_id, t.name t_name " +
-            "FROM gift_certificate gc " +
-            "JOIN gift_certificate_tag gct ON gc.id = gct.gift_certificate_id " +
-            "JOIN tag t ON gct.tag_id = t.id " +
-            "WHERE t.name = ?";
-    private static final String FIND_ALL_WITH_TAGS_BY_PART_OF_NAME_OR_DESCRIPTION_QUERY =
-            "SELECT gc.id gc_id, gc.name gc_name, gc.description, gc.price, gc.duration, gc.create_date, gc.last_update_date, t.id t_id, t.name t_name " +
-            "FROM gift_certificate gc " +
-            "JOIN gift_certificate_tag gct ON gc.id = gct.gift_certificate_id " +
-            "JOIN tag t ON gct.tag_id = t.id " +
-            "WHERE gc.name LIKE ? OR gc.description LIKE ?";
-    private static final String FIND_ALL_WITH_TAGS_BY_TAG_NAME_AND_PART_OF_NAME_OR_DESCRIPTION_QUERY =
-            "SELECT gc.id gc_id, gc.name gc_name, gc.description, gc.price, gc.duration, gc.create_date, gc.last_update_date, t.id t_id, t.name t_name " +
-            "FROM gift_certificate gc " +
-            "JOIN gift_certificate_tag gct ON gc.id = gct.gift_certificate_id " +
-            "JOIN tag t ON gct.tag_id = t.id " +
-            "WHERE t.name = ? AND (gc.name LIKE ? OR gc.description LIKE ?)";
+            "LEFT JOIN gift_certificate_tag gct ON gc.id = gct.gift_certificate_id " +
+            "LEFT JOIN tag t ON gct.tag_id = t.id";
     private static final String FIND_BY_ID_QUERY =
             "SELECT id gc_id, name gc_name, description, price, duration, create_date, last_update_date " +
             "FROM gift_certificate " +
@@ -62,19 +40,13 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
             "SELECT id gc_id, name gc_name, description, price, duration, create_date, last_update_date " +
             "FROM gift_certificate " +
             "WHERE name = ?";
-    private static final String FIND_BY_TAG_NAME_QUERY =
-            "SELECT gc.id gc_id, gc.name gc_name, gc.description, gc.price, gc.duration, gc.create_date, gc.last_update_date " +
-            "FROM gift_certificate gc " +
-            "JOIN gift_certificate_tag gct ON gc.id = gct.gift_certificate_id " +
-            "JOIN tag t ON gct.tag_id = t.id " +
-            "WHERE t.name = ?";
     private static final String SAVE_QUERY =
             "INSERT INTO gift_certificate (name, description, price, duration, create_date) " +
             "VALUES (?, ?, ?, ?, ?)";
     private static final String SAVE_FK_GC_TAG_QUERY =
             "INSERT INTO gift_certificate_tag (gift_certificate_id, tag_id) VALUES (?, ?)";
-    private static final String DELETE_BY_NAME_QUERY =
-            "DELETE FROM gift_certificate WHERE name = ?";
+    private static final String DELETE_BY_ID_QUERY =
+            "DELETE FROM gift_certificate WHERE id = ?";
     private static final String UPDATE_BY_ID_QUERY =
             "UPDATE gift_certificate SET " +
             "name = COALESCE(?, name), " +
@@ -87,9 +59,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     @Override
     public GiftCertificate findById(Long id) throws RepositoryException {
         try {
-            return jdbcTemplate.queryForObject(FIND_BY_ID_QUERY, new GiftCertificateMapper(), id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
+            return jdbcTemplate.query(FIND_BY_ID_QUERY, giftResultSetExtractor(), id);
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }
@@ -98,30 +68,14 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     @Override
     public GiftCertificate findByName(String name) throws RepositoryException {
         try {
-            return jdbcTemplate.queryForObject(FIND_BY_NAME_QUERY, new GiftCertificateMapper(), name);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
+            return jdbcTemplate.query(FIND_BY_NAME_QUERY, giftResultSetExtractor(), name);
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }
     }
 
     @Override
-    public List<GiftCertificate> findByTagName(String name) throws RepositoryException {
-        try {
-            PreparedStatementCreator preparedStatementCreator = con -> {
-                PreparedStatement preparedStatement = con.prepareStatement(FIND_BY_TAG_NAME_QUERY);
-                preparedStatement.setString(1, name);
-                return preparedStatement;
-            };
-            return jdbcTemplate.query(preparedStatementCreator, new GiftCertificateMapper());
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
-    public Long updateById(Long id, GiftCertificate giftCertificate) throws RepositoryException {
+    public Long update(GiftCertificate giftCertificate) throws RepositoryException {
         try {
             final long count = jdbcTemplate.update(
                     UPDATE_BY_ID_QUERY,
@@ -130,14 +84,24 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                     giftCertificate.getPrice(),
                     giftCertificate.getDuration(),
                     giftCertificate.getLastUpdateDate(),
-                    id
+                    giftCertificate.getId()
             );
 
             if (giftCertificate.getTags() != null) {
-                saveGiftCertificateTagFK(id, giftCertificate.getTags());
+                saveGiftCertificateTagFK(giftCertificate.getId(), giftCertificate.getTags());
             }
 
             return count;
+        } catch (DataAccessException e) {
+            throw new RepositoryException(e);
+        }
+    }
+
+    @Override
+    public List<GiftCertificate> findAll(Criteria criteria) throws RepositoryException {
+        try {
+            final String query = QueryUtil.buildQuery(FIND_ALL_QUERY, criteria);
+            return jdbcTemplate.query(query, giftListResultSetExtractor());
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }
@@ -150,20 +114,15 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    public Long deleteByName(String name) throws RepositoryException {
+    public Long deleteById(Long id) throws RepositoryException {
         try {
-            PreparedStatementCreator preparedStatementCreator = con -> {
-                PreparedStatement preparedStatement = con.prepareStatement(DELETE_BY_NAME_QUERY);
-                preparedStatement.setString(1, name);
-                return preparedStatement;
-            };
-            return (long) jdbcTemplate.update(preparedStatementCreator);
+            return (long) jdbcTemplate.update(DELETE_BY_ID_QUERY, id);
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }
     }
 
-    private ResultSetExtractor<Set<GiftCertificate>> eagerResultSetExtractor() {
+    private ResultSetExtractor<List<GiftCertificate>> giftListResultSetExtractor() {
         return rs -> {
             GiftCertificateMapper giftCertificateMapper = new GiftCertificateMapper();
             TagMapper tagMapper = new TagMapper();
@@ -177,114 +136,19 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                 map.get(gift).add(tag);
             }
             map.forEach(GiftCertificate::setTags);
-            return map.keySet();
+            return new ArrayList<>(map.keySet());
         };
     }
 
-    @Override
-    public Set<GiftCertificate> findAllWithTags() throws RepositoryException {
-        try {
-            return jdbcTemplate.query(FIND_ALL_WITH_TAGS_QUERY, eagerResultSetExtractor());
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
-    public Set<GiftCertificate> findAllWithTagsByOrder(Sort sort) throws RepositoryException {
-        try {
-            final String query = QueryUtil.queryWithOrder(
-                    FIND_ALL_WITH_TAGS_QUERY,
-                    sort, QueryUtil.GIFT_CERTIFICATE_TABLE_PREFIX);
-            return jdbcTemplate.query(query, eagerResultSetExtractor());
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
-    public Set<GiftCertificate> findAllByTagName(String tagName) throws RepositoryException {
-        try {
-            return jdbcTemplate.query(
-                    FIND_ALL_WITH_TAGS_BY_TAG_NAME_QUERY,
-                    eagerResultSetExtractor(),
-                    tagName);
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
-    public Set<GiftCertificate> findAllByPartOfNameOrDescription(String part) throws RepositoryException {
-        try {
-            final String pattern = QueryUtil.anyMatchLikePattern(part);
-            return jdbcTemplate.query(
-                    FIND_ALL_WITH_TAGS_BY_PART_OF_NAME_OR_DESCRIPTION_QUERY,
-                    eagerResultSetExtractor(),
-                    pattern, pattern);
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
-    public Set<GiftCertificate> findAllByTagNameAndPartOfNameOrDescription(String tagName, String part) throws RepositoryException {
-        try {
-            final String pattern = QueryUtil.anyMatchLikePattern(part);
-            return jdbcTemplate.query(
-                    FIND_ALL_WITH_TAGS_BY_TAG_NAME_AND_PART_OF_NAME_OR_DESCRIPTION_QUERY,
-                    eagerResultSetExtractor(),
-                    tagName, pattern, pattern);
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
-    public Set<GiftCertificate> findAllByTagNameByOrder(String tagName, Sort sort) throws RepositoryException {
-        try {
-            final String query = QueryUtil.queryWithOrder(
-                    FIND_ALL_WITH_TAGS_BY_TAG_NAME_QUERY,
-                    sort, QueryUtil.GIFT_CERTIFICATE_TABLE_PREFIX);
-            return jdbcTemplate.query(query, eagerResultSetExtractor(), tagName);
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
-    public Set<GiftCertificate> findAllByPartOfNameOrDescriptionByOrder(String part, Sort sort) throws RepositoryException {
-        try {
-            final String query = QueryUtil.queryWithOrder(
-                    FIND_ALL_WITH_TAGS_BY_PART_OF_NAME_OR_DESCRIPTION_QUERY,
-                    sort, QueryUtil.GIFT_CERTIFICATE_TABLE_PREFIX);
-            final String pattern = QueryUtil.anyMatchLikePattern(part);
-            return jdbcTemplate.query(query, eagerResultSetExtractor(), pattern, pattern);
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
-    public Set<GiftCertificate> findAllByTagNameAndPartOfNameOrDescriptionByOrder(String tagName, String part, Sort sort) throws RepositoryException {
-        try {
-            final String query = QueryUtil.queryWithOrder(
-                    FIND_ALL_WITH_TAGS_BY_TAG_NAME_AND_PART_OF_NAME_OR_DESCRIPTION_QUERY,
-                    sort, QueryUtil.GIFT_CERTIFICATE_TABLE_PREFIX);
-            final String pattern = QueryUtil.anyMatchLikePattern(part);
-            return jdbcTemplate.query(query, eagerResultSetExtractor(), tagName, pattern, pattern);
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    @Override
-    public List<GiftCertificate> findAll() throws RepositoryException {
-        try {
-            return jdbcTemplate.query(FIND_ALL_QUERY, new GiftCertificateMapper());
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e);
-        }
+    private ResultSetExtractor<GiftCertificate> giftResultSetExtractor() {
+        return rs -> {
+            GiftCertificate giftCertificate = null;
+            GiftCertificateMapper giftCertificateMapper = new GiftCertificateMapper();
+            if (rs.next()) {
+                giftCertificate = giftCertificateMapper.mapRow(rs, rs.getRow());
+            }
+            return giftCertificate;
+        };
     }
 
     @Override
@@ -303,7 +167,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
             jdbcTemplate.update(preparedStatementCreator, keyHolder);
 
-            // TODO: 10-Jan-21 keys as null exception
             giftCertificate.setId((Long) keyHolder.getKeys().get(GiftCertificateMapper.SECONDARY_ID));
 
             if (giftCertificate.getTags() != null) {

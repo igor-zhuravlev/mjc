@@ -19,9 +19,9 @@ public class TagController {
         return tagService.findAll();
     }
 
-    @GetMapping("/{name}")
-    public TagDto findTagByName(@PathVariable String name) {
-        return tagService.findByName(name);
+    @GetMapping("/{id}")
+    public TagDto findTagById(@PathVariable Long id) {
+        return tagService.findById(id);
     }
 
     @PostMapping
@@ -29,8 +29,8 @@ public class TagController {
         return tagService.save(tagDto);
     }
 
-    @DeleteMapping("/{name}")
-    public void deleteTag(@PathVariable String name) {
-        tagService.deleteByName(name);
+    @DeleteMapping("/{id}")
+    public void deleteTagById(@PathVariable Long id) {
+        tagService.deleteById(id);
     }
 }

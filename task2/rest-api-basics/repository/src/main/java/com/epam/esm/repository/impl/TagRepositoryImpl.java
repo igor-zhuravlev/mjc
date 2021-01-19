@@ -6,15 +6,15 @@ import com.epam.esm.repository.exception.RepositoryException;
 import com.epam.esm.repository.impl.mapper.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class TagRepositoryImpl implements TagRepository {
@@ -26,7 +26,7 @@ public class TagRepositoryImpl implements TagRepository {
     private static final String FIND_BY_ID_QUERY = "SELECT id t_id, name t_name FROM tag WHERE id = ?";
     private static final String FIND_BY_NAME_QUERY = "SELECT id t_id, name t_name FROM tag WHERE name = ?";
     private static final String SAVE_QUERY = "INSERT INTO tag (name) VALUES (?)";
-    private static final String DELETE_BY_NAME_QUERY = "DELETE FROM tag WHERE name = ?";
+    private static final String DELETE_BY_ID_QUERY = "DELETE FROM tag WHERE id = ?";
 
     @Override
     public List<Tag> findAll() throws RepositoryException {
@@ -37,12 +37,21 @@ public class TagRepositoryImpl implements TagRepository {
         }
     }
 
+    private ResultSetExtractor<Tag> tagResultSetExtractor() {
+        return rs -> {
+            Tag tag = null;
+            TagMapper tagMapper = new TagMapper();
+            if (rs.next()) {
+                tag = tagMapper.mapRow(rs, rs.getRow());
+            }
+            return tag;
+        };
+    }
+
     @Override
     public Tag findById(Long id) throws RepositoryException {
         try {
-            return jdbcTemplate.queryForObject(FIND_BY_ID_QUERY, new TagMapper(), id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
+            return jdbcTemplate.query(FIND_BY_ID_QUERY, tagResultSetExtractor(), id);
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }
@@ -51,9 +60,7 @@ public class TagRepositoryImpl implements TagRepository {
     @Override
     public Tag findByName(String name) throws RepositoryException {
         try {
-            return jdbcTemplate.queryForObject(FIND_BY_NAME_QUERY, new TagMapper(), name);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
+            return jdbcTemplate.query(FIND_BY_NAME_QUERY, tagResultSetExtractor(), name);
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }
@@ -71,7 +78,6 @@ public class TagRepositoryImpl implements TagRepository {
 
             jdbcTemplate.update(preparedStatementCreator, keyHolder);
 
-            // TODO: 11-Jan-21 keys as null exception
             tag.setId((Long) keyHolder.getKeys().get(TagMapper.SECONDARY_ID));
 
             return tag;
@@ -81,14 +87,9 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public Long deleteByName(String name) throws RepositoryException {
+    public Long deleteById(Long id) throws RepositoryException {
         try {
-            PreparedStatementCreator preparedStatementCreator = con -> {
-                PreparedStatement preparedStatement = con.prepareStatement(DELETE_BY_NAME_QUERY);
-                preparedStatement.setString(1, name);
-                return preparedStatement;
-            };
-            return (long) jdbcTemplate.update(preparedStatementCreator);
+            return (long) jdbcTemplate.update(DELETE_BY_ID_QUERY, id);
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }

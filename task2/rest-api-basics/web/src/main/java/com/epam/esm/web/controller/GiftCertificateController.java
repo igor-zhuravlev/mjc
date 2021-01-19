@@ -25,24 +25,14 @@ public class GiftCertificateController {
                 ));
     }
 
-    @GetMapping("/tags")
-    public List<GiftCertificateDto> findAllGiftCertificatesWithTags(@RequestParam(required = false) MultiValueMap<String, String> requestParams) {
-        return giftCertificateService.findAllWithTags(multiValueMapToMap(requestParams));
-    }
-
     @GetMapping
-    public List<GiftCertificateDto> findAllGiftCertificates() {
-        return giftCertificateService.findAll();
+    public List<GiftCertificateDto> findAllGiftCertificates(@RequestParam(required = false) MultiValueMap<String, String> requestParams) {
+        return giftCertificateService.findAll(multiValueMapToMap(requestParams));
     }
 
-    @GetMapping("/tag/{name}")
-    public List<GiftCertificateDto> findGiftCertificatesByTag(@PathVariable String name) {
-        return giftCertificateService.findByTagName(name);
-    }
-
-    @GetMapping("/{name}")
-    public GiftCertificateDto findGiftCertificateByName(@PathVariable String name) {
-        return giftCertificateService.findByName(name);
+    @GetMapping("/{id}")
+    public GiftCertificateDto findGiftCertificateById(@PathVariable Long id) {
+        return giftCertificateService.findById(id);
     }
 
     @PostMapping
@@ -50,13 +40,13 @@ public class GiftCertificateController {
         return giftCertificateService.save(giftCertificateDto);
     }
 
-    @PutMapping("/{name}")
-    public GiftCertificateDto updateGiftCertificate(@PathVariable String name, @RequestBody GiftCertificateDto giftCertificateDto) {
-        return giftCertificateService.updateByName(name, giftCertificateDto);
+    @PutMapping("/{id}")
+    public GiftCertificateDto updateGiftCertificateById(@PathVariable Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
+        return giftCertificateService.updateById(id, giftCertificateDto);
     }
 
-    @DeleteMapping("/{name}")
-    public void deleteGiftCertificateByName(@PathVariable String name) {
-        giftCertificateService.deleteByName(name);
+    @DeleteMapping("/{id}")
+    public void deleteGiftCertificateById(@PathVariable Long id) {
+        giftCertificateService.deleteById(id);
     }
 }

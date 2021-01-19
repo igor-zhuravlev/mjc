@@ -1,8 +1,10 @@
 package com.epam.esm.util;
 
+import com.epam.esm.repository.util.Criteria;
 import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,22 +14,6 @@ public final class ParamsUtil {
     public static final String SORT_PARAM = "sort";
 
     private static final String SORT_ITEM_PARAM_DELIMITER = ",";
-
-    public static boolean hasParams(String param, Map<String, String[]> params) {
-        return params.get(param) != null;
-    }
-
-    public static String getTagParam(Map<String, String[]> params) {
-        return params.get(TAG_PARAM)[0];
-    }
-
-    public static String getPartParam(Map<String, String[]> params) {
-        return params.get(PART_PARAM)[0];
-    }
-
-    public static String[] getSortParams(Map<String, String[]> params) {
-        return params.get(SORT_PARAM);
-    }
 
     public static Sort buildSortByParams(String[] sorts) {
         List<Sort.Order> orders = new ArrayList<>();
@@ -40,5 +26,22 @@ public final class ParamsUtil {
             }
         }
         return Sort.by(orders);
+    }
+
+    public static Criteria buildCriteria(Map<String, String[]> params) {
+        Criteria criteria = new Criteria();
+        Map<String, String> newParams = new HashMap<>();
+        if (params.get(TAG_PARAM) != null) {
+            newParams.put(TAG_PARAM, params.get(TAG_PARAM)[0]);
+        }
+        if (params.get(PART_PARAM) != null) {
+            newParams.put(PART_PARAM, params.get(PART_PARAM)[0]);
+        }
+        if (params.get(SORT_PARAM) != null) {
+            Sort sort = buildSortByParams(params.get(SORT_PARAM));
+            criteria.setSort(sort);
+        }
+        criteria.setParams(newParams);
+        return criteria;
     }
 }
