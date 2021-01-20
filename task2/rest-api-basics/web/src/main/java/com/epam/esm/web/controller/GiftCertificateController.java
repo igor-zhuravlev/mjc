@@ -27,12 +27,12 @@ public class GiftCertificateController {
 
     /**
      * Finds all gift certificates with tags
-     * @param requestParams request params in url such as:
+     * @param requestParams - request params in url such as:
      *                      tag - tag name
      *                      part - part of name, description of the gift certificates
      *                      sort - sort by name or/and date with asc or desc direction
      *
-     *                      example: ?tag=tagName&part=ift&sort=name,asc&sort=date,desc
+     *                      example: ?tag=tagName&part=partName&sort=name,asc&sort=date,desc
      *
      *                      request params aren't required
      * @return list of gift certificates dto

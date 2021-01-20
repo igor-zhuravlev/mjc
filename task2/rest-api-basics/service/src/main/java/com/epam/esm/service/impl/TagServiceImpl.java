@@ -12,8 +12,10 @@ import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
+import com.epam.esm.service.exception.validation.TagNotValidException;
 import com.epam.esm.service.exception.tag.UnableDeleteTagException;
 import com.epam.esm.service.util.ParamsUtil;
+import com.epam.esm.service.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,8 @@ public class TagServiceImpl implements TagService {
     private TagRepository tagRepository;
     @Autowired
     private Converter<Tag, TagDto> tagConverter;
+    @Autowired
+    private Validator<TagDto> tagDtoValidator;
 
     @Transactional(readOnly = true)
     @Override
@@ -43,7 +47,6 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagDto findById(Long id) throws ServiceException {
         try {
-            // TODO: 15-Jan-21 validate name
             Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
             Tag tag = tagRepository.find(criteria);
             if (tag == null) {
@@ -59,7 +62,9 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagDto save(TagDto tagDto) throws ServiceException {
         try {
-            // TODO: 15-Jan-21 validate tagDto
+            if (!tagDtoValidator.isValidToSave(tagDto)) {
+                throw new TagNotValidException(ServiceError.TAG_NOT_VALID.getCode());
+            }
             Tag tag = tagConverter.dtoToEntity(tagDto);
             Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.NAME, tag.getName());
             if (tagRepository.find(criteria) != null) {
@@ -75,7 +80,6 @@ public class TagServiceImpl implements TagService {
     @Override
     public void deleteById(Long id) throws ServiceException {
         try {
-            // TODO: 16-Jan-21 validate name
             Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
             Tag tag = tagRepository.find(criteria);
             if (tag == null) {

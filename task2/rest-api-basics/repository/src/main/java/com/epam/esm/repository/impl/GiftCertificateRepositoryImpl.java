@@ -55,19 +55,26 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     @Override
     public Long update(GiftCertificate giftCertificate) throws RepositoryException {
         try {
-            final long count = jdbcTemplate.update(
+            return (long) jdbcTemplate.update(
                     UPDATE_BY_ID_QUERY,
                     giftCertificate.getName(),
                     giftCertificate.getDescription(),
                     giftCertificate.getPrice(),
                     giftCertificate.getDuration(),
-                    giftCertificate.getLastUpdateDate(),
+                    Timestamp.from(giftCertificate.getLastUpdateDate()),
                     giftCertificate.getId()
             );
+        } catch (DataAccessException e) {
+            throw new RepositoryException(e);
+        }
+    }
 
-            saveGiftCertificateTagFK(giftCertificate.getId(), giftCertificate.getTags());
-
-            return count;
+    @Override
+    public void bindGiftCertificateWithTags(Long id, Set<Tag> tags) throws RepositoryException {
+        try {
+            tags.stream()
+                    .mapToLong(Tag::getId)
+                    .forEach(tagId -> jdbcTemplate.update(SAVE_FK_GC_TAG_QUERY, id, tagId));
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }
@@ -93,12 +100,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
         }
     }
 
-    private void saveGiftCertificateTagFK(Long giftCertificateId, Set<Tag> tags) {
-        tags.stream()
-                .mapToLong(Tag::getId)
-                .forEach(tagId -> jdbcTemplate.update(SAVE_FK_GC_TAG_QUERY, giftCertificateId, tagId));
-    }
-
     @Override
     public Long deleteById(Long id) throws RepositoryException {
         try {
@@ -117,7 +118,9 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                 if (!map.containsKey(gift)) {
                     map.put(gift, new HashSet<>());
                 }
-                map.get(gift).add(tag);
+                Optional.ofNullable(tag)
+                        .filter(presentTag -> presentTag.getId() != 0)
+                        .ifPresent(presentTag -> map.get(gift).add(presentTag));
             }
             map.forEach(GiftCertificate::setTags);
             return new ArrayList<>(map.keySet());
@@ -157,8 +160,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
             jdbcTemplate.update(preparedStatementCreator, keyHolder);
 
             giftCertificate.setId((Long) keyHolder.getKeys().get(GiftCertificateMapper.SECONDARY_ID));
-
-            saveGiftCertificateTagFK(giftCertificate.getId(), giftCertificate.getTags());
 
             return giftCertificate;
         } catch (DataAccessException e) {

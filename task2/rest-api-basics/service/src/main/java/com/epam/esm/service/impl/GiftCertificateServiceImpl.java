@@ -16,7 +16,11 @@ import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundExcepti
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
 import com.epam.esm.service.exception.certificate.UnableUpdateGiftCertificate;
+import com.epam.esm.service.exception.validation.GiftCertificateNotValidException;
+import com.epam.esm.service.exception.validation.GiftCertificateParamsNotValidException;
 import com.epam.esm.service.util.ParamsUtil;
+import com.epam.esm.service.validation.ParamsValidator;
+import com.epam.esm.service.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,12 +38,16 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private TagRepository tagRepository;
     @Autowired
     private Converter<GiftCertificate, GiftCertificateDto> giftCertificateConverter;
+    @Autowired
+    private Validator<GiftCertificateDto> giftCertificateDtoValidator;
 
     @Transactional(readOnly = true)
     @Override
     public List<GiftCertificateDto> findAll(Map<String, String[]> params) throws ServiceException {
         try {
-            // TODO: 13-Jan-21 validate params
+            if (!ParamsValidator.isValid(params)) {
+                throw new GiftCertificateParamsNotValidException(ServiceError.GIFT_CERTIFICATE_PARAMS_NOT_VALID.getCode());
+            }
             Criteria criteria = ParamsUtil.buildCriteria(params);
             List<GiftCertificate> giftCertificateList = giftCertificateRepository.findAll(criteria);
             return giftCertificateConverter.entityToDtoList(giftCertificateList);
@@ -52,7 +60,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public GiftCertificateDto findById(Long id) throws ServiceException {
         try {
-            // TODO: 16-Jan-21 validate name
             Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
             GiftCertificate giftCertificate = giftCertificateRepository.find(criteria);
             if (giftCertificate == null) {
@@ -68,13 +75,19 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public GiftCertificateDto save(GiftCertificateDto giftCertificateDto) throws ServiceException {
         try {
-            // TODO: 16-Jan-21 validate giftCertificateDto
+            if (!giftCertificateDtoValidator.isValidToSave(giftCertificateDto)) {
+                throw new GiftCertificateNotValidException(ServiceError.GIFT_CERTIFICATE_NOT_VALID.getCode());
+            }
+
             GiftCertificate giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
 
             Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.NAME, giftCertificate.getName());
             if (giftCertificateRepository.find(criteria) != null) {
                 throw new GiftCertificateAlreadyExistException(ServiceError.GIFT_CERTIFICATE_ALREADY_EXISTS.getCode());
             }
+
+            giftCertificate.setCreateDate(Instant.now());
+            giftCertificate = giftCertificateRepository.save(giftCertificate);
 
             if (giftCertificate.getTags() != null) {
                 Set<Tag> tags = giftCertificate.getTags().stream()
@@ -85,10 +98,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                         })
                         .collect(Collectors.toSet());
                 giftCertificate.setTags(tags);
+                giftCertificateRepository.bindGiftCertificateWithTags(giftCertificate.getId(), tags);
             }
-
-            giftCertificate.setCreateDate(Instant.now());
-            giftCertificate = giftCertificateRepository.save(giftCertificate);
 
             return giftCertificateConverter.entityToDto(giftCertificate);
         } catch (RepositoryException e) {
@@ -100,7 +111,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public GiftCertificateDto updateById(Long id, GiftCertificateDto giftCertificateDto) throws ServiceException {
         try {
-            // TODO: 16-Jan-21 validate name, giftCertificateDto
+            if (!giftCertificateDtoValidator.isValidToUpdate(giftCertificateDto)) {
+                throw new GiftCertificateNotValidException(ServiceError.GIFT_CERTIFICATE_NOT_VALID.getCode());
+            }
+
             Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
             GiftCertificate giftCertificate = giftCertificateRepository.find(criteria);
 
@@ -111,6 +125,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             Set<Tag> existedTags = new HashSet<>(giftCertificate.getTags());
             giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
 
+            giftCertificate.setId(id);
+            giftCertificate.setLastUpdateDate(Instant.now());
+            final long count = giftCertificateRepository.update(giftCertificate);
+
+            if (count == 0) {
+                throw new UnableUpdateGiftCertificate(ServiceError.GIFT_CERTIFICATE_UNABLE_UPDATE.getCode());
+            }
+
             if (giftCertificate.getTags() != null) {
                 Set<Tag> tags = giftCertificate.getTags().stream()
                         .map(tag -> {
@@ -120,15 +142,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                         })
                         .filter(tag -> !existedTags.contains(tag))
                         .collect(Collectors.toSet());
-                giftCertificate.setTags(tags);
-            }
-
-            giftCertificate.setId(id);
-            giftCertificate.setLastUpdateDate(Instant.now());
-            final long count = giftCertificateRepository.update(giftCertificate);
-
-            if (count == 0) {
-                throw new UnableUpdateGiftCertificate(ServiceError.UNABLE_UPDATE_GIFT_CERTIFICATE.getCode());
+                giftCertificateRepository.bindGiftCertificateWithTags(giftCertificate.getId(), tags);
             }
 
             criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
@@ -144,7 +158,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public void deleteById(Long id) throws ServiceException {
         try {
-            // TODO: 16-Jan-21 validate name
             Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
             GiftCertificate giftCertificate = giftCertificateRepository.find(criteria);
             if (giftCertificate == null) {

@@ -10,6 +10,9 @@ import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
 import com.epam.esm.service.dto.ErrorDto;
 import com.epam.esm.service.exception.tag.UnableDeleteTagException;
+import com.epam.esm.service.exception.validation.GiftCertificateNotValidException;
+import com.epam.esm.service.exception.validation.GiftCertificateParamsNotValidException;
+import com.epam.esm.service.exception.validation.TagNotValidException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +83,24 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = UnableDeleteTagException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorDto handlerUnableDeleteTagException(UnableDeleteTagException e) {
+        return handle(e.getMessage());
+    }
+
+    @ExceptionHandler(value = TagNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDto handlerTagNotValidException(TagNotValidException e) {
+        return handle(e.getMessage());
+    }
+
+    @ExceptionHandler(value = GiftCertificateNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDto handlerGiftCertificateNotValidException(GiftCertificateNotValidException e) {
+        return handle(e.getMessage());
+    }
+
+    @ExceptionHandler(value = GiftCertificateParamsNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDto handlerGiftCertificateParamsNotValidException(GiftCertificateParamsNotValidException e) {
         return handle(e.getMessage());
     }
 }
