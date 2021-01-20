@@ -1,14 +1,16 @@
-package com.epam.esm.converter.impl;
+package com.epam.esm.service.converter.impl;
 
-import com.epam.esm.converter.Converter;
-import com.epam.esm.dto.GiftCertificateDto;
+import com.epam.esm.service.converter.Converter;
+import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class GiftCertificateConverter implements Converter<GiftCertificate, GiftCertificateDto> {
 
     @Autowired

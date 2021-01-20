@@ -1,6 +1,6 @@
 package com.epam.esm.web.controller;
 
-import com.epam.esm.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.GiftCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
@@ -61,7 +61,7 @@ public class GiftCertificateController {
      * @return saved gift certificate dto
      */
 
-    @PostMapping("/gifts")
+    @PostMapping
     public GiftCertificateDto saveGiftCertificate(@RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.save(giftCertificateDto);
     }

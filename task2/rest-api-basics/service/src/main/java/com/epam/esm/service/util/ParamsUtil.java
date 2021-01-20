@@ -1,4 +1,4 @@
-package com.epam.esm.util;
+package com.epam.esm.service.util;
 
 import com.epam.esm.repository.criteria.Criteria;
 import com.epam.esm.repository.criteria.CriteriaSearch;

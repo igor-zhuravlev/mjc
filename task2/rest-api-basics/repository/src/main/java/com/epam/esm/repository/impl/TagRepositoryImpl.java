@@ -23,6 +23,8 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private TagMapper tagMapper;
 
     private static final String FIND_QUERY = "SELECT id t_id, name t_name FROM tag";
     private static final String SAVE_QUERY = "INSERT INTO tag (name) VALUES (?)";
@@ -31,7 +33,7 @@ public class TagRepositoryImpl implements TagRepository {
     @Override
     public List<Tag> findAll() throws RepositoryException {
         try {
-            return jdbcTemplate.query(FIND_QUERY, new TagMapper());
+            return jdbcTemplate.query(FIND_QUERY, tagMapper);
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
         }
@@ -40,7 +42,6 @@ public class TagRepositoryImpl implements TagRepository {
     private ResultSetExtractor<Tag> tagResultSetExtractor() {
         return rs -> {
             Tag tag = null;
-            TagMapper tagMapper = new TagMapper();
             if (rs.next()) {
                 tag = tagMapper.mapRow(rs, rs.getRow());
             }

@@ -26,6 +26,10 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private GiftCertificateMapper giftCertificateMapper;
+    @Autowired
+    private TagMapper tagMapper;
 
     private static final String FIND_ALL_QUERY =
             "SELECT gc.id gc_id, gc.name gc_name, gc.description, gc.price, gc.duration, gc.create_date, gc.last_update_date, t.id t_id, t.name t_name " +
@@ -106,8 +110,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     private ResultSetExtractor<List<GiftCertificate>> giftListResultSetExtractor() {
         return rs -> {
-            GiftCertificateMapper giftCertificateMapper = new GiftCertificateMapper();
-            TagMapper tagMapper = new TagMapper();
             Map<GiftCertificate, Set<Tag>> map = new LinkedHashMap<>();
             while (rs.next()) {
                 GiftCertificate gift = giftCertificateMapper.mapRow(rs, rs.getRow());
@@ -124,8 +126,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     private ResultSetExtractor<GiftCertificate> giftResultSetExtractor() {
         return rs -> {
-            GiftCertificateMapper giftCertificateMapper = new GiftCertificateMapper();
-            TagMapper tagMapper = new TagMapper();
             Map<GiftCertificate, Set<Tag>> map = new LinkedHashMap<>();
             while (rs.next()) {
                 GiftCertificate gift = giftCertificateMapper.mapRow(rs, rs.getRow());
@@ -150,7 +150,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                 preparedStatement.setString(2, giftCertificate.getDescription());
                 preparedStatement.setBigDecimal(3, giftCertificate.getPrice());
                 preparedStatement.setInt(4, giftCertificate.getDuration());
-                preparedStatement.setTimestamp(5, Timestamp.valueOf(giftCertificate.getCreateDate()));
+                preparedStatement.setTimestamp(5, Timestamp.from(giftCertificate.getCreateDate()));
                 return preparedStatement;
             };
 

@@ -1,7 +1,5 @@
 package com.epam.esm.service.config;
 
-import com.epam.esm.converter.impl.GiftCertificateConverter;
-import com.epam.esm.converter.impl.TagConverter;
 import com.epam.esm.repository.config.RepositoryConfig;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,15 +42,5 @@ public class ServiceConfig {
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
-    }
-
-    @Bean
-    public TagConverter tagConverter() {
-        return new TagConverter();
-    }
-
-    @Bean
-    public GiftCertificateConverter giftCertificateConverter() {
-        return new GiftCertificateConverter();
     }
 }

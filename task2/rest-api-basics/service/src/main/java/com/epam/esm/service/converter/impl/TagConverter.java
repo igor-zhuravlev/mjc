@@ -1,7 +1,7 @@
-package com.epam.esm.converter.impl;
+package com.epam.esm.service.converter.impl;
 
-import com.epam.esm.converter.Converter;
-import com.epam.esm.dto.TagDto;
+import com.epam.esm.service.converter.Converter;
+import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.entity.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

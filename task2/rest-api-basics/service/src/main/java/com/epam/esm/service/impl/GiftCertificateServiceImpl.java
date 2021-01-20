@@ -1,8 +1,8 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.constant.ServiceError;
-import com.epam.esm.dto.GiftCertificateDto;
-import com.epam.esm.converter.Converter;
+import com.epam.esm.service.constant.ServiceError;
+import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.converter.Converter;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.GiftCertificateRepository;
@@ -16,12 +16,12 @@ import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundExcepti
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
 import com.epam.esm.service.exception.certificate.UnableUpdateGiftCertificate;
-import com.epam.esm.util.ParamsUtil;
+import com.epam.esm.service.util.ParamsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -87,7 +87,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 giftCertificate.setTags(tags);
             }
 
-            giftCertificate.setCreateDate(LocalDateTime.now());
+            giftCertificate.setCreateDate(Instant.now());
             giftCertificate = giftCertificateRepository.save(giftCertificate);
 
             return giftCertificateConverter.entityToDto(giftCertificate);
@@ -124,7 +124,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             }
 
             giftCertificate.setId(id);
-            giftCertificate.setLastUpdateDate(LocalDateTime.now());
+            giftCertificate.setLastUpdateDate(Instant.now());
             final long count = giftCertificateRepository.update(giftCertificate);
 
             if (count == 0) {

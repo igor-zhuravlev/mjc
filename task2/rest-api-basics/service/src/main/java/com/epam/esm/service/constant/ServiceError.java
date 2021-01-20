@@ -1,4 +1,4 @@
-package com.epam.esm.constant;
+package com.epam.esm.service.constant;
 
 public enum ServiceError {
     TAG_NOT_FOUND(Constants.CODE_1001),

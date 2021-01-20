@@ -1,19 +1,19 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.constant.ServiceError;
-import com.epam.esm.converter.Converter;
+import com.epam.esm.service.constant.ServiceError;
+import com.epam.esm.service.converter.Converter;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.repository.exception.RepositoryException;
 import com.epam.esm.repository.criteria.Criteria;
 import com.epam.esm.repository.criteria.CriteriaSearch;
 import com.epam.esm.service.TagService;
-import com.epam.esm.dto.TagDto;
+import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
 import com.epam.esm.service.exception.tag.UnableDeleteTagException;
-import com.epam.esm.util.ParamsUtil;
+import com.epam.esm.service.util.ParamsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

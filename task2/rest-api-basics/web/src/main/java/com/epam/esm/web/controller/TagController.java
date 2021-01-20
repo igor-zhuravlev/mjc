@@ -1,7 +1,7 @@
 package com.epam.esm.web.controller;
 
 import com.epam.esm.service.TagService;
-import com.epam.esm.dto.TagDto;
+import com.epam.esm.service.dto.TagDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +19,7 @@ public class TagController {
      * @return list of tags dto
      */
 
-    @GetMapping("/tags")
+    @GetMapping
     public List<TagDto> findAllTags() {
         return tagService.findAll();
     }
@@ -41,7 +41,7 @@ public class TagController {
      * @return found tag dto
      */
 
-    @PostMapping(value = "/tags")
+    @PostMapping
     public TagDto saveTag(@RequestBody TagDto tagDto) {
         return tagService.save(tagDto);
     }

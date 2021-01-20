@@ -1,6 +1,6 @@
 package com.epam.esm.web.advice;
 
-import com.epam.esm.constant.ServiceError;
+import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistException;
 import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
@@ -8,7 +8,7 @@ import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateExc
 import com.epam.esm.service.exception.certificate.UnableUpdateGiftCertificate;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
-import com.epam.esm.dto.ErrorDto;
+import com.epam.esm.service.dto.ErrorDto;
 import com.epam.esm.service.exception.tag.UnableDeleteTagException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,9 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Locale;
 

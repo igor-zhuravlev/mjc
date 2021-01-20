@@ -1,4 +1,4 @@
-package com.epam.esm.dto;
+package com.epam.esm.service.dto;
 
 import java.io.Serializable;
 import java.util.Objects;

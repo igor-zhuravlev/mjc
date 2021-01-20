@@ -2,12 +2,14 @@ package com.epam.esm.repository.impl.mapper;
 
 import com.epam.esm.entity.GiftCertificate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
+@Component
 public class GiftCertificateMapper implements RowMapper<GiftCertificate> {
 
     public static final String ID = "gc_id";
@@ -28,12 +30,12 @@ public class GiftCertificateMapper implements RowMapper<GiftCertificate> {
         giftCertificate.setDescription(rs.getString(DESCRIPTION));
         giftCertificate.setPrice(rs.getBigDecimal(PRICE));
         giftCertificate.setDuration(rs.getInt(DURATION));
-        giftCertificate.setCreateDate(toLocalDateTime(rs.getTimestamp(CREATE_DATE)));
-        giftCertificate.setLastUpdateDate(toLocalDateTime(rs.getTimestamp(LAST_UPDATE_DATE)));
+        giftCertificate.setCreateDate(toInstant(rs.getTimestamp(CREATE_DATE)));
+        giftCertificate.setLastUpdateDate(toInstant(rs.getTimestamp(LAST_UPDATE_DATE)));
         return giftCertificate;
     }
 
-    private LocalDateTime toLocalDateTime(Timestamp timestamp) {
-        return timestamp != null ? timestamp.toLocalDateTime() : null;
+    private Instant toInstant(Timestamp timestamp) {
+        return timestamp != null ? timestamp.toInstant() : null;
     }
 }

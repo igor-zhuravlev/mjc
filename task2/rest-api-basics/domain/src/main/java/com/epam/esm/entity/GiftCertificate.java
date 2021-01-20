@@ -2,7 +2,7 @@ package com.epam.esm.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Set;
 
@@ -12,8 +12,8 @@ public class GiftCertificate extends AbstractEntity implements Serializable {
     private String description;
     private BigDecimal price;
     private Integer duration;
-    private LocalDateTime createDate;
-    private LocalDateTime lastUpdateDate;
+    private Instant createDate;
+    private Instant lastUpdateDate;
 
     private Set<Tag> tags;
 
@@ -47,19 +47,19 @@ public class GiftCertificate extends AbstractEntity implements Serializable {
         this.duration = duration;
     }
 
-    public LocalDateTime getCreateDate() {
+    public Instant getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(LocalDateTime createDate) {
+    public void setCreateDate(Instant createDate) {
         this.createDate = createDate;
     }
 
-    public LocalDateTime getLastUpdateDate() {
+    public Instant getLastUpdateDate() {
         return lastUpdateDate;
     }
 
-    public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
+    public void setLastUpdateDate(Instant lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }
 

@@ -1,10 +1,10 @@
-package com.epam.esm.dto;
+package com.epam.esm.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Set;
 
@@ -17,10 +17,10 @@ public class GiftCertificateDto implements Serializable {
     private String description;
     private BigDecimal price;
     private Integer duration;
-    @JsonFormat(pattern = DATE_TIME_FORMAT)
-    private LocalDateTime createDate;
-    @JsonFormat(pattern = DATE_TIME_FORMAT)
-    private LocalDateTime lastUpdateDate;
+    @JsonFormat(pattern = DATE_TIME_FORMAT, timezone = "UTC")
+    private Instant createDate;
+    @JsonFormat(pattern = DATE_TIME_FORMAT, timezone = "UTC")
+    private Instant lastUpdateDate;
 
     public GiftCertificateDto() {}
 
@@ -62,19 +62,19 @@ public class GiftCertificateDto implements Serializable {
         this.duration = duration;
     }
 
-    public LocalDateTime getCreateDate() {
+    public Instant getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(LocalDateTime createDate) {
+    public void setCreateDate(Instant createDate) {
         this.createDate = createDate;
     }
 
-    public LocalDateTime getLastUpdateDate() {
+    public Instant getLastUpdateDate() {
         return lastUpdateDate;
     }
 
-    public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
+    public void setLastUpdateDate(Instant lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }
 
