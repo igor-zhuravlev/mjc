@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -88,7 +89,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 throw new GiftCertificateAlreadyExistException(ServiceError.GIFT_CERTIFICATE_ALREADY_EXISTS.getCode());
             }
 
-            giftCertificate.setCreateDate(Instant.now());
+            giftCertificate.setCreateDate(Instant.now().truncatedTo(ChronoUnit.MICROS));
             giftCertificate = giftCertificateRepository.save(giftCertificate);
 
             if (giftCertificate.getTags() != null) {
@@ -132,7 +133,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
 
             giftCertificate.setId(id);
-            giftCertificate.setLastUpdateDate(Instant.now());
+            giftCertificate.setLastUpdateDate(Instant.now().truncatedTo(ChronoUnit.MICROS));
             final long count = giftCertificateRepository.update(giftCertificate);
 
             if (count == 0) {

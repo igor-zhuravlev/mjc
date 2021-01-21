@@ -136,7 +136,9 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                 if (map.size() == 0) {
                     map.put(gift, new HashSet<>());
                 }
-                map.get(gift).add(tag);
+                Optional.ofNullable(tag)
+                        .filter(presentTag -> presentTag.getId() != 0)
+                        .ifPresent(presentTag -> map.get(gift).add(presentTag));
             }
             map.forEach(GiftCertificate::setTags);
             return map.size() != 0 ? new ArrayList<>(map.keySet()).get(0) : null;

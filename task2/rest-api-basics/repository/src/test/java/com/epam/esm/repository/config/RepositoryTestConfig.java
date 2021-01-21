@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableTransactionManagement
 @PropertySource("classpath:database.properties")
-@ComponentScan("com.epam.esm.repository")
+@ComponentScan("com.epam.esm.repository.impl")
 public class RepositoryTestConfig {
 
     @Autowired
