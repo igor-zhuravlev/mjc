@@ -3,9 +3,9 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.exception.RepositoryException;
+import com.epam.esm.repository.impl.query.QueryBuilderProvider;
 import com.epam.esm.repository.impl.mapper.TagMapper;
 import com.epam.esm.repository.criteria.Criteria;
-import com.epam.esm.repository.util.QueryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,6 +25,8 @@ public class TagRepositoryImpl implements TagRepository {
     private JdbcTemplate jdbcTemplate;
     @Autowired
     private TagMapper tagMapper;
+    @Autowired
+    private QueryBuilderProvider queryBuilderProvider;
 
     private static final String FIND_QUERY = "SELECT id t_id, name t_name FROM tag";
     private static final String SAVE_QUERY = "INSERT INTO tag (name) VALUES (?)";
@@ -52,7 +54,8 @@ public class TagRepositoryImpl implements TagRepository {
     @Override
     public Tag find(Criteria criteria) throws RepositoryException {
         try {
-            final String query = QueryUtil.buildQuery(FIND_QUERY, criteria, "");
+            final String query = queryBuilderProvider.getQueryBuilder()
+                    .build(FIND_QUERY, criteria, "");
             return jdbcTemplate.query(query, tagResultSetExtractor());
         } catch (DataAccessException e) {
             throw new RepositoryException(e);

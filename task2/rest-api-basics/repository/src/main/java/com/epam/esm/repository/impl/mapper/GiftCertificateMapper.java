@@ -22,6 +22,8 @@ public class GiftCertificateMapper implements RowMapper<GiftCertificate> {
 
     public static final String SECONDARY_ID = "id";
 
+    public static final String TABLE_PREFIX = "gc.";
+
     @Override
     public GiftCertificate mapRow(ResultSet rs, int rowNum) throws SQLException {
         GiftCertificate giftCertificate = new GiftCertificate();

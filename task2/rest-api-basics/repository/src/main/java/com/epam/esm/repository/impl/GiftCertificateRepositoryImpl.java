@@ -4,7 +4,7 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.criteria.Criteria;
-import com.epam.esm.repository.util.QueryUtil;
+import com.epam.esm.repository.impl.query.QueryBuilderProvider;
 import com.epam.esm.repository.exception.RepositoryException;
 import com.epam.esm.repository.impl.mapper.GiftCertificateMapper;
 import com.epam.esm.repository.impl.mapper.TagMapper;
@@ -30,6 +30,8 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     private GiftCertificateMapper giftCertificateMapper;
     @Autowired
     private TagMapper tagMapper;
+    @Autowired
+    private QueryBuilderProvider queryBuilderProvider;
 
     private static final String FIND_ALL_QUERY =
             "SELECT gc.id gc_id, gc.name gc_name, gc.description, gc.price, gc.duration, gc.create_date, gc.last_update_date, t.id t_id, t.name t_name " +
@@ -83,7 +85,8 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     @Override
     public List<GiftCertificate> findAll(Criteria criteria) throws RepositoryException {
         try {
-            final String query = QueryUtil.buildQuery(FIND_ALL_QUERY, criteria, QueryUtil.GIFT_CERTIFICATE_TABLE_PREFIX);
+            final String query = queryBuilderProvider.getQueryBuilder()
+                    .build(FIND_ALL_QUERY, criteria, GiftCertificateMapper.TABLE_PREFIX);
             return jdbcTemplate.query(query, giftListResultSetExtractor());
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
@@ -93,7 +96,8 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     @Override
     public GiftCertificate find(Criteria criteria) throws RepositoryException {
         try {
-            final String query = QueryUtil.buildQuery(FIND_ALL_QUERY, criteria, QueryUtil.GIFT_CERTIFICATE_TABLE_PREFIX);
+            final String query = queryBuilderProvider.getQueryBuilder()
+                    .build(FIND_ALL_QUERY, criteria, GiftCertificateMapper.TABLE_PREFIX);
             return jdbcTemplate.query(query, giftResultSetExtractor());
         } catch (DataAccessException e) {
             throw new RepositoryException(e);
