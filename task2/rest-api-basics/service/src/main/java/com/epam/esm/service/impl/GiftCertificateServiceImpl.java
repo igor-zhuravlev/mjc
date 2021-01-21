@@ -40,12 +40,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private Converter<GiftCertificate, GiftCertificateDto> giftCertificateConverter;
     @Autowired
     private Validator<GiftCertificateDto> giftCertificateDtoValidator;
+    @Autowired
+    private ParamsValidator paramsValidator;
 
     @Transactional(readOnly = true)
     @Override
     public List<GiftCertificateDto> findAll(Map<String, String[]> params) throws ServiceException {
         try {
-            if (!ParamsValidator.isValid(params)) {
+            if (!paramsValidator.isValid(params)) {
                 throw new GiftCertificateParamsNotValidException(ServiceError.GIFT_CERTIFICATE_PARAMS_NOT_VALID.getCode());
             }
             Criteria criteria = ParamsUtil.buildCriteria(params);
@@ -122,7 +124,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
             }
 
-            Set<Tag> existedTags = new HashSet<>(giftCertificate.getTags());
+            Set<Tag> existedTags = new HashSet<>();
+            if (giftCertificate.getTags() != null) {
+                existedTags.addAll(giftCertificate.getTags());
+            }
+
             giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
 
             giftCertificate.setId(id);
