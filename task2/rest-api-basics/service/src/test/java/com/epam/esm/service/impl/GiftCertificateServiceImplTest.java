@@ -28,8 +28,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.only;
+import static org.mockito.BDDMockito.anyMap;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.anyList;
+import static org.mockito.BDDMockito.never;
+import static org.mockito.BDDMockito.times;
+import static org.mockito.BDDMockito.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 class GiftCertificateServiceImplTest {
@@ -83,7 +93,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void findAll_Success() {
+    void findAll_FoundAllCertificates_ReturnListOfCertificates() {
         Map<String, String[]> params = new HashMap<>();
         params.put("tag", new String[]{"someTag"});
 
@@ -111,7 +121,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void findById_Success() {
+    void findById_CertificateExist_ReturnFoundCertificate() {
         GiftCertificate giftCertificate = giftCertificateList.get(0);
         GiftCertificateDto giftCertificateDto = giftCertificateDtoList.get(0);
         final Long id = giftCertificate.getId();
@@ -136,7 +146,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void findById_ThrowGiftCertificateNotFoundException() {
+    void findById_CertificateNotFound_GiftCertificateNotFoundExceptionThrown() {
         final Long id = 1L;
 
         Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
@@ -157,7 +167,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void save_Success() {
+    void save_SavingGiftCertificate_ReturnSavedGiftCertificate() {
         GiftCertificateDto giftCertificateDto = giftCertificateDtoList.get(0);
         GiftCertificate giftCertificate = giftCertificateList.get(0);
 
@@ -197,7 +207,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void save_ThrowGiftCertificateAlreadyExistException() {
+    void save_CertificateExist_GiftCertificateAlreadyExistExceptionThrown() {
         GiftCertificateDto giftCertificateDto = giftCertificateDtoList.get(0);
         GiftCertificate giftCertificate = giftCertificateList.get(0);
 
@@ -235,7 +245,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void save_ThrowGiftCertificateNotValidException() {
+    void save_InvalidCertificate_GiftCertificateNotValidExceptionThrown() {
         GiftCertificateDto giftCertificateDto = giftCertificateDtoList.get(0);
 
         given(giftCertificateDtoValidator.isValidToSave(giftCertificateDto)).willReturn(false);
@@ -266,7 +276,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void updateById_Success() {
+    void updateById_UpdatingCertificate_ReturnUpdatedCertificate() {
         GiftCertificateDto giftCertificateDto = giftCertificateDtoList.get(0);
         GiftCertificate giftCertificate = giftCertificateList.get(0);
         final Long id = giftCertificate.getId();
@@ -307,7 +317,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void updateById_ThrowUnableUpdateGiftCertificate() {
+    void updateById_CertificateNotUpdated_UnableUpdateGiftCertificateThrown() {
         GiftCertificateDto giftCertificateDto = giftCertificateDtoList.get(0);
         GiftCertificate giftCertificate = giftCertificateList.get(0);
         final Long id = giftCertificate.getId();
@@ -345,7 +355,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void updateById_ThrowGiftCertificateNotFoundException() {
+    void updateById_CertificateNotFound_GiftCertificateNotFoundExceptionThrown() {
         GiftCertificateDto giftCertificateDto = giftCertificateDtoList.get(0);
         final Long id = 1L;
 
@@ -380,7 +390,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void updateById_ThrowGiftCertificateNotValidException() {
+    void updateById_InvalidCertificate_GiftCertificateNotValidExceptionThrown() {
         GiftCertificateDto giftCertificateDto = giftCertificateDtoList.get(0);
         final Long id = 1L;
 
@@ -412,7 +422,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void deleteById_Success() {
+    void deleteById_DeleteCertificate_ReturnNothing() {
         GiftCertificate giftCertificate = giftCertificateList.get(0);
         final Long id = giftCertificate.getId();
 
@@ -433,7 +443,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void deleteById_ThrowGiftCertificateNotFoundException() {
+    void deleteById_CertificateNotFound_GiftCertificateNotFoundExceptionThrown() {
         final Long id = 1L;
 
         Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
@@ -454,7 +464,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void deleteById_ThrowUnableDeleteGiftCertificateException() {
+    void deleteById_CertificateNoDeleted_UnableDeleteGiftCertificateExceptionThrown() {
         GiftCertificate giftCertificate = giftCertificateList.get(0);
         final Long id = giftCertificate.getId();
 

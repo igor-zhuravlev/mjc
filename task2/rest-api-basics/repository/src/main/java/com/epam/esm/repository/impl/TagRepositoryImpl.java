@@ -16,7 +16,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.util.*;
+import java.util.List;
 
 @Repository
 public class TagRepositoryImpl implements TagRepository {

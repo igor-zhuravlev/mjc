@@ -19,7 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = RepositoryTestConfig.class)
@@ -42,7 +44,7 @@ class GiftCertificateRepositoryImplTest {
     }
 
     @Test
-    void update() {
+    void update_UpdatingCertificate_ReturnUpdatedRowCount() {
         Map<CriteriaSearch, String> params = new HashMap<>();
         params.put(CriteriaSearch.ID, String.valueOf(giftCertificateList.get(0).getId()));
         Criteria criteria = new Criteria();
@@ -64,7 +66,7 @@ class GiftCertificateRepositoryImplTest {
     }
 
     @Test
-    void findAll() {
+    void findAll_FindingCertificates_ReturnCertificatesList() {
         Map<CriteriaSearch, String> params = new HashMap<>();
         Criteria criteria = new Criteria();
         criteria.setParams(params);
@@ -75,7 +77,7 @@ class GiftCertificateRepositoryImplTest {
     }
 
     @Test
-    void find() {
+    void find_SearchForCertificate_ReturnFoundCertificate() {
         GiftCertificate giftCertificate = giftCertificateList.get(0);
 
         Map<CriteriaSearch, String> params = new HashMap<>();
@@ -89,7 +91,7 @@ class GiftCertificateRepositoryImplTest {
     }
 
     @Test
-    void deleteById() {
+    void deleteById_DeletingCertificate_ReturnDeletedRowCount() {
         final Long id = giftCertificateList.get(0).getId();
 
         Long count = giftCertificateRepository.deleteById(id);
@@ -107,7 +109,7 @@ class GiftCertificateRepositoryImplTest {
     }
 
     @Test
-    void save() {
+    void save_SavingGiftCertificate_ReturnSavedCertificate() {
         GiftCertificate giftCertificate = new GiftCertificate();
         giftCertificate.setName("tag11");
         giftCertificate.setDescription("description1");

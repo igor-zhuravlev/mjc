@@ -9,24 +9,23 @@ import java.util.stream.Collectors;
 @Component
 public class OrderQueryBuilder extends AbstractQueryBuilder implements QueryBuilder {
 
-    public static final String SPACE_DELIMITER = " ";
-
     private static final String ORDER_BY_PREFIX = " ORDER BY ";
+
+    private static final String SPACE_DELIMITER = " ";
     private static final String ORDER_BY_PARAM_DELIMITER = ", ";
 
     @Override
     public String build(String query, Criteria criteria, String tablePrefix) {
-
         String newQuery = query;
 
         if (criteria.getSort() != null) {
             String orderPostfix = criteria.getSort().stream()
                     .map(order -> tablePrefix + order.getProperty() + SPACE_DELIMITER + order.getDirection())
                     .collect(Collectors.joining(ORDER_BY_PARAM_DELIMITER, ORDER_BY_PREFIX, ""));
-            newQuery = query + orderPostfix;
+            newQuery += orderPostfix;
         }
 
-        if (this.nextQueryBuilder != null) {
+        if (nextQueryBuilder != null) {
             return nextQueryBuilder.build(newQuery, criteria, tablePrefix);
         }
 

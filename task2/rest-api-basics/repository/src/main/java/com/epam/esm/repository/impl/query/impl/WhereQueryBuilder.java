@@ -3,7 +3,7 @@ package com.epam.esm.repository.impl.query.impl;
 import com.epam.esm.repository.criteria.Criteria;
 import com.epam.esm.repository.criteria.CriteriaSearch;
 import com.epam.esm.repository.impl.query.QueryBuilder;
-import com.epam.esm.repository.util.QueryUtil;
+import com.epam.esm.repository.impl.query.util.QueryUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -12,19 +12,20 @@ import java.util.StringJoiner;
 @Component
 public class WhereQueryBuilder extends AbstractQueryBuilder implements QueryBuilder {
 
+    private static final String WHERE_PREFIX = " WHERE ";
+    private static final String AND_DELIMITER = " AND ";
+
     @Override
     public String build(String query, Criteria criteria, String tablePrefix) {
         Map<CriteriaSearch, String> params = criteria.getParams();
 
         if (params.size() == 0) {
-            if (nextQueryBuilder != null) {
-                return nextQueryBuilder.build(query, criteria, tablePrefix);
-            } else {
-                return query;
-            }
+            return nextQueryBuilder != null
+                    ? nextQueryBuilder.build(query, criteria, tablePrefix)
+                    : query;
         }
 
-        StringJoiner stringJoiner = new StringJoiner(" AND ", " WHERE ", "");
+        StringJoiner stringJoiner = new StringJoiner(AND_DELIMITER, WHERE_PREFIX, "");
 
         if (params.get(CriteriaSearch.ID) != null) {
             stringJoiner.add(tablePrefix + "id = " + params.get(CriteriaSearch.ID));
@@ -42,7 +43,7 @@ public class WhereQueryBuilder extends AbstractQueryBuilder implements QueryBuil
 
         String newQuery = query + stringJoiner.toString();
 
-        if (this.nextQueryBuilder != null) {
+        if (nextQueryBuilder != null) {
             return nextQueryBuilder.build(newQuery, criteria, tablePrefix);
         }
 

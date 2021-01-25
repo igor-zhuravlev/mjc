@@ -11,7 +11,7 @@ import java.util.Map;
 public class ParamsValidator {
 
     private static final String NAME_PARAM = "name";
-    private static final String DATE_PARAM = "date";
+    private static final String DATE_PARAM = "create_date";
 
     private static final String SORT_PARAMS_DELIMITER = ",";
 

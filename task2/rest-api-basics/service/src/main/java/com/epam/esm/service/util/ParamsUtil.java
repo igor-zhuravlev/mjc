@@ -4,7 +4,10 @@ import com.epam.esm.repository.criteria.Criteria;
 import com.epam.esm.repository.criteria.CriteriaSearch;
 import org.springframework.data.domain.Sort;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 public final class ParamsUtil {
     public static final String TAG_PARAM = "tag";

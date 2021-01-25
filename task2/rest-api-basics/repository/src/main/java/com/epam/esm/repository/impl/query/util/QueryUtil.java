@@ -1,4 +1,4 @@
-package com.epam.esm.repository.util;
+package com.epam.esm.repository.impl.query.util;
 
 public final class QueryUtil {
     public static final String LIKE_PERCENT_SIGN = "%";

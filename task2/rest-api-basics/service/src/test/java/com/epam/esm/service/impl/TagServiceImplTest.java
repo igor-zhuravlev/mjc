@@ -23,8 +23,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.only;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.anyList;
+import static org.mockito.BDDMockito.never;
+import static org.mockito.BDDMockito.times;
+import static org.mockito.BDDMockito.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 class TagServiceImplTest {
@@ -68,7 +77,7 @@ class TagServiceImplTest {
     }
 
     @Test
-    void findAll() {
+    void findAll_FoundAllTag_ReturnListOfTags() {
         given(tagRepository.findAll()).willReturn(tagList);
         given(tagConverter.entityToDtoList(tagList)).willReturn(tagDtoList);
 
@@ -86,7 +95,7 @@ class TagServiceImplTest {
     }
 
     @Test
-    void findById_Success() {
+    void findById_TagExist_ReturnFoundTag() {
         final Long id = 1L;
 
         Tag tag = new Tag();
@@ -114,7 +123,7 @@ class TagServiceImplTest {
     }
 
     @Test
-    void findById_ThrowTagNotFoundException() {
+    void findById_TagNotFound_TagNotFoundExceptionThrown() {
         final Long id = 1L;
 
         Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
@@ -135,7 +144,7 @@ class TagServiceImplTest {
     }
 
     @Test
-    void save_Success() {
+    void save_SavingTag_ReturnSavedTag() {
         TagDto tagDto = new TagDto("tag1");
 
         Tag tag = new Tag();
@@ -180,7 +189,7 @@ class TagServiceImplTest {
     }
 
     @Test
-    void save_ThrowTagAlreadyExistException() {
+    void save_TagAlreadyExist_TagAlreadyExistExceptionThrown() {
         TagDto tagDto = new TagDto("tag1");
 
         Tag tag = new Tag();
@@ -222,7 +231,7 @@ class TagServiceImplTest {
     }
 
     @Test
-    void save_ThrowTagNotValidException() {
+    void save_InvalidTag_TagNotValidExceptionThrown() {
         TagDto tagDto = new TagDto();
 
         given(tagDtoValidator.isValidToSave(tagDto)).willReturn(false);
@@ -253,7 +262,7 @@ class TagServiceImplTest {
     }
 
     @Test
-    void deleteById_Success() {
+    void deleteById_FoundExistedTag_ReturnNothing() {
         final Long id = 1L;
 
         Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
@@ -277,7 +286,7 @@ class TagServiceImplTest {
     }
 
     @Test
-    void deleteById_ThrowTagNotFoundException() {
+    void deleteById_TagNotExist_TagNotFoundExceptionThrown() {
         final Long id = 1L;
 
         Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
@@ -298,7 +307,7 @@ class TagServiceImplTest {
     }
 
     @Test
-    void deleteById_ThrowUnableDeleteTagException() {
+    void deleteById_TagNoDeleted_UnableDeleteTagExceptionThrown() {
         final Long id = 1L;
 
         Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));

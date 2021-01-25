@@ -14,3 +14,9 @@ dependencies {
 
     providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: "${servletVersion}"
 }
+
+tasks.named('war') {
+    manifest {
+        attributes('Implementation-Title': project.name, 'Implementation-Version': project.version)
+    }
+}

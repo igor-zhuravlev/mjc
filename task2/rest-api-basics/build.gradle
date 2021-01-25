@@ -21,8 +21,8 @@ println 'Using profile: "' + propertyDrivenProfiles + '" for ' + project.getName
 subprojects {
     apply plugin: 'java-library'
 
-    sourceCompatibility = 11
-    targetCompatibility = 11
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 
     ext {
         springVersion = '5.3.3'
@@ -69,6 +69,14 @@ subprojects {
     tasks.named('jar') {
         manifest {
             attributes('Implementation-Title': project.name, 'Implementation-Version': project.version)
+        }
+    }
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
         }
     }
 }

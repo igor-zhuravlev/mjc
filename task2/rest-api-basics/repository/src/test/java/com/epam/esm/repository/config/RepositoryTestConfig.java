@@ -61,8 +61,8 @@ public class RepositoryTestConfig {
     @Bean
     public DataSourceInitializer dataSourceInitializer() {
         ResourceDatabasePopulator resourceDatabasePopulator = new ResourceDatabasePopulator();
-        resourceDatabasePopulator.addScript(new ClassPathResource("/schema-h2.sql"));
-        resourceDatabasePopulator.addScript(new ClassPathResource("/dataset-h2.sql"));
+        resourceDatabasePopulator.addScript(new ClassPathResource("/sql/schema-h2.sql"));
+        resourceDatabasePopulator.addScript(new ClassPathResource("/sql/dataset-h2.sql"));
 
         DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
         dataSourceInitializer.setDataSource(dataSource());

@@ -16,7 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = RepositoryTestConfig.class)
@@ -35,14 +37,14 @@ class TagRepositoryImplTest {
     }
 
     @Test
-    void findAll() {
+    void findAll_SearchForAllTags_ReturnFoundTagList() {
         List<Tag> actual = tagRepository.findAll();
 
         assertEquals(tagList, actual);
     }
 
     @Test
-    void find_ById() {
+    void find_SearchForTagById_ReturnFoundTag() {
         Tag tag = tagList.get(0);
         final Long id = tag.getId();
 
@@ -57,7 +59,7 @@ class TagRepositoryImplTest {
     }
 
     @Test
-    void find_ByName() {
+    void find_SearchForTagByName_ReturnFoundTag() {
         Tag tag = tagList.get(0);
         final String name = tag.getName();
 
@@ -72,7 +74,7 @@ class TagRepositoryImplTest {
     }
 
     @Test
-    void save() {
+    void save_SavingTag_ReturnSavedTag() {
         Tag tag = new Tag("tag123");
 
         Tag saved = tagRepository.save(tag);
@@ -88,7 +90,7 @@ class TagRepositoryImplTest {
     }
 
     @Test
-    void deleteById() {
+    void deleteById_DeletingTag_ReturnDeletedRowCount() {
         final Long id = tagList.get(0).getId();
 
         Long count = tagRepository.deleteById(id);
