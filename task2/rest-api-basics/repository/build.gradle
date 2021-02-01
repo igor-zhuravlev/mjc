@@ -1,0 +1,44 @@
+plugins {
+    id 'java-library'
+    id "org.liquibase.gradle" version "${liquibasePluginVersion}"
+}
+
+group 'com.epam.esm'
+version '1.0'
+
+def dbProperties = new Properties()
+file('src/main/resources/database.properties').withInputStream {
+    dbProperties.load(it)
+}
+
+liquibase {
+    activities {
+        main {
+            changeLogFile 'src/main/resources/liquibase/db.changelog-master.xml'
+            driver dbProperties.get('jdbc.driver')
+            url dbProperties.get('jdbc.url')
+            defaultSchemaName dbProperties.get('jdbc.schema')
+            username dbProperties.get('jdbc.username')
+            password dbProperties.get('jdbc.password')
+        }
+    }
+    runList = 'main'
+}
+
+dependencies {
+    implementation project(':domain')
+
+    implementation group: 'org.postgresql', name: 'postgresql', version: "${postgresqlVersion}"
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: "${hikariVersion}"
+
+    liquibaseRuntime group: 'org.postgresql', name: 'postgresql', version: "${postgresqlVersion}"
+    liquibaseRuntime group: 'org.liquibase', name: 'liquibase-core', version: "${liquibaseVersion}"
+
+    implementation group: 'org.springframework', name: 'spring-context', version: "$springVersion"
+    implementation group: 'org.springframework', name: 'spring-jdbc', version: "$springVersion"
+
+    implementation group: 'org.springframework.data', name: 'spring-data-commons', version: "${springDataVersion}"
+
+    testImplementation group: 'org.springframework', name: 'spring-test', version: "${springVersion}"
+    testImplementation group: 'com.h2database', name: 'h2', version: "${h2Version}"
+}

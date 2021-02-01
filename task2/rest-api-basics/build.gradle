@@ -1,0 +1,82 @@
+plugins {
+    id 'base'
+}
+
+def prodProfiles = 'prod'
+def devProfiles = 'dev'
+def testProfiles = 'test'
+def propertyDrivenProfiles
+
+if (project.hasProperty('prod')) {
+    propertyDrivenProfiles = prodProfiles
+} else if (project.hasProperty('dev')) {
+    propertyDrivenProfiles = devProfiles
+} else if (project.hasProperty('test')) {
+    propertyDrivenProfiles = testProfiles
+} else {
+    propertyDrivenProfiles = devProfiles
+}
+println 'Using profile: "' + propertyDrivenProfiles + '" for ' + project.getName()
+
+subprojects {
+    apply plugin: 'java-library'
+
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    ext {
+        springVersion = '5.3.3'
+        springDataVersion = '2.4.2'
+
+        postgresqlVersion = '42.2.18'
+        h2Version = '1.4.200'
+        hikariVersion = '3.4.5'
+        liquibaseVersion = '4.2.2'
+        liquibasePluginVersion = '2.0.4'
+
+        jacksonVersion = '2.12.1'
+        servletVersion = '4.0.1'
+        modelmapperVersion = '2.3.9'
+
+        log4jVersion = '2.14.0'
+
+        junitVersion = '5.7.0'
+        mockitoVersion = '3.7.0'
+    }
+
+    java {
+        withJavadocJar()
+    }
+
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4jVersion}"
+
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: "${junitVersion}";
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+        testImplementation group: 'org.mockito', name: 'mockito-core', version: "${mockitoVersion}"
+        testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: "${mockitoVersion}"
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+
+    tasks.named('jar') {
+        manifest {
+            attributes('Implementation-Title': project.name, 'Implementation-Version': project.version)
+        }
+    }
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
