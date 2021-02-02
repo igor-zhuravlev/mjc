@@ -1,0 +1,7 @@
+dependencies {
+    implementation project(':service')
+}
+
+bootJar {
+    enabled = true
+}

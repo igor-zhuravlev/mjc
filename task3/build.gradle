@@ -1,0 +1,81 @@
+plugins {
+    id 'java-library'
+    id 'org.springframework.boot' version "${springBootVersion}" apply false
+    id 'io.spring.dependency-management' version "${springDependencyManagementVersion}" apply false
+}
+
+subprojects {
+    group = 'com.epam.esm'
+    version = '0.0.1-SNAPSHOT'
+
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    apply plugin: 'java-library'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    ext {
+        springDataVersion = '2.4.2'
+
+        postgresqlVersion = '42.2.18'
+        h2Version = '1.4.200'
+        liquibaseVersion = '4.2.2'
+        liquibasePluginVersion = '2.0.4'
+
+        jacksonVersion = '2.12.1'
+        modelmapperVersion = '2.3.9'
+
+        junitVersion = '5.7.0'
+        mockitoVersion = '3.7.0'
+    }
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: "${junitVersion}"
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+        testImplementation group: 'org.mockito', name: 'mockito-core', version: "${mockitoVersion}"
+        testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: "${mockitoVersion}"
+    }
+
+    java {
+        withJavadocJar()
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+
+    tasks.named('jar') {
+        manifest {
+            attributes('Implementation-Title': project.name, 'Implementation-Version': project.version)
+        }
+    }
+
+    bootJar {
+        enabled = false
+    }
+
+    jar {
+        enabled = true
+    }
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
