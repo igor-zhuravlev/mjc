@@ -1,5 +1,6 @@
 package com.epam.esm.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.io.Serializable;
@@ -8,12 +9,12 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Set;
 
-public class GiftCertificateDto implements Serializable {
+@JsonRootName(value = "gift_certificate")
+public class GiftCertificateDto extends AbstractDto implements Serializable {
     private static final long serialVersionUID = 1144649892569462913L;
 
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
-    private String name;
     private String description;
     private BigDecimal price;
     private Integer duration;
@@ -22,21 +23,7 @@ public class GiftCertificateDto implements Serializable {
     @JsonFormat(pattern = DATE_TIME_FORMAT, timezone = "UTC")
     private Instant lastUpdateDate;
 
-    public GiftCertificateDto() {}
-
-    public GiftCertificateDto(String name) {
-        this.name = name;
-    }
-
     private Set<TagDto> tags;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public String getDescription() {
         return description;
@@ -90,9 +77,9 @@ public class GiftCertificateDto implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         GiftCertificateDto that = (GiftCertificateDto) o;
-        return Objects.equals(name, that.name) &&
-                Objects.equals(description, that.description) &&
+        return Objects.equals(description, that.description) &&
                 Objects.equals(price, that.price) &&
                 Objects.equals(duration, that.duration) &&
                 Objects.equals(createDate, that.createDate) &&
@@ -101,13 +88,14 @@ public class GiftCertificateDto implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, price, duration, createDate);
+        return Objects.hash(super.hashCode(), description, price, duration, createDate, lastUpdateDate);
     }
 
-    @Override
+        @Override
     public String toString() {
         return "GiftCertificateDto{" +
-                "name='" + name + '\'' +
+                "id=" + getId() +
+                "name='" + getName() + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", duration=" + duration +
