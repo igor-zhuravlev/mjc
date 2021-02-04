@@ -15,6 +15,7 @@ public class GiftCertificateDto extends AbstractDto implements Serializable {
 
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
+    private String name;
     private String description;
     private BigDecimal price;
     private Integer duration;
@@ -24,6 +25,16 @@ public class GiftCertificateDto extends AbstractDto implements Serializable {
     private Instant lastUpdateDate;
 
     private Set<TagDto> tags;
+
+    public GiftCertificateDto() {}
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getDescription() {
         return description;
@@ -79,7 +90,8 @@ public class GiftCertificateDto extends AbstractDto implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         GiftCertificateDto that = (GiftCertificateDto) o;
-        return Objects.equals(description, that.description) &&
+        return Objects.equals(name, that.name) &&
+                Objects.equals(description, that.description) &&
                 Objects.equals(price, that.price) &&
                 Objects.equals(duration, that.duration) &&
                 Objects.equals(createDate, that.createDate) &&
@@ -88,14 +100,14 @@ public class GiftCertificateDto extends AbstractDto implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), description, price, duration, createDate, lastUpdateDate);
+        return Objects.hash(super.hashCode(), name, description, price, duration, createDate, lastUpdateDate);
     }
 
-        @Override
+    @Override
     public String toString() {
         return "GiftCertificateDto{" +
-                "id=" + getId() +
-                "name='" + getName() + '\'' +
+                "id=" + id +
+                "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", duration=" + duration +

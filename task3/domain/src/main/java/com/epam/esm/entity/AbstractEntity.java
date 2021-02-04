@@ -1,19 +1,21 @@
 package com.epam.esm.entity;
 
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.GenerationType;
+import javax.persistence.GeneratedValue;
 import java.io.Serializable;
 import java.util.Objects;
 
+@MappedSuperclass
 public abstract class AbstractEntity implements Serializable {
     private static final long serialVersionUID = 6672658746100076925L;
 
-    private Long id;
-    private String name;
-
-    public AbstractEntity() {}
-
-    public AbstractEntity(String name) {
-        this.name = name;
-    }
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected Long id;
 
     public Long getId() {
         return id;
@@ -23,33 +25,16 @@ public abstract class AbstractEntity implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractEntity that = (AbstractEntity) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(name, that.name);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
-    }
-
-    @Override
-    public String toString() {
-        return "AbstractEntity{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+        return Objects.hash(id);
     }
 }
