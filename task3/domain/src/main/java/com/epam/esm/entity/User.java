@@ -11,14 +11,15 @@ import java.util.Objects;
 public class User extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = -3722920263866649342L;
 
-    @Column(name = "login", length = 32, nullable = false)
+    @Column(name = "login", nullable = false, unique = true)
     private String login;
-    @Column(name = "first_name", length = 32, nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
-    @Column(name = "last_name", length = 32, nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    public User() {}
+    public User() {
+    }
 
     public String getLogin() {
         return login;
@@ -64,7 +65,7 @@ public class User extends AbstractEntity implements Serializable {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                "login='" + login + '\'' +
+                ", login='" + login + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 '}';

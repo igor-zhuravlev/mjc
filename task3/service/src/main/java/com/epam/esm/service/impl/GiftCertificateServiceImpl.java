@@ -5,22 +5,13 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.repository.criteria.Criteria;
-import com.epam.esm.repository.criteria.CriteriaSearch;
-import com.epam.esm.repository.exception.RepositoryException;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.GiftCertificateDto;
-import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistException;
 import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
-import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
-import com.epam.esm.service.exception.certificate.UnableUpdateGiftCertificate;
-import com.epam.esm.service.exception.validation.GiftCertificateNotValidException;
-import com.epam.esm.service.exception.validation.GiftCertificateParamsNotValidException;
 import com.epam.esm.service.util.ParamsUtil;
-import com.epam.esm.service.validation.ParamsValidator;
-import com.epam.esm.service.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,143 +33,88 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private TagRepository tagRepository;
     @Autowired
     private Converter<GiftCertificate, GiftCertificateDto> giftCertificateConverter;
-    @Autowired
-    private Validator<GiftCertificateDto> giftCertificateDtoValidator;
-    @Autowired
-    private ParamsValidator paramsValidator;
 
     @Transactional(readOnly = true)
     @Override
-    public List<GiftCertificateDto> findAll(Map<String, String[]> params) throws ServiceException {
-        try {
-            if (!paramsValidator.isValid(params)) {
-                throw new GiftCertificateParamsNotValidException(ServiceError.GIFT_CERTIFICATE_PARAMS_NOT_VALID.getCode());
-            }
-            Criteria criteria = ParamsUtil.buildCriteria(params);
-            List<GiftCertificate> giftCertificateList = giftCertificateRepository.findAll(criteria);
-            return giftCertificateConverter.entityToDtoList(giftCertificateList);
-        } catch (RepositoryException e) {
-            throw new ServiceException(e);
-        }
+    public List<GiftCertificateDto> findAll(Map<String, String[]> params) {
+        Criteria criteria = ParamsUtil.buildCriteria(params);
+        List<GiftCertificate> giftCertificateList = giftCertificateRepository.findAll(criteria);
+        return giftCertificateConverter.entityToDtoList(giftCertificateList);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public GiftCertificateDto findById(Long id) throws ServiceException {
-        try {
-            Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
-            GiftCertificate giftCertificate = giftCertificateRepository.find(criteria);
-            if (giftCertificate == null) {
-                throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
-            }
-            return giftCertificateConverter.entityToDto(giftCertificate);
-        } catch (RepositoryException e) {
-            throw new ServiceException(e);
+    public GiftCertificateDto findById(Long id) {
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
+        if (giftCertificate == null) {
+            throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
         }
+        return giftCertificateConverter.entityToDto(giftCertificate);
     }
 
     @Transactional
     @Override
-    public GiftCertificateDto save(GiftCertificateDto giftCertificateDto) throws ServiceException {
-        try {
-            if (!giftCertificateDtoValidator.isValidToSave(giftCertificateDto)) {
-                throw new GiftCertificateNotValidException(ServiceError.GIFT_CERTIFICATE_NOT_VALID.getCode());
-            }
+    public GiftCertificateDto save(GiftCertificateDto giftCertificateDto) {
+        GiftCertificate giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
 
-            GiftCertificate giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
-
-            Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.NAME, giftCertificate.getName());
-            if (giftCertificateRepository.find(criteria) != null) {
-                throw new GiftCertificateAlreadyExistException(ServiceError.GIFT_CERTIFICATE_ALREADY_EXISTS.getCode());
-            }
-
-            giftCertificate.setCreateDate(Instant.now().truncatedTo(ChronoUnit.MICROS));
-            giftCertificate = giftCertificateRepository.save(giftCertificate);
-
-            if (giftCertificate.getTags() != null) {
-                Set<Tag> tags = giftCertificate.getTags().stream()
-                        .map(tag -> {
-                            Criteria tagCriteria = ParamsUtil.buildCriteria(CriteriaSearch.NAME, tag.getName());
-                            Tag foundTag = tagRepository.find(tagCriteria);
-                            return foundTag == null ? tagRepository.save(tag) : foundTag;
-                        })
-                        .collect(Collectors.toSet());
-                giftCertificate.setTags(tags);
-                giftCertificateRepository.bindGiftCertificateWithTags(giftCertificate.getId(), tags);
-            }
-
-            return giftCertificateConverter.entityToDto(giftCertificate);
-        } catch (RepositoryException e) {
-            throw new ServiceException(e);
+        if (giftCertificateRepository.findByName(giftCertificate.getName()) != null) {
+            throw new GiftCertificateAlreadyExistException(ServiceError.GIFT_CERTIFICATE_ALREADY_EXISTS.getCode());
         }
+
+        Set<Tag> tags = new HashSet<>();
+        if (giftCertificate.getTags() != null) {
+            tags = mapNewTagsWithExisted(giftCertificate.getTags());
+        }
+        giftCertificate.setTags(tags);
+
+        Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+        giftCertificate.setCreateDate(now);
+        giftCertificate.setLastUpdateDate(now);
+
+        giftCertificate = giftCertificateRepository.save(giftCertificate);
+
+        return giftCertificateConverter.entityToDto(giftCertificate);
     }
 
     @Transactional
     @Override
-    public GiftCertificateDto updateById(Long id, GiftCertificateDto giftCertificateDto) throws ServiceException {
-        try {
-            if (!giftCertificateDtoValidator.isValidToUpdate(giftCertificateDto)) {
-                throw new GiftCertificateNotValidException(ServiceError.GIFT_CERTIFICATE_NOT_VALID.getCode());
-            }
-
-            Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
-            GiftCertificate giftCertificate = giftCertificateRepository.find(criteria);
-
-            if (giftCertificate == null) {
-                throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
-            }
-
-            Set<Tag> existedTags = new HashSet<>();
-            if (giftCertificate.getTags() != null) {
-                existedTags.addAll(giftCertificate.getTags());
-            }
-
-            giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
-
-            giftCertificate.setId(id);
-            giftCertificate.setLastUpdateDate(Instant.now().truncatedTo(ChronoUnit.MICROS));
-            final long count = giftCertificateRepository.update(giftCertificate);
-
-            if (count == 0) {
-                throw new UnableUpdateGiftCertificate(ServiceError.GIFT_CERTIFICATE_UNABLE_UPDATE.getCode());
-            }
-
-            if (giftCertificate.getTags() != null) {
-                Set<Tag> tags = giftCertificate.getTags().stream()
-                        .map(tag -> {
-                            Criteria tagCriteria = ParamsUtil.buildCriteria(CriteriaSearch.NAME, tag.getName());
-                            Tag foundTag = tagRepository.find(tagCriteria);
-                            return foundTag == null ? tagRepository.save(tag) : foundTag;
-                        })
-                        .filter(tag -> !existedTags.contains(tag))
-                        .collect(Collectors.toSet());
-                giftCertificateRepository.bindGiftCertificateWithTags(giftCertificate.getId(), tags);
-            }
-
-            criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
-            giftCertificate = giftCertificateRepository.find(criteria);
-
-            return giftCertificateConverter.entityToDto(giftCertificate);
-        } catch (RepositoryException e) {
-            throw new ServiceException(e);
+    public GiftCertificateDto updateById(Long id, GiftCertificateDto giftCertificateDto) {
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
+        if (giftCertificate == null) {
+            throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
         }
+        Set<Tag> existedTags = giftCertificate.getTags();
+
+        giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
+
+        if (giftCertificate.getTags() != null) {
+            existedTags.addAll(mapNewTagsWithExisted(giftCertificate.getTags()));
+        }
+
+        giftCertificate.setId(id);
+        giftCertificate.setLastUpdateDate(Instant.now().truncatedTo(ChronoUnit.MICROS));
+        giftCertificate.setTags(existedTags);
+
+        giftCertificate = giftCertificateRepository.update(giftCertificate);
+
+        return giftCertificateConverter.entityToDto(giftCertificate);
     }
 
     @Transactional
     @Override
-    public void deleteById(Long id) throws ServiceException {
-        try {
-            Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(id));
-            GiftCertificate giftCertificate = giftCertificateRepository.find(criteria);
-            if (giftCertificate == null) {
-                throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
-            }
-            final long count = giftCertificateRepository.deleteById(id);
-            if (count == 0) {
-                throw new UnableDeleteGiftCertificateException(ServiceError.GIFT_CERTIFICATE_UNABLE_DELETE.getCode());
-            }
-        } catch (RepositoryException e) {
-            throw new ServiceException(e);
+    public void deleteById(Long id) {
+        GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
+        if (giftCertificate == null) {
+            throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
         }
+        giftCertificateRepository.delete(giftCertificate);
+    }
+
+    private Set<Tag> mapNewTagsWithExisted(Set<Tag> tags) {
+        return tags.stream()
+                .map(tag -> {
+                    Tag foundTag = tagRepository.findByName(tag.getName());
+                    return foundTag == null ? tag : foundTag;
+                }).collect(Collectors.toSet());
     }
 }

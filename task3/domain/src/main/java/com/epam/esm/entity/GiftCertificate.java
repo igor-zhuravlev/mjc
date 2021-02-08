@@ -1,11 +1,6 @@
 package com.epam.esm.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.persistence.ManyToMany;
-import javax.persistence.JoinTable;
-import javax.persistence.JoinColumn;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,25 +12,28 @@ import java.util.Set;
 public class GiftCertificate extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = 7468316931994434280L;
 
-    @Column(name = "name", length = 32, nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
-    @Column(name = "description", length = 64, nullable = false)
+    @Column(name = "description", nullable = false)
     private String description;
     @Column(name = "price", nullable = false)
     private BigDecimal price;
     @Column(name = "duration", nullable = false)
     private Integer duration;
-    @Column(name = "create_date", columnDefinition = "TIMESTAMP", nullable = false)
+    @Column(name = "create_date", columnDefinition = "TIMESTAMP", updatable = false, nullable = false)
     private Instant createDate;
-    @Column(name = "last_update_date", columnDefinition = "TIMESTAMP")
+    @Column(name = "last_update_date", columnDefinition = "TIMESTAMP", nullable = false)
     private Instant lastUpdateDate;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(name = "gift_certificate_tag", schema = "rest",
-            joinColumns = {@JoinColumn(name = "gift_certificate_id")},
-            inverseJoinColumns = {@JoinColumn(name = "tag_id")}
+            joinColumns = @JoinColumn(name = "gift_certificate_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<Tag> tags;
+
+    public GiftCertificate() {
+    }
 
     public String getName() {
         return name;
@@ -116,7 +114,7 @@ public class GiftCertificate extends AbstractEntity implements Serializable {
     public String toString() {
         return "GiftCertificate{" +
                 "id=" + id +
-                "name='" + name + '\'' +
+                ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", duration=" + duration +

@@ -15,22 +15,13 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
-    public List<OrderDto> findAll() {
-        return orderService.findAll();
+    public List<OrderDto> findAll(@RequestParam(required = false, defaultValue = "0") Integer offset,
+                                  @RequestParam(required = false, defaultValue = "5") Integer limit) {
+        return orderService.findAll(offset, limit);
     }
 
     @GetMapping("/{id}")
     public OrderDto findById(@PathVariable Long id) {
         return orderService.findById(id);
-    }
-
-    @GetMapping("/users/{id}")
-    public List<OrderDto> findByUserId(@PathVariable Long id) {
-        return orderService.findByUserId(id);
-    }
-
-    @PostMapping("/users/{id}")
-    public OrderDto placeOrder(@PathVariable Long id, @RequestBody OrderDto orderDto) {
-        return orderService.placeOrder(id, orderDto);
     }
 }

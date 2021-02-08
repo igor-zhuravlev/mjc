@@ -1,8 +1,6 @@
 package com.epam.esm.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -11,8 +9,11 @@ import java.util.Objects;
 public class Tag extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = -7664123249924815397L;
 
-    @Column(name = "name", length = 32, nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
+
+    public Tag() {
+    }
 
     public String getName() {
         return name;
@@ -40,7 +41,7 @@ public class Tag extends AbstractEntity implements Serializable {
     public String toString() {
         return "Tag{" +
                 "id=" + id +
-                "name='" + name + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

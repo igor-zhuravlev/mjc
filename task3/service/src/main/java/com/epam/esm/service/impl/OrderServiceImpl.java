@@ -6,12 +6,10 @@ import com.epam.esm.entity.User;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.UserRepository;
-import com.epam.esm.repository.criteria.Criteria;
-import com.epam.esm.repository.criteria.CriteriaSearch;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.OrderDto;
-import com.epam.esm.service.util.ParamsUtil;
+import com.epam.esm.service.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,8 +35,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<OrderDto> findAll() {
-        List<Order> orders = orderRepository.findAll();
+    public List<OrderDto> findAll(Integer offset, Integer limit) {
+        List<Order> orders = orderRepository.findAll(offset, limit);
         return orderConverter.entityToDtoList(orders);
     }
 
@@ -51,14 +49,29 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<OrderDto> findByUserId(Long id) {
-        List<Order> orders = orderRepository.findByUserId(id);
+    public List<OrderDto> findAllByUserId(Long userId) {
+        User user = userRepository.findById(userId);
+        if (user == null) {
+            throw new UserNotFoundException("user not found");
+        }
+        List<Order> orders = orderRepository.findAllByUser(user);
         return orderConverter.entityToDtoList(orders);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public OrderDto findByUserId(Long userId, Long orderId) {
+        User user = userRepository.findById(userId);
+        if (user == null) {
+            throw new UserNotFoundException("user not found");
+        }
+        Order order = orderRepository.findByUser(user, orderId);
+        return orderConverter.entityToDto(order);
     }
 
     @Transactional
     @Override
-    public OrderDto placeOrder(Long userId, OrderDto orderDto) {
+    public OrderDto createOrder(Long userId, OrderDto orderDto) {
         Order order = orderConverter.dtoToEntity(orderDto);
 
         User user = userRepository.findById(userId);
@@ -66,8 +79,7 @@ public class OrderServiceImpl implements OrderService {
         List<GiftCertificate> gifts = order.getGiftCertificates().stream()
                 .map(giftCertificate -> {
                     Long giftId = giftCertificate.getId();
-                    Criteria criteria = ParamsUtil.buildCriteria(CriteriaSearch.ID, String.valueOf(giftId));
-                    return giftCertificateRepository.find(criteria);
+                    return giftCertificateRepository.findById(giftId);
                 }).collect(Collectors.toList());
 
         BigDecimal amount = gifts.stream()

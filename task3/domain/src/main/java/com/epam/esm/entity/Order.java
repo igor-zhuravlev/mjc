@@ -34,7 +34,8 @@ public class Order extends AbstractEntity implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "gift_certificate_id"))
     private Set<GiftCertificate> giftCertificates;
 
-    public Order() {}
+    public Order() {
+    }
 
     public Instant getCreateDate() {
         return createDate;
@@ -89,7 +90,7 @@ public class Order extends AbstractEntity implements Serializable {
     public String toString() {
         return "Order{" +
                 "id=" + id +
-                "createDate=" + createDate +
+                ", createDate=" + createDate +
                 ", amount=" + amount +
                 ", user=" + user +
                 ", giftCertificates=" + giftCertificates +

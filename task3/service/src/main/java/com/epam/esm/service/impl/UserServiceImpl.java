@@ -21,8 +21,8 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<UserDto> findAll() {
-        List<User> users = userRepository.findAll();
+    public List<UserDto> findAll(Integer offset, Integer limit) {
+        List<User> users = userRepository.findAll(offset, limit);
         return userConverter.entityToDtoList(users);
     }
 
