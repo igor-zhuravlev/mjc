@@ -21,7 +21,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     private EntityManager entityManager;
 
     @Override
-    public List<Order> findAll(Integer offset, Integer limit) {
+    public List<Order> findAll(int offset, int limit) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = criteriaQuery.from(Order.class);
@@ -40,7 +40,12 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public List<Order> findAllByUser(User user) {
+    public void delete(Order order) {
+        entityManager.remove(order);
+    }
+
+    @Override
+    public List<Order> findAllByUser(User user, int offset, int limit) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = criteriaQuery.from(Order.class);
@@ -48,8 +53,10 @@ public class OrderRepositoryImpl implements OrderRepository {
         criteriaQuery.select(root)
                 .where(criteriaBuilder.equal(root.get(Order_.user), user));
 
-
-        return entityManager.createQuery(criteriaQuery).getResultList();
+        return entityManager.createQuery(criteriaQuery)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
     }
 
     @Override
@@ -69,7 +76,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Order saveOrder(Order order) {
+    public Order save(Order order) {
         entityManager.persist(order);
         return order;
     }

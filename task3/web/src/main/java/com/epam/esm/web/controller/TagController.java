@@ -1,9 +1,17 @@
 package com.epam.esm.web.controller;
 
 import com.epam.esm.service.TagService;
+import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.TagDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
 
@@ -20,13 +28,16 @@ public class TagController {
 
     /**
      * Finds all tags
+     * @param size count of gift certificates on page
+     * @param page number of page
      * @return list of tags dto
      */
 
     @GetMapping
-    public List<TagDto> findAll(@RequestParam(required = false, defaultValue = "0") Integer offset,
-                                @RequestParam(required = false, defaultValue = "5") Integer limit) {
-        return tagService.findAll(offset, limit);
+    public List<TagDto> findAll(@RequestParam(required = false, defaultValue = "5") Integer size,
+                                @RequestParam(required = false, defaultValue = "1") Integer page) {
+        PageDto pageDto = new PageDto(size, page);
+        return tagService.findAll(pageDto);
     }
 
     /**
@@ -41,14 +52,14 @@ public class TagController {
     }
 
     /**
-     * Saves the tag
+     * Creates the tag
      * @param tagDto received tag dto
      * @return found tag dto
      */
 
     @PostMapping
-    public TagDto save(@RequestBody TagDto tagDto) {
-        return tagService.save(tagDto);
+    public TagDto create(@RequestBody TagDto tagDto) {
+        return tagService.create(tagDto);
     }
 
     /**
@@ -58,6 +69,6 @@ public class TagController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        tagService.deleteById(id);
+        tagService.delete(id);
     }
 }

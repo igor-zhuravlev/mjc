@@ -2,9 +2,18 @@ package com.epam.esm.web.controller;
 
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.PageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
 import java.util.Map;
@@ -31,20 +40,26 @@ public class GiftCertificateController {
 
     /**
      * Finds all gift certificates with tags
-     * @param requestParams request params in url such as:
-     *                      <p>tag - tag name</p>
-     *                      <p>part - part of name, description of the gift certificates</p>
+     * @param requestParams search params in url such as:
+     *                      <p>name - part of the certificate name</p>
+     *                      <p>description - part of the certificate description</p>
+     *                      <p>tags - list of tag names</p>
      *                      <p>sort - sort by name or/and date with asc or desc direction</p>
      *
      *                      <p>example: ?tag=tagName&part=partName&sort=name,asc&sort=date,desc</p>
      *
      *                      <p>request params aren't required</p>
+     * @param size count of gift certificates on page
+     * @param page number of page
      * @return list of gift certificates dto
      */
 
     @GetMapping
-    public List<GiftCertificateDto> findAll(@RequestParam(required = false) MultiValueMap<String, String> requestParams) {
-        return giftCertificateService.findAll(multiValueMapToMap(requestParams));
+    public List<GiftCertificateDto> findAll(@RequestParam(required = false) MultiValueMap<String, String> requestParams,
+                                            @RequestParam(required = false, defaultValue = "5") Integer size,
+                                            @RequestParam(required = false, defaultValue = "1") Integer page) {
+        PageDto pageDto = new PageDto(size, page);
+        return giftCertificateService.findAll(multiValueMapToMap(requestParams), pageDto);
     }
 
     /**
@@ -59,14 +74,14 @@ public class GiftCertificateController {
     }
 
     /**
-     * Saves the gift certificate
+     * Creates the gift certificate
      * @param giftCertificateDto gift certificate dto passed in request
      * @return saved gift certificate dto
      */
 
     @PostMapping
-    public GiftCertificateDto save(@RequestBody GiftCertificateDto giftCertificateDto) {
-        return giftCertificateService.save(giftCertificateDto);
+    public GiftCertificateDto create(@RequestBody GiftCertificateDto giftCertificateDto) {
+        return giftCertificateService.create(giftCertificateDto);
     }
 
     /**
@@ -78,7 +93,7 @@ public class GiftCertificateController {
 
     @PatchMapping("/{id}")
     public GiftCertificateDto update(@PathVariable Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
-        return giftCertificateService.updateById(id, giftCertificateDto);
+        return giftCertificateService.update(id, giftCertificateDto);
     }
 
     /**
@@ -88,6 +103,6 @@ public class GiftCertificateController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        giftCertificateService.deleteById(id);
+        giftCertificateService.delete(id);
     }
 }

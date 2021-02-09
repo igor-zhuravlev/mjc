@@ -13,6 +13,8 @@ public enum ServiceError {
     GIFT_CERTIFICATE_NOT_VALID("2011"),
     GIFT_CERTIFICATE_PARAMS_NOT_VALID("2012"),
 
+    USER_NOT_FOUND("3001"),
+
     INTERNAL_SERVER_ERROR("0000");
 
     private final String code;

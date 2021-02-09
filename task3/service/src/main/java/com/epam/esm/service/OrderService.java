@@ -1,13 +1,13 @@
 package com.epam.esm.service;
 
 import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.service.dto.PageDto;
 
 import java.util.List;
 
-public interface OrderService {
-    List<OrderDto> findAll(Integer offset, Integer limit);
-    OrderDto findById(Long id);
-    List<OrderDto> findAllByUserId(Long userId);
+public interface OrderService extends Service<OrderDto, Long> {
+    List<OrderDto> findAll(PageDto pageDto);
+    List<OrderDto> findAllByUserId(Long userId, PageDto pageDto);
     OrderDto findByUserId(Long userId, Long orderId);
-    OrderDto createOrder(Long userId, OrderDto orderDto);
+    OrderDto create(Long userId, OrderDto orderDto);
 }

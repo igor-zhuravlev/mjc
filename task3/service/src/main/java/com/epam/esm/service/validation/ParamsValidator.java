@@ -1,6 +1,6 @@
 package com.epam.esm.service.validation;
 
-import com.epam.esm.service.util.ParamsUtil;
+import com.epam.esm.service.util.GiftCertificateCriteriaBuilder;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +22,8 @@ public class ParamsValidator {
                         && !params.get(s)[0].isEmpty()
                         && !params.get(s)[0].isBlank());
 
-        if (params.get(ParamsUtil.SORT_PARAM) != null) {
-            return ret && isSortParamsValid(params.get(ParamsUtil.SORT_PARAM));
+        if (params.get(GiftCertificateCriteriaBuilder.SORT_PARAM) != null) {
+            return ret && isSortParamsValid(params.get(GiftCertificateCriteriaBuilder.SORT_PARAM));
         }
         return ret;
     }

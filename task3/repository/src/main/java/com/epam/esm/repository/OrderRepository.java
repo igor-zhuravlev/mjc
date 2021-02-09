@@ -5,10 +5,7 @@ import com.epam.esm.entity.User;
 
 import java.util.List;
 
-public interface OrderRepository {
-    List<Order> findAll(Integer offset, Integer limit);
-    Order findById(Long id);
-    List<Order> findAllByUser(User user);
+public interface OrderRepository extends CrudRepository<Order, Long> {
+    List<Order> findAllByUser(User user, int offset, int limit);
     Order findByUser(User user, Long orderId);
-    Order saveOrder(Order order);
 }

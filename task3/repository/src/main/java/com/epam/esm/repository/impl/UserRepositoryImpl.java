@@ -18,7 +18,7 @@ public class UserRepositoryImpl implements UserRepository {
     private EntityManager entityManager;
 
     @Override
-    public List<User> findAll(Integer offset, Integer limit) {
+    public List<User> findAll(int offset, int limit) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
         Root<User> root = criteriaQuery.from(User.class);
@@ -34,5 +34,16 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User findById(Long id) {
         return entityManager.find(User.class, id);
+    }
+
+    @Override
+    public User save(User user) {
+        entityManager.persist(user);
+        return user;
+    }
+
+    @Override
+    public void delete(User user) {
+        entityManager.remove(user);
     }
 }

@@ -3,7 +3,8 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.GiftCertificate_;
 import com.epam.esm.repository.GiftCertificateRepository;
-import com.epam.esm.repository.criteria.Criteria;
+import com.epam.esm.repository.query.QueryBuilder;
+import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -18,16 +19,34 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     @Autowired
     private EntityManager entityManager;
+    @Autowired
+    private QueryBuilder<GiftCertificate> giftCertificateQueryBuilder;
 
     @Override
-    public List<GiftCertificate> findAll(Criteria criteria) {
+    public List<GiftCertificate> findAll(GiftCertificateCriteria criteria, int offset, int limit) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+
+        CriteriaQuery<GiftCertificate> criteriaQuery = giftCertificateQueryBuilder
+                .build(criteriaBuilder, criteria);
+
+        return entityManager.createQuery(criteriaQuery)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    @Override
+    public List<GiftCertificate> findAll(int offset, int limit) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GiftCertificate> criteriaQuery = criteriaBuilder.createQuery(GiftCertificate.class);
         Root<GiftCertificate> root = criteriaQuery.from(GiftCertificate.class);
 
         criteriaQuery.select(root);
 
-        return entityManager.createQuery(criteriaQuery).getResultList();
+        return entityManager.createQuery(criteriaQuery)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
     }
 
     @Override

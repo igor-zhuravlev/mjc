@@ -34,8 +34,8 @@ public class GlobalExceptionHandler {
 
     private ErrorDto handle(String code) {
         Locale locale = LocaleContextHolder.getLocale();
-//        String message = messageSource.getMessage(code, null, locale);
-        return new ErrorDto("message", code);
+        String message = messageSource.getMessage(code, null, locale);
+        return new ErrorDto(message, code);
     }
 
     @ExceptionHandler(value = ServiceException.class)

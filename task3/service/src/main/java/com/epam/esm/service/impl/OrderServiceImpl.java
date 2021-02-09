@@ -7,8 +7,10 @@ import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.OrderService;
+import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,8 +37,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<OrderDto> findAll(Integer offset, Integer limit) {
-        List<Order> orders = orderRepository.findAll(offset, limit);
+    public List<OrderDto> findAll(PageDto pageDto) {
+        List<Order> orders = orderRepository.findAll(pageDto.getOffset(), pageDto.getLimit());
         return orderConverter.entityToDtoList(orders);
     }
 
@@ -49,12 +51,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<OrderDto> findAllByUserId(Long userId) {
+    public List<OrderDto> findAllByUserId(Long userId, PageDto pageDto) {
         User user = userRepository.findById(userId);
         if (user == null) {
-            throw new UserNotFoundException("user not found");
+            throw new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode());
         }
-        List<Order> orders = orderRepository.findAllByUser(user);
+        List<Order> orders = orderRepository.findAllByUser(user, pageDto.getOffset(), pageDto.getLimit());
         return orderConverter.entityToDtoList(orders);
     }
 
@@ -63,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto findByUserId(Long userId, Long orderId) {
         User user = userRepository.findById(userId);
         if (user == null) {
-            throw new UserNotFoundException("user not found");
+            throw new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode());
         }
         Order order = orderRepository.findByUser(user, orderId);
         return orderConverter.entityToDto(order);
@@ -71,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public OrderDto createOrder(Long userId, OrderDto orderDto) {
+    public OrderDto create(Long userId, OrderDto orderDto) {
         Order order = orderConverter.dtoToEntity(orderDto);
 
         User user = userRepository.findById(userId);
@@ -91,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
         order.setAmount(amount);
         order.setGiftCertificates(new HashSet<>(gifts));
 
-        Order savedOrder = orderRepository.saveOrder(order);
+        Order savedOrder = orderRepository.save(order);
         return orderConverter.entityToDto(savedOrder);
     }
 }

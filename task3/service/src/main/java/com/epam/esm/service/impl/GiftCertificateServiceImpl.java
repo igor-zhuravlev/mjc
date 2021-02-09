@@ -4,24 +4,25 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.repository.criteria.Criteria;
+import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistException;
 import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
-import com.epam.esm.service.util.ParamsUtil;
+import com.epam.esm.service.util.GiftCertificateCriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,9 +37,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<GiftCertificateDto> findAll(Map<String, String[]> params) {
-        Criteria criteria = ParamsUtil.buildCriteria(params);
-        List<GiftCertificate> giftCertificateList = giftCertificateRepository.findAll(criteria);
+    public List<GiftCertificateDto> findAll(Map<String, String[]> params, PageDto pageDto) {
+        GiftCertificateCriteria criteria = GiftCertificateCriteriaBuilder.build(params);
+        List<GiftCertificate> giftCertificateList = giftCertificateRepository
+                .findAll(criteria, pageDto.getOffset(), pageDto.getLimit());
         return giftCertificateConverter.entityToDtoList(giftCertificateList);
     }
 
@@ -54,7 +56,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Transactional
     @Override
-    public GiftCertificateDto save(GiftCertificateDto giftCertificateDto) {
+    public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
         GiftCertificate giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
 
         if (giftCertificateRepository.findByName(giftCertificate.getName()) != null) {
@@ -78,7 +80,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Transactional
     @Override
-    public GiftCertificateDto updateById(Long id, GiftCertificateDto giftCertificateDto) {
+    public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
         GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
         if (giftCertificate == null) {
             throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
@@ -102,7 +104,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Transactional
     @Override
-    public void deleteById(Long id) {
+    public void delete(Long id) {
         GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
         if (giftCertificate == null) {
             throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());

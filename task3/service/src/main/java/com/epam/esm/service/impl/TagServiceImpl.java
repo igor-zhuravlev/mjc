@@ -5,6 +5,7 @@ import com.epam.esm.repository.TagRepository;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
+import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
@@ -24,8 +25,8 @@ public class TagServiceImpl implements TagService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<TagDto> findAll(Integer offset, Integer limit) {
-        List<Tag> tags = tagRepository.findAll(offset, limit);
+    public List<TagDto> findAll(PageDto pageDto) {
+        List<Tag> tags = tagRepository.findAll(pageDto.getOffset(), pageDto.getLimit());
         return tagConverter.entityToDtoList(tags);
     }
 
@@ -41,7 +42,7 @@ public class TagServiceImpl implements TagService {
 
     @Transactional
     @Override
-    public TagDto save(TagDto tagDto) {
+    public TagDto create(TagDto tagDto) {
         Tag tag = tagConverter.dtoToEntity(tagDto);
         if (tagRepository.findByName(tag.getName()) != null) {
             throw new TagAlreadyExistException(ServiceError.TAG_ALREADY_EXISTS.getCode());
@@ -51,7 +52,7 @@ public class TagServiceImpl implements TagService {
 
     @Transactional
     @Override
-    public void deleteById(Long id) {
+    public void delete(Long id) {
         Tag tag = tagRepository.findById(id);
         if (tag == null) {
             throw new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode());
