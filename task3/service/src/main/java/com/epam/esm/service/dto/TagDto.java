@@ -11,8 +11,6 @@ public class TagDto extends AbstractDto implements Serializable {
 
     private String name;
 
-    public TagDto() {}
-
     public String getName() {
         return name;
     }
@@ -39,7 +37,7 @@ public class TagDto extends AbstractDto implements Serializable {
     public String toString() {
         return "TagDto{" +
                 "id=" + id +
-                "name='" + name + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

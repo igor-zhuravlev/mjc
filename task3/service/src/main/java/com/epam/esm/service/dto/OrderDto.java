@@ -57,7 +57,7 @@ public class OrderDto extends AbstractDto implements Serializable {
     public String toString() {
         return "OrderDto{" +
                 "id=" + id +
-                "createDate=" + createDate +
+                ", createDate=" + createDate +
                 ", amount=" + amount +
                 ", user=" + user +
                 ", giftCertificates=" + giftCertificates +

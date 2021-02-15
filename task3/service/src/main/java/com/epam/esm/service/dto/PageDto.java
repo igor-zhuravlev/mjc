@@ -18,9 +18,6 @@ public class PageDto implements Serializable {
     @JsonIgnore
     private int limit;
 
-    public PageDto() {
-    }
-
     public PageDto(int size, int page) {
         this.size = size;
         this.page = page;

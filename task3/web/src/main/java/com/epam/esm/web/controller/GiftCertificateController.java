@@ -4,6 +4,8 @@ import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.PageDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,14 +32,6 @@ public class GiftCertificateController {
     @Autowired
     private GiftCertificateService giftCertificateService;
 
-    private Map<String, String[]> multiValueMapToMap(MultiValueMap<String, String> requestParams) {
-        return requestParams.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> e.getValue().toArray(String[]::new)
-                ));
-    }
-
     /**
      * Finds all gift certificates with tags
      * @param requestParams search params in url such as:
@@ -46,7 +40,7 @@ public class GiftCertificateController {
      *                      <p>tags - list of tag names</p>
      *                      <p>sort - sort by name or/and date with asc or desc direction</p>
      *
-     *                      <p>example: ?tag=tagName&part=partName&sort=name,asc&sort=date,desc</p>
+     *                      <p>example: ?name=partName&description=partDesc&tags=tagName1,tagName2&sort=name,asc&sort=create_date,desc</p>
      *
      *                      <p>request params aren't required</p>
      * @param size count of gift certificates on page
@@ -55,11 +49,13 @@ public class GiftCertificateController {
      */
 
     @GetMapping
-    public List<GiftCertificateDto> findAll(@RequestParam(required = false) MultiValueMap<String, String> requestParams,
-                                            @RequestParam(required = false, defaultValue = "5") Integer size,
-                                            @RequestParam(required = false, defaultValue = "1") Integer page) {
+    public CollectionModel<GiftCertificateDto> findAll(@RequestParam(required = false) MultiValueMap<String, String> requestParams,
+                                                       @RequestParam(required = false, defaultValue = "5") Integer size,
+                                                       @RequestParam(required = false, defaultValue = "1") Integer page) {
         PageDto pageDto = new PageDto(size, page);
-        return giftCertificateService.findAll(multiValueMapToMap(requestParams), pageDto);
+        List<GiftCertificateDto> giftCertificateDtoList =
+                giftCertificateService.findAll(multiValueMapToMap(requestParams), pageDto);
+        return CollectionModel.of(giftCertificateDtoList);
     }
 
     /**
@@ -99,10 +95,20 @@ public class GiftCertificateController {
     /**
      * Deletes the gift certificate by id
      * @param id identifier of the gift certificate
+     * @return empty response with code 204
      */
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Object> delete(@PathVariable Long id) {
         giftCertificateService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    private Map<String, String[]> multiValueMapToMap(MultiValueMap<String, String> requestParams) {
+        return requestParams.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> e.getValue().toArray(String[]::new)
+                ));
     }
 }

@@ -57,7 +57,7 @@ public class UserDto extends AbstractDto implements Serializable {
     public String toString() {
         return "UserDto{" +
                 "id=" + id +
-                "login='" + login + '\'' +
+                ", login='" + login + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 '}';

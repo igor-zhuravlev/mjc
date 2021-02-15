@@ -26,8 +26,6 @@ public class GiftCertificateDto extends AbstractDto implements Serializable {
 
     private Set<TagDto> tags;
 
-    public GiftCertificateDto() {}
-
     public String getName() {
         return name;
     }
@@ -107,7 +105,7 @@ public class GiftCertificateDto extends AbstractDto implements Serializable {
     public String toString() {
         return "GiftCertificateDto{" +
                 "id=" + id +
-                "name='" + name + '\'' +
+                ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", duration=" + duration +

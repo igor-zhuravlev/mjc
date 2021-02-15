@@ -6,6 +6,7 @@ import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,10 +27,11 @@ public class UserController {
     private OrderService orderService;
 
     @GetMapping
-    public List<UserDto> findAll(@RequestParam(required = false, defaultValue = "5") Integer size,
-                                 @RequestParam(required = false, defaultValue = "1") Integer page) {
+    public CollectionModel<UserDto> findAll(@RequestParam(required = false, defaultValue = "5") Integer size,
+                                            @RequestParam(required = false, defaultValue = "1") Integer page) {
         PageDto pageDto = new PageDto(size, page);
-        return userService.findAll(pageDto);
+        List<UserDto> userDtoList = userService.findAll(pageDto);
+        return CollectionModel.of(userDtoList);
     }
 
     @GetMapping("/{id}")
@@ -38,11 +40,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}/orders")
-    public List<OrderDto> findOrders(@PathVariable Long id,
+    public CollectionModel<OrderDto> findOrders(@PathVariable Long id,
                                      @RequestParam(required = false, defaultValue = "5") Integer size,
                                      @RequestParam(required = false, defaultValue = "1") Integer page) {
         PageDto pageDto = new PageDto(size, page);
-        return orderService.findAllByUserId(id, pageDto);
+        List<OrderDto> orderDtoList = orderService.findAllByUserId(id, pageDto);
+        return CollectionModel.of(orderDtoList);
     }
 
     @GetMapping("/{userId}/orders/{orderId}")

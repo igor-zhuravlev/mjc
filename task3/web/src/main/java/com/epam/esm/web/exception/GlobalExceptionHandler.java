@@ -1,4 +1,4 @@
-package com.epam.esm.web.advice;
+package com.epam.esm.web.exception;
 
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.dto.ErrorDto;
@@ -10,6 +10,7 @@ import com.epam.esm.service.exception.certificate.UnableUpdateGiftCertificate;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
 import com.epam.esm.service.exception.tag.UnableDeleteTagException;
+import com.epam.esm.service.exception.user.UserNotFoundException;
 import com.epam.esm.service.exception.validation.GiftCertificateNotValidException;
 import com.epam.esm.service.exception.validation.GiftCertificateParamsNotValidException;
 import com.epam.esm.service.exception.validation.TagNotValidException;
@@ -69,7 +70,6 @@ public class GlobalExceptionHandler {
         return handle(e.getMessage());
     }
 
-
     @ExceptionHandler(value = TagNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDto handlerTagNotFoundException(TagNotFoundException e) {
@@ -85,6 +85,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = UnableDeleteTagException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorDto handlerUnableDeleteTagException(UnableDeleteTagException e) {
+        return handle(e.getMessage());
+    }
+
+    @ExceptionHandler(value = UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorDto handlerUserNotFoundException(UserNotFoundException e) {
         return handle(e.getMessage());
     }
 

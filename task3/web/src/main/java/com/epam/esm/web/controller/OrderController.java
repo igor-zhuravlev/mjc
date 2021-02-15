@@ -4,6 +4,7 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.PageDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,10 +21,11 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
-    public List<OrderDto> findAll(@RequestParam(required = false, defaultValue = "5") Integer size,
-                                  @RequestParam(required = false, defaultValue = "1") Integer page) {
+    public CollectionModel<OrderDto> findAll(@RequestParam(required = false, defaultValue = "5") Integer size,
+                                             @RequestParam(required = false, defaultValue = "1") Integer page) {
         PageDto pageDto = new PageDto(size, page);
-        return orderService.findAll(pageDto);
+        List<OrderDto> orderDtoList = orderService.findAll(pageDto);
+        return CollectionModel.of(orderDtoList);
     }
 
     @GetMapping("/{id}")

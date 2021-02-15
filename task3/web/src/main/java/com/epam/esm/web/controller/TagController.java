@@ -4,6 +4,8 @@ import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.TagDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,10 +36,11 @@ public class TagController {
      */
 
     @GetMapping
-    public List<TagDto> findAll(@RequestParam(required = false, defaultValue = "5") Integer size,
-                                @RequestParam(required = false, defaultValue = "1") Integer page) {
+    public CollectionModel<TagDto> findAll(@RequestParam(required = false, defaultValue = "5") Integer size,
+                                           @RequestParam(required = false, defaultValue = "1") Integer page) {
         PageDto pageDto = new PageDto(size, page);
-        return tagService.findAll(pageDto);
+        List<TagDto> tagDtoList = tagService.findAll(pageDto);
+        return CollectionModel.of(tagDtoList);
     }
 
     /**
@@ -65,10 +68,12 @@ public class TagController {
     /**
      * Deletes a tag by id
      * @param id identifier of the tag
+     * @return empty response with code 204
      */
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Object> delete(@PathVariable Long id) {
         tagService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
