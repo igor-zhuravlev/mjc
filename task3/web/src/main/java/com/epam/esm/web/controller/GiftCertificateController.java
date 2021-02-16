@@ -3,8 +3,10 @@ package com.epam.esm.web.controller;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.PageDto;
+import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 /**
  * The Gift Certificate Controller represents user api for GiftCertificate
@@ -55,7 +59,10 @@ public class GiftCertificateController {
         PageDto pageDto = new PageDto(size, page);
         List<GiftCertificateDto> giftCertificateDtoList =
                 giftCertificateService.findAll(multiValueMapToMap(requestParams), pageDto);
-        return CollectionModel.of(giftCertificateDtoList);
+        Link selfLink = linkTo(methodOn(GiftCertificateController.class)
+                .findAll(requestParams, size, page))
+                .withSelfRel();
+        return CollectionModel.of(giftCertificateDtoList, selfLink);
     }
 
     /**
@@ -66,7 +73,17 @@ public class GiftCertificateController {
 
     @GetMapping("/{id}")
     public GiftCertificateDto find(@PathVariable Long id) {
-        return giftCertificateService.findById(id);
+        GiftCertificateDto giftCertificateDto = giftCertificateService.findById(id);
+        giftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
+                .find(id))
+                .withSelfRel());
+        giftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
+                .update(id, giftCertificateDto))
+                .withRel(ApiConstant.UPDATE));
+        giftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
+                .delete(id))
+                .withRel(ApiConstant.DELETE));
+        return giftCertificateDto;
     }
 
     /**
@@ -77,7 +94,17 @@ public class GiftCertificateController {
 
     @PostMapping
     public GiftCertificateDto create(@RequestBody GiftCertificateDto giftCertificateDto) {
-        return giftCertificateService.create(giftCertificateDto);
+        GiftCertificateDto createdGiftCertificateDto = giftCertificateService.create(giftCertificateDto);
+        createdGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
+                .find(createdGiftCertificateDto.getId()))
+                .withRel(ApiConstant.FIND));
+        createdGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
+                .update(createdGiftCertificateDto.getId(), giftCertificateDto))
+                .withRel(ApiConstant.UPDATE));
+        createdGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
+                .delete(createdGiftCertificateDto.getId()))
+                .withRel(ApiConstant.DELETE));
+        return createdGiftCertificateDto;
     }
 
     /**
@@ -89,7 +116,17 @@ public class GiftCertificateController {
 
     @PatchMapping("/{id}")
     public GiftCertificateDto update(@PathVariable Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
-        return giftCertificateService.update(id, giftCertificateDto);
+        GiftCertificateDto updatedGiftCertificateDto = giftCertificateService.update(id, giftCertificateDto);
+        updatedGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
+                .update(id, giftCertificateDto))
+                .withSelfRel());
+        updatedGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
+                .find(id))
+                .withRel(ApiConstant.FIND));
+        updatedGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
+                .delete(id))
+                .withRel(ApiConstant.DELETE));
+        return updatedGiftCertificateDto;
     }
 
     /**

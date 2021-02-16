@@ -3,8 +3,10 @@ package com.epam.esm.web.controller;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * The Tag Controller represents user api for Tag
@@ -40,7 +45,10 @@ public class TagController {
                                            @RequestParam(required = false, defaultValue = "1") Integer page) {
         PageDto pageDto = new PageDto(size, page);
         List<TagDto> tagDtoList = tagService.findAll(pageDto);
-        return CollectionModel.of(tagDtoList);
+        Link selfLink = linkTo(methodOn(TagController.class)
+                .findAll(size, page))
+                .withSelfRel();
+        return CollectionModel.of(tagDtoList, selfLink);
     }
 
     /**
@@ -51,7 +59,14 @@ public class TagController {
 
     @GetMapping("/{id}")
     public TagDto find(@PathVariable Long id) {
-        return tagService.findById(id);
+        TagDto tagDto = tagService.findById(id);
+        tagDto.add(linkTo(methodOn(TagController.class)
+                .find(id))
+                .withSelfRel());
+        tagDto.add(linkTo(methodOn(TagController.class)
+                .delete(id))
+                .withRel(ApiConstant.DELETE));
+        return tagDto;
     }
 
     /**
@@ -62,7 +77,14 @@ public class TagController {
 
     @PostMapping
     public TagDto create(@RequestBody TagDto tagDto) {
-        return tagService.create(tagDto);
+        TagDto createdTagDto = tagService.create(tagDto);
+        createdTagDto.add(linkTo(methodOn(TagController.class)
+                .find(createdTagDto.getId()))
+                .withRel(ApiConstant.FIND));
+        tagDto.add(linkTo(methodOn(TagController.class)
+                .delete(createdTagDto.getId()))
+                .withRel(ApiConstant.DELETE));
+        return createdTagDto;
     }
 
     /**

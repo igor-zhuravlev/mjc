@@ -1,9 +1,11 @@
 package com.epam.esm.service.dto;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class AbstractDto implements Serializable {
+public abstract class AbstractDto extends RepresentationModel<AbstractDto> implements Serializable {
     private static final long serialVersionUID = -3116869888525443852L;
 
     protected Long id;
