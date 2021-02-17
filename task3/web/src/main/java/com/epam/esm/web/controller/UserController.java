@@ -9,6 +9,7 @@ import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -24,6 +27,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/users")
+@Validated
 public class UserController {
 
     @Autowired
@@ -32,8 +36,8 @@ public class UserController {
     private OrderService orderService;
 
     @GetMapping
-    public CollectionModel<UserDto> findAll(@RequestParam(required = false, defaultValue = "5") Integer size,
-                                            @RequestParam(required = false, defaultValue = "1") Integer page) {
+    public CollectionModel<UserDto> findAll(@RequestParam(required = false, defaultValue = "5") @Positive Integer size,
+                                            @RequestParam(required = false, defaultValue = "1") @Positive Integer page) {
         PageDto pageDto = new PageDto(size, page);
         List<UserDto> userDtoList = userService.findAll(pageDto);
         Link selfLink = linkTo(methodOn(UserController.class)
@@ -43,7 +47,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDto find(@PathVariable Long id) {
+    public UserDto find(@PathVariable @Positive Long id) {
         UserDto userDto = userService.findById(id);
         userDto.add(linkTo(methodOn(UserController.class)
                 .find(id))
@@ -58,9 +62,9 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/orders")
-    public CollectionModel<OrderDto> findOrders(@PathVariable Long userId,
-                                     @RequestParam(required = false, defaultValue = "5") Integer size,
-                                     @RequestParam(required = false, defaultValue = "1") Integer page) {
+    public CollectionModel<OrderDto> findOrders(@PathVariable @Positive Long userId,
+                                     @RequestParam(required = false, defaultValue = "5") @Positive Integer size,
+                                     @RequestParam(required = false, defaultValue = "1") @Positive Integer page) {
         PageDto pageDto = new PageDto(size, page);
         List<OrderDto> orderDtoList = orderService.findAllByUserId(userId, pageDto);
         Link selfLink = linkTo(methodOn(UserController.class)
@@ -73,12 +77,15 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/orders/{orderId}")
-    public OrderDto findOrder(@PathVariable Long userId, @PathVariable Long orderId) {
+    public OrderDto findOrder(@PathVariable @Positive Long userId,
+                              @PathVariable @Positive Long orderId) {
         return orderService.findByUserId(userId, orderId);
     }
 
     @PostMapping("/{userId}")
-    public OrderDto createOrder(@PathVariable Long userId, @RequestBody OrderDto orderDto) {
+    public OrderDto createOrder(@PathVariable @Positive Long userId,
+                                @RequestBody @Valid OrderDto orderDto) {
+        System.out.println(orderDto);
         OrderDto createdOrderDto = orderService.create(userId, orderDto);
         createdOrderDto.add(linkTo(methodOn(UserController.class)
                 .findOrders(userId, null, null))

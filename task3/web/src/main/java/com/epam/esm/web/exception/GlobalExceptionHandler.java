@@ -20,11 +20,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.validation.ConstraintViolationException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -110,5 +116,46 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDto handlerGiftCertificateParamsNotValidException(GiftCertificateParamsNotValidException e) {
         return handle(e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDto handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        Map<String, String> constraints = new HashMap<>();
+        e.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            constraints.put(fieldName, errorMessage);
+        });
+        ErrorDto errorDto = handle(ServiceError.INVALID_ARGUMENTS.getCode());
+        errorDto.setConstraints(constraints);
+        return errorDto;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDto handleConstraintViolationException(ConstraintViolationException e) {
+        Map<String, String> constraints = new HashMap<>();
+        e.getConstraintViolations().forEach(constraintViolation -> {
+            constraints.put(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage());
+        });
+        ErrorDto errorDto = handle(ServiceError.INVALID_ARGUMENTS.getCode());
+        errorDto.setConstraints(constraints);
+        return errorDto;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDto handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage(ServiceError.INVALID_ARGUMENT_TYPE.getCode(),
+                new Object[]{e.getRequiredType().getName()}, locale);
+
+        Map<String, String> constraints = new HashMap<>();
+        constraints.put(e.getName(), message);
+
+        ErrorDto errorDto = handle(ServiceError.INVALID_ARGUMENTS.getCode());
+        errorDto.setConstraints(constraints);
+        return errorDto;
     }
 }

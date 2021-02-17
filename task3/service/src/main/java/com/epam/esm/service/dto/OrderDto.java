@@ -3,6 +3,7 @@ package com.epam.esm.service.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
+import javax.validation.constraints.Null;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -12,13 +13,14 @@ import java.util.Set;
 public class OrderDto extends AbstractDto implements Serializable {
     private static final long serialVersionUID = 1141594450857312063L;
 
+    @Null
     private Instant createDate;
+    @Null
     private BigDecimal amount;
 
     @JsonIgnore
     private UserDto user;
 
-    @JsonIgnore
     private Set<GiftCertificateDto> giftCertificates;
 
     public Instant getCreateDate() {

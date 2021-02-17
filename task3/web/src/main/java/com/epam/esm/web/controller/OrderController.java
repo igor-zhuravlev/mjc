@@ -6,12 +6,14 @@ import com.epam.esm.service.dto.PageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -19,14 +21,15 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/orders")
+@Validated
 public class OrderController {
 
     @Autowired
     private OrderService orderService;
 
     @GetMapping
-    public CollectionModel<OrderDto> findAll(@RequestParam(required = false, defaultValue = "5") Integer size,
-                                             @RequestParam(required = false, defaultValue = "1") Integer page) {
+    public CollectionModel<OrderDto> findAll(@RequestParam(required = false, defaultValue = "5") @Positive Integer size,
+                                             @RequestParam(required = false, defaultValue = "1") @Positive Integer page) {
         PageDto pageDto = new PageDto(size, page);
         List<OrderDto> orderDtoList = orderService.findAll(pageDto);
         Link selfLink = linkTo(methodOn(OrderController.class)
@@ -36,7 +39,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public OrderDto find(@PathVariable Long id) {
+    public OrderDto find(@PathVariable @Positive Long id) {
         OrderDto orderDto = orderService.findById(id);
         orderDto.add(linkTo(methodOn(OrderController.class)
                 .find(id))

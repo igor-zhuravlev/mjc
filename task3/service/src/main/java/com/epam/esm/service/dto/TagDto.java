@@ -2,6 +2,7 @@ package com.epam.esm.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 public class TagDto extends AbstractDto implements Serializable {
     private static final long serialVersionUID = -7664123249924815397L;
 
+    @NotBlank
     private String name;
 
     public String getName() {

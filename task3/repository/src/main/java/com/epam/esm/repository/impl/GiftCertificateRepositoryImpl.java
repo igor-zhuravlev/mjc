@@ -3,8 +3,8 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.GiftCertificate_;
 import com.epam.esm.repository.GiftCertificateRepository;
-import com.epam.esm.repository.query.QueryBuilder;
 import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
+import com.epam.esm.repository.query.GiftCertificateQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -20,7 +20,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     @Autowired
     private EntityManager entityManager;
     @Autowired
-    private QueryBuilder<GiftCertificate> giftCertificateQueryBuilder;
+    private GiftCertificateQueryBuilder giftCertificateQueryBuilder;
 
     @Override
     public List<GiftCertificate> findAll(GiftCertificateCriteria criteria, int offset, int limit) {
@@ -75,10 +75,10 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     @Override
     public GiftCertificate update(GiftCertificate giftCertificate) {
-        GiftCertificate merged = entityManager.merge(giftCertificate);
+        GiftCertificate giftCertificateToMerge = entityManager.merge(giftCertificate);
         entityManager.flush();
-        entityManager.refresh(merged);
-        return merged;
+        entityManager.refresh(giftCertificateToMerge);
+        return giftCertificateToMerge;
     }
 
     @Override

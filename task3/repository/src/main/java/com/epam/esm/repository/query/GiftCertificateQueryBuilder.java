@@ -1,26 +1,30 @@
-package com.epam.esm.repository.query.impl;
+package com.epam.esm.repository.query;
 
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.GiftCertificate_;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.Tag_;
 import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
-import com.epam.esm.repository.query.QueryBuilder;
 import com.epam.esm.repository.query.util.QueryUtil;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
 import javax.persistence.metamodel.SingularAttribute;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class GiftCertificateQueryBuilder implements QueryBuilder<GiftCertificate> {
+public class GiftCertificateQueryBuilder {
 
-    @Override
     public CriteriaQuery<GiftCertificate> build(CriteriaBuilder criteriaBuilder, GiftCertificateCriteria criteria) {
         CriteriaQuery<GiftCertificate> criteriaQuery = criteriaBuilder.createQuery(GiftCertificate.class);
         Root<GiftCertificate> root = criteriaQuery.from(GiftCertificate.class);
@@ -45,17 +49,17 @@ public class GiftCertificateQueryBuilder implements QueryBuilder<GiftCertificate
 
         String[] tagNames = criteria.getTagNames();
         if (tagNames != null) {
-            Set<Predicate> tagPredicates = new LinkedHashSet<>();
+            Set<Predicate> tagPredicates = new HashSet<>();
             Join<GiftCertificate, Tag> tagJoin = root.join(GiftCertificate_.tags);
             for (String tagName : tagNames) {
                 Predicate predicate = criteriaBuilder.equal(tagJoin.get(Tag_.name), tagName);
                 tagPredicates.add(predicate);
             }
-            Predicate tagPredicate = criteriaBuilder.or(tagPredicates.toArray(new Predicate[0]));
+            Predicate tagPredicate = criteriaBuilder.or(tagPredicates.toArray(Predicate[]::new));
             predicates.add(tagPredicate);
         }
 
-        Predicate finalPredicate = criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        Predicate finalPredicate = criteriaBuilder.and(predicates.toArray(Predicate[]::new));
         criteriaQuery.select(root).where(finalPredicate).distinct(true);
 
         Sort sort = criteria.getSort();
@@ -63,9 +67,9 @@ public class GiftCertificateQueryBuilder implements QueryBuilder<GiftCertificate
             List<Order> orders = sort.stream()
                     .map(order -> {
                         SingularAttribute<GiftCertificate, ?> singularAttribute = null;
-                        if (order.getProperty().equalsIgnoreCase("create_date")) {
+                        if (order.getProperty().equalsIgnoreCase(GiftCertificate_.CREATE_DATE)) {
                             singularAttribute = GiftCertificate_.createDate;
-                        } else if (order.getProperty().equalsIgnoreCase("name")) {
+                        } else if (order.getProperty().equalsIgnoreCase(GiftCertificate_.NAME)) {
                             singularAttribute = GiftCertificate_.name;
                         }
                         return order.isAscending()

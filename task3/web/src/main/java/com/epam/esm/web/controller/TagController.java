@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -28,6 +31,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/tags")
+@Validated
 public class TagController {
 
     @Autowired
@@ -41,8 +45,8 @@ public class TagController {
      */
 
     @GetMapping
-    public CollectionModel<TagDto> findAll(@RequestParam(required = false, defaultValue = "5") Integer size,
-                                           @RequestParam(required = false, defaultValue = "1") Integer page) {
+    public CollectionModel<TagDto> findAll(@RequestParam(required = false, defaultValue = "5") @Positive Integer size,
+                                           @RequestParam(required = false, defaultValue = "1") @Positive Integer page) {
         PageDto pageDto = new PageDto(size, page);
         List<TagDto> tagDtoList = tagService.findAll(pageDto);
         Link selfLink = linkTo(methodOn(TagController.class)
@@ -58,7 +62,7 @@ public class TagController {
      */
 
     @GetMapping("/{id}")
-    public TagDto find(@PathVariable Long id) {
+    public TagDto find(@PathVariable @Positive Long id) {
         TagDto tagDto = tagService.findById(id);
         tagDto.add(linkTo(methodOn(TagController.class)
                 .find(id))
@@ -76,7 +80,7 @@ public class TagController {
      */
 
     @PostMapping
-    public TagDto create(@RequestBody TagDto tagDto) {
+    public TagDto create(@RequestBody @Valid TagDto tagDto) {
         TagDto createdTagDto = tagService.create(tagDto);
         createdTagDto.add(linkTo(methodOn(TagController.class)
                 .find(createdTagDto.getId()))
@@ -94,7 +98,7 @@ public class TagController {
      */
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable Long id) {
+    public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
         tagService.delete(id);
         return ResponseEntity.noContent().build();
     }

@@ -19,10 +19,10 @@ public final class GiftCertificateCriteriaBuilder {
         List<Sort.Order> orders = new ArrayList<>();
         for (String sort : sorts) {
             String[] sortItem = sort.strip().split(PARAM_DELIMITER);
-            if (sortItem[1].strip().equalsIgnoreCase(Sort.Direction.ASC.name())) {
-                orders.add(Sort.Order.asc(sortItem[0]));
-            } else {
+            if (sortItem[1].strip().equalsIgnoreCase(Sort.Direction.DESC.name())) {
                 orders.add(Sort.Order.desc(sortItem[0]));
+            } else {
+                orders.add(Sort.Order.asc(sortItem[0]));
             }
         }
         return Sort.by(orders);

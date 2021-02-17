@@ -1,8 +1,10 @@
 package com.epam.esm.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
 
 @JsonRootName(value = "error")
@@ -11,6 +13,9 @@ public class ErrorDto implements Serializable {
 
     private String message;
     private String code;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Map<String, String> constraints;
 
     public ErrorDto(String message, String code) {
         this.message = message;
@@ -33,6 +38,14 @@ public class ErrorDto implements Serializable {
         this.code = code;
     }
 
+    public Map<String, String> getConstraints() {
+        return constraints;
+    }
+
+    public void setConstraints(Map<String, String> constraints) {
+        this.constraints = constraints;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -52,6 +65,7 @@ public class ErrorDto implements Serializable {
         return "ErrorDto{" +
                 "message='" + message + '\'' +
                 ", code='" + code + '\'' +
+                ", constraints=" + constraints +
                 '}';
     }
 }

@@ -3,6 +3,9 @@ package com.epam.esm.service.dto;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,14 +17,21 @@ public class GiftCertificateDto extends AbstractDto implements Serializable {
     private static final long serialVersionUID = 1144649892569462913L;
 
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    private static final String TIME_ZONE = "UTC";
 
+    @NotBlank
     private String name;
+    @NotBlank
     private String description;
+    @NotNull
     private BigDecimal price;
+    @NotNull
     private Integer duration;
-    @JsonFormat(pattern = DATE_TIME_FORMAT, timezone = "UTC")
+    @Null
+    @JsonFormat(pattern = DATE_TIME_FORMAT, timezone = TIME_ZONE)
     private Instant createDate;
-    @JsonFormat(pattern = DATE_TIME_FORMAT, timezone = "UTC")
+    @Null
+    @JsonFormat(pattern = DATE_TIME_FORMAT, timezone = TIME_ZONE)
     private Instant lastUpdateDate;
 
     private Set<TagDto> tags;
