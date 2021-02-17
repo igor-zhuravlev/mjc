@@ -11,15 +11,13 @@ import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
 import com.epam.esm.service.exception.tag.UnableDeleteTagException;
 import com.epam.esm.service.exception.user.UserNotFoundException;
-import com.epam.esm.service.exception.validation.GiftCertificateNotValidException;
-import com.epam.esm.service.exception.validation.GiftCertificateParamsNotValidException;
-import com.epam.esm.service.exception.validation.TagNotValidException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -100,27 +98,9 @@ public class GlobalExceptionHandler {
         return handle(e.getMessage());
     }
 
-    @ExceptionHandler(value = TagNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorDto handlerTagNotValidException(TagNotValidException e) {
-        return handle(e.getMessage());
-    }
-
-    @ExceptionHandler(value = GiftCertificateNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorDto handlerGiftCertificateNotValidException(GiftCertificateNotValidException e) {
-        return handle(e.getMessage());
-    }
-
-    @ExceptionHandler(value = GiftCertificateParamsNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorDto handlerGiftCertificateParamsNotValidException(GiftCertificateParamsNotValidException e) {
-        return handle(e.getMessage());
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorDto handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public ErrorDto handleMethodArgumentNotValidException(BindException e) {
         Map<String, String> constraints = new HashMap<>();
         e.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();

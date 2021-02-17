@@ -9,6 +9,7 @@ import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.GiftCertificateParamDto;
 import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistException;
 import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.Collectors;
@@ -37,8 +37,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<GiftCertificateDto> findAll(Map<String, String[]> params, PageDto pageDto) {
-        GiftCertificateCriteria criteria = GiftCertificateCriteriaBuilder.build(params);
+    public List<GiftCertificateDto> findAll(GiftCertificateParamDto giftCertificateParam, PageDto pageDto) {
+        GiftCertificateCriteria criteria = GiftCertificateCriteriaBuilder.build(giftCertificateParam);
+        System.out.println(criteria);
         List<GiftCertificate> giftCertificateList = giftCertificateRepository
                 .findAll(criteria, pageDto.getOffset(), pageDto.getLimit());
         return giftCertificateConverter.entityToDtoList(giftCertificateList);

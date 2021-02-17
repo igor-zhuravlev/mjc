@@ -2,6 +2,7 @@ package com.epam.esm.web.controller;
 
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.GiftCertificateParamDto;
 import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,10 +24,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * The Gift Certificate Controller represents user api for GiftCertificate
@@ -48,29 +47,21 @@ public class GiftCertificateController {
 
     /**
      * Finds all gift certificates with tags
-     * @param requestParams search params in url such as:
-     *                      <p>name - part of the certificate name</p>
-     *                      <p>description - part of the certificate description</p>
-     *                      <p>tags - list of tag names</p>
-     *                      <p>sort - sort by name or/and date with asc or desc direction</p>
-     *
-     *                      <p>example: ?name=partName&description=partDesc&tags=tagName1,tagName2&sort=name,asc&sort=createDate,desc</p>
-     *
-     *                      <p>request params aren't required</p>
+     * @param giftCertificateParam gift certificate search parameters which passed in request
      * @param size count of gift certificates on page
      * @param page number of page
      * @return list of gift certificates dto
      */
 
     @GetMapping
-    public CollectionModel<GiftCertificateDto> findAll(@RequestParam(required = false) MultiValueMap<String, String> requestParams,
+    public CollectionModel<GiftCertificateDto> findAll(@Valid GiftCertificateParamDto giftCertificateParam,
                                                        @RequestParam(required = false, defaultValue = defaultSize) @Positive Integer size,
                                                        @RequestParam(required = false, defaultValue = defaultPage) @Positive Integer page) {
         PageDto pageDto = new PageDto(size, page);
         List<GiftCertificateDto> giftCertificateDtoList =
-                giftCertificateService.findAll(multiValueMapToMap(requestParams), pageDto);
+                giftCertificateService.findAll(giftCertificateParam, pageDto);
         Link selfLink = linkTo(methodOn(GiftCertificateController.class)
-                .findAll(requestParams, size, page))
+                .findAll(giftCertificateParam, size, page))
                 .withSelfRel();
         return CollectionModel.of(giftCertificateDtoList, selfLink);
     }
@@ -150,13 +141,5 @@ public class GiftCertificateController {
     public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
         giftCertificateService.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private Map<String, String[]> multiValueMapToMap(MultiValueMap<String, String> requestParams) {
-        return requestParams.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> e.getValue().toArray(String[]::new)
-                ));
     }
 }

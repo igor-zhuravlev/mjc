@@ -1,17 +1,14 @@
 package com.epam.esm.service.util;
 
 import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
+import com.epam.esm.service.dto.GiftCertificateParamDto;
 import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public final class GiftCertificateCriteriaBuilder {
-    public static final String NAME_PARAM = "name";
-    public static final String DESCRIPTION_PARAM = "description";
-    public static final String TAGS_PARAM = "tags";
-    public static final String SORT_PARAM = "sort";
 
     private static final String PARAM_DELIMITER = ",";
 
@@ -19,30 +16,37 @@ public final class GiftCertificateCriteriaBuilder {
         List<Sort.Order> orders = new ArrayList<>();
         for (String sort : sorts) {
             String[] sortItem = sort.strip().split(PARAM_DELIMITER);
-            if (sortItem[1].strip().equalsIgnoreCase(Sort.Direction.DESC.name())) {
+            String direction = sortItem[1].strip();
+            if (direction.equalsIgnoreCase(Sort.Direction.DESC.name())) {
                 orders.add(Sort.Order.desc(sortItem[0]));
-            } else {
+            } else if (direction.equalsIgnoreCase(Sort.Direction.ASC.name())) {
                 orders.add(Sort.Order.asc(sortItem[0]));
             }
         }
         return Sort.by(orders);
     }
 
-    public static GiftCertificateCriteria build(Map<String, String[]> params) {
+    public static GiftCertificateCriteria build(GiftCertificateParamDto giftCertificateParam) {
         GiftCertificateCriteria criteria = new GiftCertificateCriteria();
-        if (params.get(NAME_PARAM) != null) {
-            criteria.setName(params.get(NAME_PARAM)[0]);
+        String name = giftCertificateParam.getName();
+        if (name != null) {
+            criteria.setName(name.strip());
         }
-        if (params.get(DESCRIPTION_PARAM) != null) {
-            criteria.setName(params.get(DESCRIPTION_PARAM)[0]);
+        String description = giftCertificateParam.getDescription();
+        if (description != null) {
+            criteria.setName(description.strip());
         }
-        if (params.get(TAGS_PARAM) != null) {
-            String[] tags = params.get(TAGS_PARAM)[0].split(PARAM_DELIMITER);
-            criteria.setTagNames(tags);
+        String[] tags = giftCertificateParam.getTags();
+        if (tags != null) {
+            String[] formattedTags = Arrays.stream(tags)
+                    .map(String::strip)
+                    .toArray(String[]::new);
+            criteria.setTagNames(formattedTags);
         }
-        if (params.get(SORT_PARAM) != null) {
-            Sort sort = buildSortByParams(params.get(SORT_PARAM));
-            criteria.setSort(sort);
+        String[] sort = giftCertificateParam.getSort();
+        if (sort != null) {
+            Sort formattedSort = buildSortByParams(giftCertificateParam.getSort());
+            criteria.setSort(formattedSort);
         }
         return criteria;
     }
