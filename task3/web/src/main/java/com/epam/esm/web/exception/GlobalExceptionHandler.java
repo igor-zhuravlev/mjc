@@ -5,11 +5,9 @@ import com.epam.esm.service.dto.ErrorDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistException;
 import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
-import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
-import com.epam.esm.service.exception.certificate.UnableUpdateGiftCertificate;
+import com.epam.esm.service.exception.order.OrderNotFoundException;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
-import com.epam.esm.service.exception.tag.UnableDeleteTagException;
 import com.epam.esm.service.exception.user.UserNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -62,18 +60,6 @@ public class GlobalExceptionHandler {
         return handle(e.getMessage());
     }
 
-    @ExceptionHandler(value = UnableDeleteGiftCertificateException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorDto handlerUnableDeleteGiftCertificateException(UnableDeleteGiftCertificateException e) {
-        return handle(e.getMessage());
-    }
-
-    @ExceptionHandler(value = UnableUpdateGiftCertificate.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorDto handlerUnableUpdateGiftCertificate(UnableUpdateGiftCertificate e) {
-        return handle(e.getMessage());
-    }
-
     @ExceptionHandler(value = TagNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDto handlerTagNotFoundException(TagNotFoundException e) {
@@ -86,15 +72,15 @@ public class GlobalExceptionHandler {
         return handle(e.getMessage());
     }
 
-    @ExceptionHandler(value = UnableDeleteTagException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorDto handlerUnableDeleteTagException(UnableDeleteTagException e) {
-        return handle(e.getMessage());
-    }
-
     @ExceptionHandler(value = UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDto handlerUserNotFoundException(UserNotFoundException e) {
+        return handle(e.getMessage());
+    }
+
+    @ExceptionHandler(value = OrderNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorDto handlerOrderNotFoundException(OrderNotFoundException e) {
         return handle(e.getMessage());
     }
 

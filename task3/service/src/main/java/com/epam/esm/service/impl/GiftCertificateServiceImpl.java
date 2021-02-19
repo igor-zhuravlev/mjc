@@ -39,7 +39,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public List<GiftCertificateDto> findAll(GiftCertificateParamDto giftCertificateParam, PageDto pageDto) {
         GiftCertificateCriteria criteria = GiftCertificateCriteriaBuilder.build(giftCertificateParam);
-        System.out.println(criteria);
         List<GiftCertificate> giftCertificateList = giftCertificateRepository
                 .findAll(criteria, pageDto.getOffset(), pageDto.getLimit());
         return giftCertificateConverter.entityToDtoList(giftCertificateList);

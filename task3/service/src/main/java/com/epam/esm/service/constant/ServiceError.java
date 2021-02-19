@@ -9,7 +9,10 @@ public enum ServiceError {
 
     USER_NOT_FOUND("3001"),
 
+    ORDER_NOT_FOUND("4001"),
+
     INTERNAL_SERVER_ERROR("0000"),
+
     INVALID_ARGUMENTS("0001"),
     INVALID_ARGUMENT_TYPE("0011");
 

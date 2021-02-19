@@ -3,6 +3,7 @@ package com.epam.esm.service.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ public class OrderDto extends AbstractDto implements Serializable {
     @JsonIgnore
     private UserDto user;
 
+    @NotNull
     private Set<GiftCertificateDto> giftCertificates;
 
     public Instant getCreateDate() {

@@ -11,6 +11,7 @@ import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.PageDto;
+import com.epam.esm.service.exception.order.OrderNotFoundException;
 import com.epam.esm.service.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDto findById(Long id) {
         Order order = orderRepository.findById(id);
+        if (order == null) {
+            throw new OrderNotFoundException(ServiceError.ORDER_NOT_FOUND.getCode());
+        }
         return orderConverter.entityToDto(order);
     }
 
@@ -68,15 +72,22 @@ public class OrderServiceImpl implements OrderService {
             throw new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode());
         }
         Order order = orderRepository.findByUser(user, orderId);
+        if (order == null) {
+            throw new OrderNotFoundException(ServiceError.ORDER_NOT_FOUND.getCode());
+        }
         return orderConverter.entityToDto(order);
     }
 
     @Transactional
     @Override
     public OrderDto create(Long userId, OrderDto orderDto) {
-        Order order = orderConverter.dtoToEntity(orderDto);
-
         User user = userRepository.findById(userId);
+
+        if (user == null) {
+            throw new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode());
+        }
+
+        Order order = orderConverter.dtoToEntity(orderDto);
 
         List<GiftCertificate> gifts = order.getGiftCertificates().stream()
                 .map(giftCertificate -> {
