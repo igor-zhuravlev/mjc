@@ -85,7 +85,7 @@ public class TagController {
         createdTagDto.add(linkTo(methodOn(TagController.class)
                 .find(createdTagDto.getId()))
                 .withRel(ApiConstant.FIND));
-        tagDto.add(linkTo(methodOn(TagController.class)
+        createdTagDto.add(linkTo(methodOn(TagController.class)
                 .delete(createdTagDto.getId()))
                 .withRel(ApiConstant.DELETE));
         return createdTagDto;

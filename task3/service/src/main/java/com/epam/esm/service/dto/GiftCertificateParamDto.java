@@ -3,7 +3,7 @@ package com.epam.esm.service.dto;
 import com.epam.esm.service.exception.validation.annotation.NotBlankIfPresent;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class GiftCertificateParamDto implements Serializable {
@@ -13,8 +13,8 @@ public class GiftCertificateParamDto implements Serializable {
     private String name;
     @NotBlankIfPresent
     private String description;
-    private String[] tags;
-    private String[] sort;
+    private List<@NotBlankIfPresent String> tags;
+    private List<@NotBlankIfPresent String> sort;
 
     public String getName() {
         return name;
@@ -32,19 +32,19 @@ public class GiftCertificateParamDto implements Serializable {
         this.description = description;
     }
 
-    public String[] getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
-    public String[] getSort() {
+    public List<String> getSort() {
         return sort;
     }
 
-    public void setSort(String[] sort) {
+    public void setSort(List<String> sort) {
         this.sort = sort;
     }
 
@@ -55,25 +55,22 @@ public class GiftCertificateParamDto implements Serializable {
         GiftCertificateParamDto that = (GiftCertificateParamDto) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(description, that.description) &&
-                Arrays.equals(tags, that.tags) &&
-                Arrays.equals(sort, that.sort);
+                Objects.equals(tags, that.tags) &&
+                Objects.equals(sort, that.sort);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(name, description);
-        result = 31 * result + Arrays.hashCode(tags);
-        result = 31 * result + Arrays.hashCode(sort);
-        return result;
+        return Objects.hash(name, description, tags, sort);
     }
 
     @Override
     public String toString() {
-        return "GiftCertificateParam{" +
+        return "GiftCertificateParamDto{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", tags=" + Arrays.toString(tags) +
-                ", sort=" + Arrays.toString(sort) +
+                ", tags=" + tags +
+                ", sort=" + sort +
                 '}';
     }
 }
