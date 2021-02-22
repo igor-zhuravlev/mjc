@@ -25,6 +25,7 @@ subprojects {
 
         jacksonVersion = '2.12.1'
         modelmapperVersion = '2.3.9'
+        lombokVersion = '1.18.18'
 
         junitVersion = '5.7.0'
         mockitoVersion = '3.7.0'
@@ -39,6 +40,8 @@ subprojects {
         implementation 'org.springframework.boot:spring-boot-starter-hateoas'
         implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
         implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+        implementation group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
 
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: "${junitVersion}"

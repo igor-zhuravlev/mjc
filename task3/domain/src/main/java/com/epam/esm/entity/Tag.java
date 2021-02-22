@@ -1,49 +1,24 @@
 package com.epam.esm.entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Column;
 import java.io.Serializable;
-import java.util.Objects;
 
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @Entity
-@Table(name = "tag", schema = "rest")
+@Table(name = "tags", schema = "gift_certificates_system")
 public class Tag extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = -7664123249924815397L;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
-
-    public Tag() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Tag tag = (Tag) o;
-        return Objects.equals(name, tag.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), name);
-    }
-
-    @Override
-    public String toString() {
-        return "Tag{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
 }

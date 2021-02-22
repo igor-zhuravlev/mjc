@@ -34,3 +34,9 @@ dependencies {
 
     testImplementation group: 'com.h2database', name: 'h2', version: "${h2Version}"
 }
+
+task dropAllUpdate {
+    dependsOn 'dropAll'
+    dependsOn 'update'
+    tasks.findByName('update').mustRunAfter 'dropAll'
+}

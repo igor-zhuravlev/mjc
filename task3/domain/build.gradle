@@ -1,3 +1,4 @@
 dependencies {
     annotationProcessor 'org.hibernate:hibernate-jpamodelgen'
+    annotationProcessor 'org.projectlombok:lombok'
 }
