@@ -5,6 +5,7 @@ import com.epam.esm.service.UserService;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.UserDto;
+import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -34,14 +35,16 @@ public class UserController {
     private UserService userService;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private PageDtoBuilder pageDtoBuilder;
 
     @GetMapping
-    public CollectionModel<UserDto> findAll(@RequestParam(required = false, defaultValue = "5") @Positive Integer size,
-                                            @RequestParam(required = false, defaultValue = "1") @Positive Integer page) {
-        PageDto pageDto = new PageDto(size, page);
+    public CollectionModel<UserDto> findAll(@RequestParam(required = false) @Positive Integer size,
+                                            @RequestParam(required = false) @Positive Integer page) {
+        PageDto pageDto = pageDtoBuilder.build(size, page);
         List<UserDto> userDtoList = userService.findAll(pageDto);
         Link selfLink = linkTo(methodOn(UserController.class)
-                .findAll(size, page))
+                .findAll(pageDto.getSize(), pageDto.getPage()))
                 .withSelfRel();
         return CollectionModel.of(userDtoList, selfLink);
     }
@@ -63,12 +66,12 @@ public class UserController {
 
     @GetMapping("/{userId}/orders")
     public CollectionModel<OrderDto> findOrders(@PathVariable @Positive Long userId,
-                                     @RequestParam(required = false, defaultValue = "5") @Positive Integer size,
-                                     @RequestParam(required = false, defaultValue = "1") @Positive Integer page) {
-        PageDto pageDto = new PageDto(size, page);
+                                     @RequestParam(required = false) @Positive Integer size,
+                                     @RequestParam(required = false) @Positive Integer page) {
+        PageDto pageDto = pageDtoBuilder.build(size, page);
         List<OrderDto> orderDtoList = orderService.findAllByUserId(userId, pageDto);
         Link selfLink = linkTo(methodOn(UserController.class)
-                .findOrders(userId, size, page))
+                .findOrders(userId, pageDto.getSize(), pageDto.getPage()))
                 .withSelfRel();
         Link findOrderLink = linkTo(methodOn(UserController.class)
                 .findOrder(userId, null))

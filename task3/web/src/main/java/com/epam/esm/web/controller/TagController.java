@@ -3,6 +3,7 @@ package com.epam.esm.web.controller;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -36,6 +37,8 @@ public class TagController {
 
     @Autowired
     private TagService tagService;
+    @Autowired
+    private PageDtoBuilder pageDtoBuilder;
 
     /**
      * Finds all tags
@@ -45,12 +48,12 @@ public class TagController {
      */
 
     @GetMapping
-    public CollectionModel<TagDto> findAll(@RequestParam(required = false, defaultValue = "5") @Positive Integer size,
-                                           @RequestParam(required = false, defaultValue = "1") @Positive Integer page) {
-        PageDto pageDto = new PageDto(size, page);
+    public CollectionModel<TagDto> findAll(@RequestParam(required = false) @Positive Integer size,
+                                           @RequestParam(required = false) @Positive Integer page) {
+        PageDto pageDto = pageDtoBuilder.build(size, page);
         List<TagDto> tagDtoList = tagService.findAll(pageDto);
         Link selfLink = linkTo(methodOn(TagController.class)
-                .findAll(size, page))
+                .findAll(pageDto.getSize(), pageDto.getPage()))
                 .withSelfRel();
         return CollectionModel.of(tagDtoList, selfLink);
     }
@@ -94,12 +97,12 @@ public class TagController {
     /**
      * Deletes a tag by id
      * @param id identifier of the tag
-     * @return empty response with code 204
+     * @return Object with code 200
      */
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
         tagService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }

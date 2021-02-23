@@ -3,6 +3,7 @@ package com.epam.esm.web.controller;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.PageDto;
+import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
@@ -26,14 +27,16 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private PageDtoBuilder pageDtoBuilder;
 
     @GetMapping
-    public CollectionModel<OrderDto> findAll(@RequestParam(required = false, defaultValue = "5") @Positive Integer size,
-                                             @RequestParam(required = false, defaultValue = "1") @Positive Integer page) {
-        PageDto pageDto = new PageDto(size, page);
+    public CollectionModel<OrderDto> findAll(@RequestParam(required = false) @Positive Integer size,
+                                             @RequestParam(required = false) @Positive Integer page) {
+        PageDto pageDto = pageDtoBuilder.build(size, page);
         List<OrderDto> orderDtoList = orderService.findAll(pageDto);
         Link selfLink = linkTo(methodOn(OrderController.class)
-                .findAll(size, page))
+                .findAll(pageDto.getSize(), pageDto.getPage()))
                 .withSelfRel();
         return CollectionModel.of(orderDtoList, selfLink);
     }

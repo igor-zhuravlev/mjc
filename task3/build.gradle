@@ -58,11 +58,7 @@ subprojects {
         useJUnitPlatform()
     }
 
-    tasks.named('test') {
-        useJUnitPlatform()
-    }
-
-    tasks.named('jar') {
+    jar {
         manifest {
             attributes('Implementation-Title': project.name, 'Implementation-Version': project.version)
         }
