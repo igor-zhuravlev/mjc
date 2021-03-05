@@ -1,7 +1,7 @@
 package com.epam.esm.repository.impl;
 
-import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.GiftCertificate_;
+import com.epam.esm.domain.entity.GiftCertificate;
+import com.epam.esm.domain.entity.GiftCertificate_;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
 import com.epam.esm.repository.query.GiftCertificateQueryBuilder;

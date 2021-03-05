@@ -1,6 +1,6 @@
 package com.epam.esm.service.converter.impl;
 
-import com.epam.esm.entity.Tag;
+import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.TagDto;
 import org.modelmapper.ModelMapper;

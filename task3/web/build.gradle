@@ -1,7 +1,24 @@
 dependencies {
     implementation project(':service')
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+}
+
+def activeProfile
+
+if (project.hasProperty("${prodProfile}")) {
+    activeProfile = "${prodProfile}"
+} else {
+    activeProfile = "${devProfile}"
 }
 
 bootJar {
     enabled = true
+}
+
+bootRun {
+    enabled = true
+    systemProperty('spring.profiles.active', activeProfile)
 }

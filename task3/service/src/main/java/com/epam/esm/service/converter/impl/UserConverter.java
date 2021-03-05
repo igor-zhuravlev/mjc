@@ -1,6 +1,6 @@
 package com.epam.esm.service.converter.impl;
 
-import com.epam.esm.entity.User;
+import com.epam.esm.domain.entity.User;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.UserDto;
 import org.modelmapper.ModelMapper;

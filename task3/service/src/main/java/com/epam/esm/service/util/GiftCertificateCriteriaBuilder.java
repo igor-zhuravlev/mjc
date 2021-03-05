@@ -1,8 +1,8 @@
 package com.epam.esm.service.util;
 
+import com.epam.esm.domain.Sort;
 import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
 import com.epam.esm.service.dto.GiftCertificateParamDto;
-import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.ArrayList;

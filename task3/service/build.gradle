@@ -2,9 +2,6 @@ dependencies {
     implementation project(':repository')
     implementation project(':domain')
 
-    implementation group: 'org.springframework.data', name: 'spring-data-commons', version: "${springDataVersion}"
-
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation group: 'org.modelmapper', name: 'modelmapper', version: "${modelmapperVersion}"
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: "${jacksonVersion}"
 }

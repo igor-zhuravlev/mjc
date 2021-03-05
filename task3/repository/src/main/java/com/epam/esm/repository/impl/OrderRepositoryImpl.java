@@ -1,8 +1,8 @@
 package com.epam.esm.repository.impl;
 
-import com.epam.esm.entity.Order;
-import com.epam.esm.entity.Order_;
-import com.epam.esm.entity.User;
+import com.epam.esm.domain.entity.Order;
+import com.epam.esm.domain.entity.Order_;
+import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.OrderRepository;
 import org.springframework.stereotype.Repository;
 

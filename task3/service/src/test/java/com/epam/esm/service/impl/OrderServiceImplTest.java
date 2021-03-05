@@ -1,7 +1,7 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.entity.Order;
-import com.epam.esm.entity.User;
+import com.epam.esm.domain.entity.Order;
+import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.OrderService;

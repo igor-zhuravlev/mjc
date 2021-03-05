@@ -1,6 +1,6 @@
 package com.epam.esm.service.converter.impl;
 
-import com.epam.esm.entity.Order;
+import com.epam.esm.domain.entity.Order;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.OrderDto;
 import org.modelmapper.ModelMapper;

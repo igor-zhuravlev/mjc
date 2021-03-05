@@ -1,12 +1,12 @@
 package com.epam.esm.repository.query;
 
-import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.GiftCertificate_;
-import com.epam.esm.entity.Tag;
-import com.epam.esm.entity.Tag_;
+import com.epam.esm.domain.entity.GiftCertificate;
+import com.epam.esm.domain.entity.GiftCertificate_;
+import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.domain.entity.Tag_;
 import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
 import com.epam.esm.repository.query.util.QueryUtil;
-import org.springframework.data.domain.Sort;
+import com.epam.esm.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.CriteriaQuery;
@@ -64,7 +64,7 @@ public class GiftCertificateQueryBuilder {
 
         Sort sort = criteria.getSort();
         if (sort != null) {
-            List<Order> orders = sort.stream()
+            List<Order> orders = sort.getOrders().stream()
                     .map(order -> {
                         SingularAttribute<GiftCertificate, ?> singularAttribute = null;
                         if (order.getProperty().equalsIgnoreCase(GiftCertificate_.CREATE_DATE)) {

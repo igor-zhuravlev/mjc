@@ -11,3 +11,4 @@ gradlew
 *.jar
 
 liquibase
+db

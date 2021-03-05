@@ -1,42 +1,8 @@
-plugins {
-    id "org.liquibase.gradle" version "${liquibasePluginVersion}"
-}
-
-def dbProperties = new Properties()
-file('src/main/resources/database.properties').withInputStream {
-    dbProperties.load(it)
-}
-
-liquibase {
-    activities {
-        main {
-            changeLogFile 'src/main/resources/liquibase/db.changelog-master.xml'
-            driver dbProperties.get('jdbc.driver')
-            url dbProperties.get('jdbc.url')
-            defaultSchemaName dbProperties.get('jdbc.schema')
-            username dbProperties.get('jdbc.username')
-            password dbProperties.get('jdbc.password')
-        }
-    }
-    runList = 'main'
-}
-
 dependencies {
     implementation project(':domain')
 
     implementation group: 'org.postgresql', name: 'postgresql', version: "${postgresqlVersion}"
-
-    liquibaseRuntime group: 'org.postgresql', name: 'postgresql', version: "${postgresqlVersion}"
-    liquibaseRuntime group: 'org.liquibase', name: 'liquibase-core', version: "${liquibaseVersion}"
-
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-    implementation group: 'org.springframework.data', name: 'spring-data-commons', version: "${springDataVersion}"
+    implementation group: 'org.liquibase', name: 'liquibase-core', version: "${liquibaseVersion}"
 
     testImplementation group: 'com.h2database', name: 'h2', version: "${h2Version}"
-}
-
-task dropAllUpdate {
-    dependsOn 'dropAll'
-    dependsOn 'update'
-    tasks.findByName('update').mustRunAfter 'dropAll'
 }

@@ -1,6 +1,6 @@
 package com.epam.esm.service.dto;
 
-import com.epam.esm.service.exception.validation.annotation.NotBlankIfPresent;
+import com.epam.esm.service.validation.annotation.NotBlankIfPresent;
 
 import java.io.Serializable;
 import java.util.List;

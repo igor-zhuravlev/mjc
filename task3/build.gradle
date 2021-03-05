@@ -16,19 +16,12 @@ subprojects {
     apply plugin: 'io.spring.dependency-management'
 
     ext {
-        springDataVersion = '2.4.2'
-
-        postgresqlVersion = '42.2.18'
+        postgresqlVersion = '42.2.19'
         h2Version = '1.4.200'
-        liquibaseVersion = '4.2.2'
-        liquibasePluginVersion = '2.0.4'
+        liquibaseVersion = '4.3.1'
 
-        jacksonVersion = '2.12.1'
         modelmapperVersion = '2.3.9'
         lombokVersion = '1.18.18'
-
-        junitVersion = '5.7.0'
-        mockitoVersion = '3.7.0'
     }
 
     repositories {
@@ -36,22 +29,16 @@ subprojects {
     }
 
     dependencies {
-        implementation 'org.springframework.boot:spring-boot-starter-web'
-        implementation 'org.springframework.boot:spring-boot-starter-hateoas'
         implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
         implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-        implementation group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
-
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: "${junitVersion}"
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-        testImplementation group: 'org.mockito', name: 'mockito-core', version: "${mockitoVersion}"
-        testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: "${mockitoVersion}"
     }
 
-    java {
-        withJavadocJar()
+    if (project.hasProperty("${prodProfile}")) {
+        java {
+            withJavadocJar()
+        }
     }
 
     test {
@@ -64,19 +51,19 @@ subprojects {
         }
     }
 
+    javadoc {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+
     bootJar {
+        enabled = false
+    }
+
+    bootRun {
         enabled = false
     }
 
     jar {
         enabled = true
-    }
-}
-
-if (JavaVersion.current().isJava8Compatible()) {
-    allprojects {
-        tasks.withType(Javadoc) {
-            options.addStringOption('Xdoclint:none', '-quiet')
-        }
     }
 }

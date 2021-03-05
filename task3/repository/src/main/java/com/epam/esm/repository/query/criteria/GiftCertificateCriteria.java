@@ -1,6 +1,6 @@
 package com.epam.esm.repository.query.criteria;
 
-import org.springframework.data.domain.Sort;
+import com.epam.esm.domain.Sort;
 
 import java.util.Arrays;
 import java.util.Objects;
