@@ -1,14 +1,13 @@
 package com.epam.esm.service.dto;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
+import com.epam.esm.service.validation.annotation.NotBlankIfPresent;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -20,19 +19,17 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @JsonRootName(value = "gift_certificate")
-public class GiftCertificateDto extends AbstractDto implements Serializable {
+public class GiftCertificateUpdateDto extends AbstractDto implements Serializable {
     private static final long serialVersionUID = 1144649892569462913L;
 
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
     private static final String TIME_ZONE = "UTC";
 
-    @NotBlank
+    @NotBlankIfPresent
     private String name;
-    @NotBlank
+    @NotBlankIfPresent
     private String description;
-    @NotNull
     private BigDecimal price;
-    @NotNull
     private Integer duration;
     @Null
     @JsonFormat(pattern = DATE_TIME_FORMAT, timezone = TIME_ZONE)

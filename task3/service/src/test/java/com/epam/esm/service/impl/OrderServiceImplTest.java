@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,6 +32,7 @@ import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.anyList;
 import static org.mockito.BDDMockito.never;
 import static org.mockito.BDDMockito.anyLong;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceImplTest {
@@ -50,23 +52,19 @@ class OrderServiceImplTest {
 
     @BeforeAll
     static void beforeAll() {
-        Order order1 = new Order();
-        order1.setId(1L);
-        Order order2 = new Order();
-        order2.setId(2L);
-
-        OrderDto orderDto1 = new OrderDto();
-        orderDto1.setId(1L);
-        OrderDto orderDto2 = new OrderDto();
-        orderDto2.setId(2L);
-
         orderList = new ArrayList<>();
-        orderList.add(order1);
-        orderList.add(order2);
-
         orderDtoList = new ArrayList<>();
-        orderDtoList.add(orderDto1);
-        orderDtoList.add(orderDto2);
+
+        for (long i = 1; i <= 2; i++) {
+            Order order = new Order();
+            order.setId(i);
+
+            OrderDto orderDto = new OrderDto();
+            orderDto.setId(i);
+
+            orderList.add(order);
+            orderDtoList.add(orderDto);
+        }
     }
 
     @Test
@@ -285,6 +283,45 @@ class OrderServiceImplTest {
 
         then(orderConverter)
                 .should(never())
+                .entityToDto(any(Order.class));
+    }
+
+    @Test
+    void create_CreatingOrder_ReturnCreatedOrder() {
+        final Long userId = 1L;
+        OrderDto orderDtoToCreate = new OrderDto();
+        Order orderToCreate = new Order();
+        orderToCreate.setOrderGiftCertificates(new HashSet<>());
+
+        User user = new User();
+        Order savedOrder = new Order();
+        OrderDto savedOrderDto = new OrderDto();
+
+        given(userRepository.findById(userId))
+                .willReturn(user);
+        given(orderConverter.dtoToEntity(orderDtoToCreate))
+                .willReturn(orderToCreate);
+        given(orderRepository.save(orderToCreate))
+                .willReturn(savedOrder);
+        given(orderConverter.entityToDto(savedOrder))
+                .willReturn(savedOrderDto);
+
+        orderService.create(userId, orderDtoToCreate);
+
+        then(userRepository)
+                .should(only())
+                .findById(anyLong());
+
+        then(orderConverter)
+                .should(times(1))
+                .dtoToEntity(any(OrderDto.class));
+
+        then(orderRepository)
+                .should(only())
+                .save(any(Order.class));
+
+        then(orderConverter)
+                .should(times(1))
                 .entityToDto(any(Order.class));
     }
 

@@ -11,8 +11,8 @@ import javax.persistence.Column;
 import javax.persistence.ManyToOne;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
+import javax.persistence.CascadeType;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -38,9 +38,6 @@ public class Order extends AbstractEntity implements Serializable {
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "orders_gift_certificates",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "gift_certificate_id"))
-    private Set<GiftCertificate> giftCertificates;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private Set<OrderGiftCertificate> orderGiftCertificates;
 }

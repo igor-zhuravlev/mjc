@@ -9,6 +9,7 @@ import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
+import com.epam.esm.service.exception.tag.UnableDeleteTagException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,9 @@ public class TagServiceImpl implements TagService {
         Tag tag = tagRepository.findById(id);
         if (tag == null) {
             throw new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode());
+        }
+        if (!tag.getGiftCertificates().isEmpty()) {
+            throw new UnableDeleteTagException(ServiceError.TAG_UNABLE_DELETE.getCode());
         }
         tagRepository.delete(tag);
     }

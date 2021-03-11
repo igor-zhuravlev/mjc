@@ -2,6 +2,10 @@ package com.epam.esm.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -10,6 +14,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Set;
 
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonRootName(value = "order")
 public class OrderDto extends AbstractDto implements Serializable {
     private static final long serialVersionUID = 1141594450857312063L;
@@ -23,48 +31,5 @@ public class OrderDto extends AbstractDto implements Serializable {
     private UserDto user;
 
     @NotNull
-    private Set<GiftCertificateDto> giftCertificates;
-
-    public Instant getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Instant createDate) {
-        this.createDate = createDate;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public UserDto getUser() {
-        return user;
-    }
-
-    public void setUser(UserDto user) {
-        this.user = user;
-    }
-
-    public Set<GiftCertificateDto> getGiftCertificates() {
-        return giftCertificates;
-    }
-
-    public void setGiftCertificates(Set<GiftCertificateDto> giftCertificates) {
-        this.giftCertificates = giftCertificates;
-    }
-
-    @Override
-    public String toString() {
-        return "OrderDto{" +
-                "id=" + id +
-                ", createDate=" + createDate +
-                ", amount=" + amount +
-                ", user=" + user +
-                ", giftCertificates=" + giftCertificates +
-                '}';
-    }
+    private Set<@NotNull OrderGiftCertificateDto> orderGiftCertificates;
 }

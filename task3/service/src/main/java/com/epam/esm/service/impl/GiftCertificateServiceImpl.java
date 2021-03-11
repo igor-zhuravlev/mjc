@@ -10,9 +10,11 @@ import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.GiftCertificateParamDto;
+import com.epam.esm.service.dto.GiftCertificateUpdateDto;
 import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistException;
 import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
+import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
 import com.epam.esm.service.util.GiftCertificateCriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private TagRepository tagRepository;
     @Autowired
     private Converter<GiftCertificate, GiftCertificateDto> giftCertificateConverter;
+    @Autowired
+    private Converter<GiftCertificate, GiftCertificateUpdateDto> giftCertificateUpdateConverter;
 
     @Transactional(readOnly = true)
     @Override
@@ -80,26 +84,21 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Transactional
     @Override
-    public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
-        GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
-        if (giftCertificate == null) {
+    public GiftCertificateDto update(Long id, GiftCertificateUpdateDto giftCertificateDto) {
+        GiftCertificate existedGiftCertificate = giftCertificateRepository.findById(id);
+
+        if (existedGiftCertificate == null) {
             throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
         }
-        Set<Tag> existedTags = giftCertificate.getTags();
 
-        giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
+        GiftCertificate giftCertificate = giftCertificateUpdateConverter.dtoToEntity(giftCertificateDto);
 
-        if (giftCertificate.getTags() != null) {
-            existedTags.addAll(mapNewTagsWithExisted(giftCertificate.getTags()));
-        }
+        GiftCertificate updatedGiftCertificate = mapUpdatedFields(existedGiftCertificate, giftCertificate);
+        updatedGiftCertificate.setLastUpdateDate(Instant.now().truncatedTo(ChronoUnit.MICROS));
 
-        giftCertificate.setId(id);
-        giftCertificate.setLastUpdateDate(Instant.now().truncatedTo(ChronoUnit.MICROS));
-        giftCertificate.setTags(existedTags);
+        updatedGiftCertificate = giftCertificateRepository.update(updatedGiftCertificate);
 
-        giftCertificate = giftCertificateRepository.update(giftCertificate);
-
-        return giftCertificateConverter.entityToDto(giftCertificate);
+        return giftCertificateConverter.entityToDto(updatedGiftCertificate);
     }
 
     @Transactional
@@ -109,7 +108,29 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         if (giftCertificate == null) {
             throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
         }
+        if (!giftCertificate.getOrderGiftCertificates().isEmpty()) {
+            throw new UnableDeleteGiftCertificateException(ServiceError.GIFT_CERTIFICATE_UNABLE_DELETE.getCode());
+        }
         giftCertificateRepository.delete(giftCertificate);
+    }
+
+    private GiftCertificate mapUpdatedFields(GiftCertificate existedGiftCertificate, GiftCertificate giftCertificate) {
+        if (giftCertificate.getName() != null) {
+            existedGiftCertificate.setName(giftCertificate.getName());
+        }
+        if (giftCertificate.getDescription() != null) {
+            existedGiftCertificate.setDescription(giftCertificate.getDescription());
+        }
+        if (giftCertificate.getPrice() != null) {
+            existedGiftCertificate.setPrice(giftCertificate.getPrice());
+        }
+        if (giftCertificate.getDuration() != null) {
+            existedGiftCertificate.setDuration(giftCertificate.getDuration());
+        }
+        if (giftCertificate.getTags() != null) {
+            existedGiftCertificate.setTags(mapNewTagsWithExisted(giftCertificate.getTags()));
+        }
+        return existedGiftCertificate;
     }
 
     private Set<Tag> mapNewTagsWithExisted(Set<Tag> tags) {

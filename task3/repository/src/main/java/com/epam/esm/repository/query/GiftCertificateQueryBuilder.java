@@ -4,6 +4,7 @@ import com.epam.esm.domain.entity.GiftCertificate;
 import com.epam.esm.domain.entity.GiftCertificate_;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.domain.entity.Tag_;
+import com.epam.esm.domain.entity.AbstractEntity_;
 import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
 import com.epam.esm.repository.query.util.QueryUtil;
 import com.epam.esm.domain.Sort;
@@ -66,17 +67,22 @@ public class GiftCertificateQueryBuilder {
         if (sort != null) {
             List<Order> orders = sort.getOrders().stream()
                     .map(order -> {
-                        SingularAttribute<GiftCertificate, ?> singularAttribute = null;
+                        SingularAttribute<? super GiftCertificate, ?> singularAttribute;
                         if (order.getProperty().equalsIgnoreCase(GiftCertificate_.CREATE_DATE)) {
                             singularAttribute = GiftCertificate_.createDate;
                         } else if (order.getProperty().equalsIgnoreCase(GiftCertificate_.NAME)) {
                             singularAttribute = GiftCertificate_.name;
+                        } else {
+                            singularAttribute = AbstractEntity_.id;
                         }
                         return order.isAscending()
                                 ? criteriaBuilder.asc(root.get(singularAttribute))
                                 : criteriaBuilder.desc(root.get(singularAttribute));
                     }).collect(Collectors.toList());
             criteriaQuery.orderBy(orders);
+        } else {
+            Order defOrder = criteriaBuilder.asc(root.get(AbstractEntity_.id));
+            criteriaQuery.orderBy(defOrder);
         }
 
         return criteriaQuery;

@@ -3,9 +3,11 @@ package com.epam.esm.service.constant;
 public enum ServiceError {
     TAG_NOT_FOUND("1001"),
     TAG_ALREADY_EXISTS("1002"),
+    TAG_UNABLE_DELETE("1003"),
 
     GIFT_CERTIFICATE_NOT_FOUNT("2001"),
     GIFT_CERTIFICATE_ALREADY_EXISTS("2002"),
+    GIFT_CERTIFICATE_UNABLE_DELETE("2003"),
 
     USER_NOT_FOUND("3001"),
 

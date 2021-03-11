@@ -3,6 +3,7 @@ package com.epam.esm.web.controller;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.GiftCertificateParamDto;
+import com.epam.esm.service.dto.GiftCertificateUpdateDto;
 import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import com.epam.esm.web.constant.ApiConstant;
@@ -77,7 +78,7 @@ public class GiftCertificateController {
                 .find(id))
                 .withSelfRel());
         giftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
-                .update(id, giftCertificateDto))
+                .update(id, null))
                 .withRel(ApiConstant.UPDATE));
         giftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
                 .delete(id))
@@ -98,7 +99,7 @@ public class GiftCertificateController {
                 .find(createdGiftCertificateDto.getId()))
                 .withRel(ApiConstant.FIND));
         createdGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
-                .update(createdGiftCertificateDto.getId(), giftCertificateDto))
+                .update(createdGiftCertificateDto.getId(), null))
                 .withRel(ApiConstant.UPDATE));
         createdGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
                 .delete(createdGiftCertificateDto.getId()))
@@ -115,7 +116,7 @@ public class GiftCertificateController {
 
     @PatchMapping("/{id}")
     public GiftCertificateDto update(@PathVariable @Positive Long id,
-                                     @RequestBody @Valid GiftCertificateDto giftCertificateDto) {
+                                     @RequestBody @Valid GiftCertificateUpdateDto giftCertificateDto) {
         GiftCertificateDto updatedGiftCertificateDto = giftCertificateService.update(id, giftCertificateDto);
         updatedGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
                 .update(id, giftCertificateDto))

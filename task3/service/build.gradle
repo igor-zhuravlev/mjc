@@ -3,5 +3,9 @@ dependencies {
     implementation project(':domain')
 
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+
     implementation group: 'org.modelmapper', name: 'modelmapper', version: "${modelmapperVersion}"
+    implementation group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
+
+    annotationProcessor 'org.projectlombok:lombok'
 }

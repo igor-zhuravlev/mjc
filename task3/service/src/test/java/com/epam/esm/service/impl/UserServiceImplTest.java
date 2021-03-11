@@ -41,37 +41,21 @@ class UserServiceImplTest {
 
     @Test
     void findAll_FoundAllUsers_ReturnListOfUsers() {
-        User user1 = new User();
-        user1.setId(1L);
-        user1.setLogin("login1");
-        user1.setFirstName("firstName1");
-        user1.setLastName("lastName1");
-
-        User user2 = new User();
-        user2.setId(2L);
-        user2.setLogin("login2");
-        user2.setFirstName("firstName2");
-        user2.setLastName("lastName2");
-
-        UserDto userDto1 = new UserDto();
-        userDto1.setId(1L);
-        userDto1.setLogin("login1");
-        userDto1.setFirstName("firstName1");
-        userDto1.setLastName("lastName1");
-
-        UserDto userDto2 = new UserDto();
-        userDto2.setId(2L);
-        userDto2.setLogin("login2");
-        userDto2.setFirstName("firstName2");
-        userDto2.setLastName("lastName2");
-
         List<User> userList = new ArrayList<>();
-        userList.add(user1);
-        userList.add(user2);
-
         List<UserDto> userDtoList = new ArrayList<>();
-        userDtoList.add(userDto1);
-        userDtoList.add(userDto2);
+
+        for (long i = 1; i <= 2; i++) {
+            User user = new User();
+            user.setId(i);
+            user.setLogin("login" + i);
+
+            UserDto userDto = new UserDto();
+            userDto.setId(i);
+            userDto.setLogin("login" + i);
+
+            userList.add(user);
+            userDtoList.add(userDto);
+        }
 
         PageDto pageDto = new PageDto(5, 1);
 
@@ -101,14 +85,10 @@ class UserServiceImplTest {
         User user = new User();
         user.setId(id);
         user.setLogin("login1");
-        user.setFirstName("firstName1");
-        user.setLastName("lastName1");
 
         UserDto userDto = new UserDto();
         userDto.setId(id);
         userDto.setLogin("login1");
-        userDto.setFirstName("firstName1");
-        userDto.setLastName("lastName1");
 
         given(userRepository.findById(id)).willReturn(user);
         given(userConverter.entityToDto(user)).willReturn(userDto);

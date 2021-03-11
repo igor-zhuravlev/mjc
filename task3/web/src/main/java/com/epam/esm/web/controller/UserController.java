@@ -85,10 +85,9 @@ public class UserController {
         return orderService.findByUserId(userId, orderId);
     }
 
-    @PostMapping("/{userId}")
+    @PostMapping("/{userId}/orders")
     public OrderDto createOrder(@PathVariable @Positive Long userId,
                                 @RequestBody @Valid OrderDto orderDto) {
-        System.out.println(orderDto);
         OrderDto createdOrderDto = orderService.create(userId, orderDto);
         createdOrderDto.add(linkTo(methodOn(UserController.class)
                 .findOrders(userId, null, null))

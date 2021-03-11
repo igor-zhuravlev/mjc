@@ -8,6 +8,8 @@ import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundExcepti
 import com.epam.esm.service.exception.order.OrderNotFoundException;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
+import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
+import com.epam.esm.service.exception.tag.UnableDeleteTagException;
 import com.epam.esm.service.exception.user.UserNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,6 +62,12 @@ public class GlobalExceptionHandler {
         return handle(e.getMessage());
     }
 
+    @ExceptionHandler(value = UnableDeleteGiftCertificateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorDto handlerUnableDeleteGiftCertificateException(UnableDeleteGiftCertificateException e) {
+        return handle(e.getMessage());
+    }
+
     @ExceptionHandler(value = TagNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDto handlerTagNotFoundException(TagNotFoundException e) {
@@ -69,6 +77,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = TagAlreadyExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorDto handlerTagAlreadyExistException(TagAlreadyExistException e) {
+        return handle(e.getMessage());
+    }
+
+    @ExceptionHandler(value = UnableDeleteTagException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorDto handlerUnableDeleteTagException(UnableDeleteTagException e) {
         return handle(e.getMessage());
     }
 

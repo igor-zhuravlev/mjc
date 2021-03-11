@@ -1,5 +1,6 @@
 package com.epam.esm.service.impl;
 
+import com.epam.esm.domain.entity.GiftCertificate;
 import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.service.TagService;
@@ -8,6 +9,7 @@ import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
+import com.epam.esm.service.exception.tag.UnableDeleteTagException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,7 +17,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -47,29 +51,20 @@ class TagServiceImplTest {
     void findAll_FoundAllTag_ReturnListOfTags() {
         PageDto pageDto = new PageDto(5, 1);
 
-        Tag tag1 = new Tag();
-        tag1.setId(1L);
-        tag1.setName("tag1");
-
-        Tag tag2 = new Tag();
-        tag1.setId(2L);
-        tag1.setName("tag2");
-
         List<Tag> tagList = new ArrayList<>();
-        tagList.add(tag1);
-        tagList.add(tag2);
-
-        TagDto tagDto1 = new TagDto();
-        tagDto1.setId(1L);
-        tagDto1.setName("tag1");
-
-        TagDto tagDto2 = new TagDto();
-        tagDto2.setId(2L);
-        tagDto2.setName("tag2");
-
         List<TagDto> tagDtoList = new ArrayList<>();
-        tagDtoList.add(tagDto1);
-        tagDtoList.add(tagDto2);
+        for (long i = 1; i <= 2; i++) {
+            Tag tag = new Tag();
+            tag.setId(i);
+            tag.setName("tag" + i);
+
+            TagDto tagDto = new TagDto();
+            tagDto.setId(i);
+            tagDto.setName("tag" + i);
+
+            tagList.add(tag);
+            tagDtoList.add(tagDto);
+        }
 
         given(tagRepository.findAll(anyInt(), anyInt()))
                 .willReturn(tagList);
@@ -240,6 +235,7 @@ class TagServiceImplTest {
         Tag tag = new Tag();
         tag.setId(1L);
         tag.setName(name);
+        tag.setGiftCertificates(new HashSet<>());
 
         given(tagRepository.findById(id)).willReturn(tag);
         willDoNothing().given(tagRepository).delete(tag);
@@ -262,6 +258,31 @@ class TagServiceImplTest {
         given(tagRepository.findById(id)).willReturn(null);
 
         assertThrows(TagNotFoundException.class, () -> {
+            tagService.delete(id);
+        });
+
+        then(tagRepository)
+                .should(only())
+                .findById(anyLong());
+
+        then(tagRepository)
+                .should(never())
+                .delete(any(Tag.class));
+    }
+
+    @Test
+    void delete_TagUsedByCertificate_UnableDeleteTagExceptionThrown() {
+        final Long id = 1L;
+        final String name = "tag1";
+
+        Tag tag = new Tag();
+        tag.setId(1L);
+        tag.setName(name);
+        tag.setGiftCertificates(Set.of(new GiftCertificate()));
+
+        given(tagRepository.findById(id)).willReturn(tag);
+
+        assertThrows(UnableDeleteTagException.class, () -> {
             tagService.delete(id);
         });
 

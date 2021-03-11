@@ -1,15 +1,18 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.domain.entity.GiftCertificate;
+import com.epam.esm.domain.entity.OrderGiftCertificate;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.GiftCertificateParamDto;
+import com.epam.esm.service.dto.GiftCertificateUpdateDto;
 import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistException;
 import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
+import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,9 +20,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -42,6 +46,8 @@ class GiftCertificateServiceImplTest {
     private GiftCertificateRepository giftCertificateRepository;
     @Mock
     private Converter<GiftCertificate, GiftCertificateDto> giftCertificateConverter;
+    @Mock
+    private Converter<GiftCertificate, GiftCertificateUpdateDto> giftCertificateUpdateConverter;
 
     @InjectMocks
     private final GiftCertificateService giftCertificateService = new GiftCertificateServiceImpl();
@@ -51,37 +57,21 @@ class GiftCertificateServiceImplTest {
 
     @BeforeAll
     static void beforeAll() {
-        GiftCertificate giftCertificate1 = new GiftCertificate();
-        giftCertificate1.setId(1L);
-        giftCertificate1.setDescription("description1");
-        giftCertificate1.setPrice(BigDecimal.valueOf(9.99));
-        giftCertificate1.setDuration(10);
-
-        GiftCertificate giftCertificate2 = new GiftCertificate();
-        giftCertificate2.setId(2L);
-        giftCertificate2.setDescription("description2");
-        giftCertificate2.setPrice(BigDecimal.valueOf(9.99));
-        giftCertificate2.setDuration(10);
-
         giftCertificateList = new ArrayList<>();
-        giftCertificateList.add(giftCertificate1);
-        giftCertificateList.add(giftCertificate2);
-
-        GiftCertificateDto giftCertificateDto1 = new GiftCertificateDto();
-        giftCertificateDto1.setId(1L);
-        giftCertificateDto1.setDescription("description1");
-        giftCertificateDto1.setPrice(BigDecimal.valueOf(9.99));
-        giftCertificateDto1.setDuration(10);
-
-        GiftCertificateDto giftCertificateDto2 = new GiftCertificateDto();
-        giftCertificateDto1.setId(2L);
-        giftCertificateDto2.setDescription("description2");
-        giftCertificateDto2.setPrice(BigDecimal.valueOf(9.99));
-        giftCertificateDto2.setDuration(10);
-
         giftCertificateDtoList = new ArrayList<>();
-        giftCertificateDtoList.add(giftCertificateDto1);
-        giftCertificateDtoList.add(giftCertificateDto2);
+
+        for (long i = 1; i <= 2; i++) {
+            GiftCertificate giftCertificate = new GiftCertificate();
+            giftCertificate.setId(i);
+            giftCertificate.setName("name" + i);
+
+            GiftCertificateDto giftCertificateDto = new GiftCertificateDto();
+            giftCertificateDto.setId(i);
+            giftCertificateDto.setName("name" + i);
+
+            giftCertificateList.add(giftCertificate);
+            giftCertificateDtoList.add(giftCertificateDto);
+        }
     }
 
     @Test
@@ -231,6 +221,7 @@ class GiftCertificateServiceImplTest {
 
     @Test
     void update_UpdatingCertificate_ReturnUpdatedCertificate() {
+        GiftCertificateUpdateDto giftCertificateUpdateDto = new GiftCertificateUpdateDto();
         GiftCertificateDto giftCertificateDto = giftCertificateDtoList.get(0);
         GiftCertificate giftCertificate = giftCertificateList.get(0);
 
@@ -241,14 +232,14 @@ class GiftCertificateServiceImplTest {
 
         given(giftCertificateRepository.findById(id))
                 .willReturn(existedGiftCertificate);
-        given(giftCertificateConverter.dtoToEntity(giftCertificateDto))
+        given(giftCertificateUpdateConverter.dtoToEntity(giftCertificateUpdateDto))
                 .willReturn(giftCertificate);
         given(giftCertificateRepository.update(giftCertificate))
                 .willReturn(updatedGiftCertificate);
         given(giftCertificateConverter.entityToDto(updatedGiftCertificate))
                 .willReturn(updatedGiftCertificateDto);
 
-        GiftCertificateDto actual = giftCertificateService.update(id, giftCertificateDto);
+        GiftCertificateDto actual = giftCertificateService.update(id, giftCertificateUpdateDto);
 
         assertNotNull(actual);
         assertEquals(updatedGiftCertificateDto, actual);
@@ -257,37 +248,37 @@ class GiftCertificateServiceImplTest {
                 .should(times(1))
                 .findById(anyLong());
 
-        then(giftCertificateConverter)
-                .should(times(1))
-                .dtoToEntity(any(GiftCertificateDto.class));
+        then(giftCertificateUpdateConverter)
+                .should(only())
+                .dtoToEntity(any(GiftCertificateUpdateDto.class));
 
         then(giftCertificateRepository)
                 .should(times(1))
                 .update(any(GiftCertificate.class));
 
         then(giftCertificateConverter)
-                .should(times(1))
+                .should(only())
                 .entityToDto(any(GiftCertificate.class));
     }
 
     @Test
     void update_CertificateNotFound_GiftCertificateNotFoundExceptionThrown() {
-        GiftCertificateDto giftCertificateDto = giftCertificateDtoList.get(0);
+        GiftCertificateUpdateDto giftCertificateUpdateDto = new GiftCertificateUpdateDto();
         final Long id = 1L;
 
         given(giftCertificateRepository.findById(id)).willReturn(null);
 
         assertThrows(GiftCertificateNotFoundException.class, () -> {
-            giftCertificateService.update(id, giftCertificateDto);
+            giftCertificateService.update(id, giftCertificateUpdateDto);
         });
 
         then(giftCertificateRepository)
                 .should(only())
                 .findById(anyLong());
 
-        then(giftCertificateConverter)
+        then(giftCertificateUpdateConverter)
                 .should(never())
-                .dtoToEntity(any(GiftCertificateDto.class));
+                .dtoToEntity(any(GiftCertificateUpdateDto.class));
 
         then(giftCertificateRepository)
                 .should(never())
@@ -302,6 +293,8 @@ class GiftCertificateServiceImplTest {
     void delete_DeleteCertificate_ReturnNothing() {
         GiftCertificate giftCertificate = giftCertificateList.get(0);
         final Long id = giftCertificate.getId();
+
+        giftCertificate.setOrderGiftCertificates(new HashSet<>());
 
         given(giftCertificateRepository.findById(id))
                 .willReturn(giftCertificate);
@@ -326,7 +319,30 @@ class GiftCertificateServiceImplTest {
         given(giftCertificateRepository.findById(id)).willReturn(null);
 
         assertThrows(GiftCertificateNotFoundException.class, () -> {
-            giftCertificateService.findById(id);
+            giftCertificateService.delete(id);
+        });
+
+        then(giftCertificateRepository)
+                .should(only())
+                .findById(anyLong());
+
+        then(giftCertificateRepository)
+                .should(never())
+                .delete(any(GiftCertificate.class));
+    }
+
+    @Test
+    void delete_GiftCertificateUsedByOrder_UnableDeleteGiftCertificateExceptionThrown() {
+        GiftCertificate giftCertificate = giftCertificateList.get(0);
+        final Long id = giftCertificate.getId();
+
+        giftCertificate.setOrderGiftCertificates(Set.of(new OrderGiftCertificate()));
+
+        given(giftCertificateRepository.findById(id))
+                .willReturn(giftCertificate);
+
+        assertThrows(UnableDeleteGiftCertificateException.class, () -> {
+            giftCertificateService.delete(id);
         });
 
         then(giftCertificateRepository)

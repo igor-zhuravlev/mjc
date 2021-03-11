@@ -2,6 +2,7 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.domain.entity.GiftCertificate;
 import com.epam.esm.domain.entity.Order;
+import com.epam.esm.domain.entity.OrderGiftCertificate;
 import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.OrderRepository;
@@ -21,8 +22,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.HashSet;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -89,22 +88,25 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = orderConverter.dtoToEntity(orderDto);
 
-        List<GiftCertificate> gifts = order.getGiftCertificates().stream()
-                .map(giftCertificate -> {
-                    Long giftId = giftCertificate.getId();
-                    return giftCertificateRepository.findById(giftId);
-                }).collect(Collectors.toList());
+        for (OrderGiftCertificate orderGiftCertificate : order.getOrderGiftCertificates()) {
+            Long giftCertificateId = orderGiftCertificate.getGiftCertificate().getId();
+            GiftCertificate foundGiftCertificate = giftCertificateRepository.findById(giftCertificateId);
+            orderGiftCertificate.setGiftCertificate(foundGiftCertificate);
+            orderGiftCertificate.setOrder(order);
+        }
 
-        BigDecimal amount = gifts.stream()
-                .map(GiftCertificate::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal amount = order.getOrderGiftCertificates().stream()
+                .map(orderGiftCertificate -> {
+                    BigDecimal quantity = new BigDecimal(orderGiftCertificate.getQuantity());
+                    BigDecimal price = orderGiftCertificate.getGiftCertificate().getPrice();
+                    return quantity.multiply(price);
+                }).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         order.setCreateDate(Instant.now().truncatedTo(ChronoUnit.MICROS));
         order.setUser(user);
         order.setAmount(amount);
-        order.setGiftCertificates(new HashSet<>(gifts));
 
-        Order savedOrder = orderRepository.save(order);
-        return orderConverter.entityToDto(savedOrder);
+        order = orderRepository.save(order);
+        return orderConverter.entityToDto(order);
     }
 }

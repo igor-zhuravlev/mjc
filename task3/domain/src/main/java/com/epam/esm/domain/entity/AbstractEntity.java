@@ -1,5 +1,6 @@
 package com.epam.esm.domain.entity;
 
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +12,7 @@ import javax.persistence.GeneratedValue;
 import java.io.Serializable;
 
 @Data
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @MappedSuperclass
 public abstract class AbstractEntity implements Serializable {
     private static final long serialVersionUID = 6672658746100076925L;
