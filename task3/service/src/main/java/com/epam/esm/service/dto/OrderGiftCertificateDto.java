@@ -16,6 +16,6 @@ public class OrderGiftCertificateDto implements Serializable {
 
     @NotNull
     private GiftCertificateDto giftCertificate;
-    @Positive
+    @NotNull @Positive
     private Integer quantity;
 }

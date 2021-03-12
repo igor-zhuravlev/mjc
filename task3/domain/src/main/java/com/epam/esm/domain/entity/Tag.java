@@ -20,7 +20,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Entity
-@Table(name = "tags", schema = "gift_certificates_system")
+@Table(name = "tags")
 public class Tag extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = -7664123249924815397L;
 

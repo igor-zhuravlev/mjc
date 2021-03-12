@@ -10,6 +10,7 @@ import lombok.ToString;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Positive;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -30,9 +31,9 @@ public class GiftCertificateDto extends AbstractDto implements Serializable {
     private String name;
     @NotBlank
     private String description;
-    @NotNull
+    @NotNull @Positive
     private BigDecimal price;
-    @NotNull
+    @NotNull @Positive
     private Integer duration;
     @Null
     @JsonFormat(pattern = DATE_TIME_FORMAT, timezone = TIME_ZONE)

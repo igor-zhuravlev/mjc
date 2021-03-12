@@ -15,7 +15,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Entity
-@Table(name = "users", schema = "gift_certificates_system")
+@Table(name = "users")
 public class User extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = -3722920263866649342L;
 

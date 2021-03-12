@@ -24,7 +24,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Entity
-@Table( name = "gift_certificates", schema = "gift_certificates_system")
+@Table( name = "gift_certificates")
 public class GiftCertificate extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = 7468316931994434280L;
 
