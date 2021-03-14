@@ -1,7 +1,9 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.domain.entity.Tag;
+import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.TagRepository;
+import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
@@ -10,6 +12,7 @@ import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
 import com.epam.esm.service.exception.tag.UnableDeleteTagException;
+import com.epam.esm.service.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,8 @@ public class TagServiceImpl implements TagService {
 
     @Autowired
     private TagRepository tagRepository;
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private Converter<Tag, TagDto> tagConverter;
 
@@ -62,5 +67,16 @@ public class TagServiceImpl implements TagService {
             throw new UnableDeleteTagException(ServiceError.TAG_UNABLE_DELETE.getCode());
         }
         tagRepository.delete(tag);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public TagDto findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(Long userId) {
+        User user = userRepository.findById(userId);
+        if (user == null) {
+            throw new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode());
+        }
+        Tag tag = tagRepository.findMostWidelyUsedTagWithHighestCostOfOrdersByUser(user);
+        return tagConverter.entityToDto(tag);
     }
 }

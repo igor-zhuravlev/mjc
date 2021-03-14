@@ -9,4 +9,5 @@ public interface TagService extends Service<TagDto, Long> {
     List<TagDto> findAll(PageDto pageDto);
     TagDto create(TagDto tagDto);
     void delete(Long id);
+    TagDto findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(Long userId);
 }

@@ -105,4 +105,19 @@ public class TagController {
         tagService.delete(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/users/{userId}/most_used")
+    public TagDto findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(@PathVariable @Positive Long userId) {
+        TagDto tagDto = tagService.findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(userId);
+        tagDto.add(linkTo(methodOn(TagController.class)
+                .findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(userId))
+                .withSelfRel());
+        tagDto.add(linkTo(methodOn(TagController.class)
+                .find(tagDto.getId()))
+                .withRel(ApiConstant.FIND));
+        tagDto.add(linkTo(methodOn(TagController.class)
+                .delete(tagDto.getId()))
+                .withRel(ApiConstant.DELETE));
+        return tagDto;
+    }
 }
