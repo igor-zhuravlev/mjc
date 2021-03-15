@@ -26,6 +26,10 @@ import java.util.List;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+/**
+ * The User Controller represents user api for User
+ */
+
 @RestController
 @RequestMapping("/users")
 @Validated
@@ -38,6 +42,13 @@ public class UserController {
     @Autowired
     private PageDtoBuilder pageDtoBuilder;
 
+    /**
+     * Finds all users
+     * @param size count of users on page
+     * @param page number of page
+     * @return list of users dto
+     */
+
     @GetMapping
     public CollectionModel<UserDto> findAll(@RequestParam(required = false) @Positive Integer size,
                                             @RequestParam(required = false) @Positive Integer page) {
@@ -48,6 +59,12 @@ public class UserController {
                 .withSelfRel();
         return CollectionModel.of(userDtoList, selfLink);
     }
+
+    /**
+     * Search for a user
+     * @param id identifier of the user
+     * @return found user
+     */
 
     @GetMapping("/{id}")
     public UserDto find(@PathVariable @Positive Long id) {
@@ -64,6 +81,14 @@ public class UserController {
         return userDto;
     }
 
+    /**
+     * Finds all orders by user
+     * @param userId identifier of the user
+     * @param size count of orders on page
+     * @param page number of page
+     * @return list of orders dto
+     */
+
     @GetMapping("/{userId}/orders")
     public CollectionModel<OrderDto> findOrders(@PathVariable @Positive Long userId,
                                      @RequestParam(required = false) @Positive Integer size,
@@ -79,11 +104,25 @@ public class UserController {
         return CollectionModel.of(orderDtoList, selfLink, findOrderLink);
     }
 
+    /**
+     * Finds the user's order
+     * @param userId identifier of the user
+     * @param orderId identifier of the order
+     * @return found order dto
+     */
+
     @GetMapping("/{userId}/orders/{orderId}")
     public OrderDto findOrder(@PathVariable @Positive Long userId,
                               @PathVariable @Positive Long orderId) {
         return orderService.findByUserId(userId, orderId);
     }
+
+    /**
+     * Creates the user
+     * @param userId identifier of the user
+     * @param orderDto mapped order dto
+     * @return created order dto
+     */
 
     @PostMapping("/{userId}/orders")
     public OrderDto createOrder(@PathVariable @Positive Long userId,

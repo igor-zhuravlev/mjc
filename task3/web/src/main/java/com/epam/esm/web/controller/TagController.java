@@ -79,7 +79,7 @@ public class TagController {
     /**
      * Creates the tag
      * @param tagDto received tag dto
-     * @return found tag dto
+     * @return created tag dto
      */
 
     @PostMapping
@@ -105,6 +105,12 @@ public class TagController {
         tagService.delete(id);
         return ResponseEntity.ok().build();
     }
+
+    /**
+     * Finds the most widely used tag of a user with the highest cost of all orders
+     * @param userId identifier of the user
+     * @return found tag dto
+     */
 
     @GetMapping("/users/{userId}/most_used")
     public TagDto findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(@PathVariable @Positive Long userId) {
