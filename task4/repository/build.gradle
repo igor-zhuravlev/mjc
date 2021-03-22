@@ -1,0 +1,8 @@
+dependencies {
+    implementation project(':domain')
+
+    implementation group: 'org.postgresql', name: 'postgresql', version: "${postgresqlVersion}"
+    implementation group: 'org.liquibase', name: 'liquibase-core', version: "${liquibaseVersion}"
+
+    testImplementation group: 'com.h2database', name: 'h2', version: "${h2Version}"
+}
