@@ -16,6 +16,8 @@ import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistExc
 import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
 import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
 import com.epam.esm.service.util.GiftCertificateCriteriaBuilder;
+import org.modelmapper.Condition;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Autowired
     private Converter<GiftCertificate, GiftCertificateUpdateDto> giftCertificateUpdateConverter;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Transactional(readOnly = true)
     @Override
     public List<GiftCertificateDto> findAll(GiftCertificateParamDto giftCertificateParam, PageDto pageDto) {
@@ -55,7 +60,18 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         if (giftCertificate == null) {
             throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
         }
-        return giftCertificateConverter.entityToDto(giftCertificate);
+
+        GiftCertificateDto giftCertificateDto = new GiftCertificateDto();
+        modelMapper.map(giftCertificate, giftCertificateDto);
+        modelMapper.typeMap(GiftCertificate.class, GiftCertificateDto.class)
+                .addMappings(mapping -> {
+                    mapping.s
+                })
+        System.out.println(giftCertificate);
+        System.out.println(giftCertificateDto);
+        return giftCertificateDto;
+
+//        return giftCertificateConverter.entityToDto(giftCertificate);
     }
 
     @Transactional
