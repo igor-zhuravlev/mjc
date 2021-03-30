@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -72,10 +73,9 @@ public class TagServiceImpl implements TagService {
     @Transactional(readOnly = true)
     @Override
     public TagDto findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(Long userId) {
-        User user = userRepository.findById(userId);
-        if (user == null) {
-            throw new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode());
-        }
+        Optional<User> optionalUser = userRepository.findById(userId);
+        User user = optionalUser.orElseThrow(() ->
+                new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
         Tag tag = tagRepository.findMostWidelyUsedTagWithHighestCostOfOrdersByUser(user);
         return tagConverter.entityToDto(tag);
     }

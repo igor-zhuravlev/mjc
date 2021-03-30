@@ -7,8 +7,13 @@ import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.validation.constraints.Positive;
 import java.util.List;
@@ -37,6 +42,7 @@ public class OrderController {
      * @return list of orders dto
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public CollectionModel<OrderDto> findAll(@RequestParam(required = false) @Positive Integer size,
                                              @RequestParam(required = false) @Positive Integer page) {
@@ -54,6 +60,7 @@ public class OrderController {
      * @return found order
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public OrderDto find(@PathVariable @Positive Long id) {
         OrderDto orderDto = orderService.findById(id);

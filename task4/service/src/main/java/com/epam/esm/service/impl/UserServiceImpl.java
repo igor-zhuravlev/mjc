@@ -9,10 +9,12 @@ import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -24,18 +26,17 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<UserDto> findAll(PageDto pageDto) {
-        List<User> users = userRepository.findAll(pageDto.getOffset(), pageDto.getLimit());
-        return userConverter.entityToDtoList(users);
+    public Page<UserDto> findAll(PageDto pageDto) {
+        Page<User> users = userRepository.findAll(PageRequest.of(pageDto.getPage(), pageDto.getSize()));
+        return users.map(userConverter::entityToDto);
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserDto findById(Long id) {
-        User user = userRepository.findById(id);
-        if (user == null) {
-            throw new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode());
-        }
+        Optional<User> optionalUser = userRepository.findById(id);
+        User user = optionalUser.orElseThrow(() ->
+                new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
         return userConverter.entityToDto(user);
     }
 }

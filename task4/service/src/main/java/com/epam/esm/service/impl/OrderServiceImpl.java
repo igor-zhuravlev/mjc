@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -55,10 +56,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     @Override
     public List<OrderDto> findAllByUserId(Long userId, PageDto pageDto) {
-        User user = userRepository.findById(userId);
-        if (user == null) {
-            throw new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode());
-        }
+        Optional<User> optionalUser = userRepository.findById(userId);
+        User user = optionalUser.orElseThrow(() ->
+                new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
         List<Order> orders = orderRepository.findAllByUser(user, pageDto.getOffset(), pageDto.getLimit());
         return orderConverter.entityToDtoList(orders);
     }
@@ -66,10 +66,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     @Override
     public OrderDto findByUserId(Long userId, Long orderId) {
-        User user = userRepository.findById(userId);
-        if (user == null) {
-            throw new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode());
-        }
+        Optional<User> optionalUser = userRepository.findById(userId);
+        User user = optionalUser.orElseThrow(() ->
+                new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
         Order order = orderRepository.findByUser(user, orderId);
         if (order == null) {
             throw new OrderNotFoundException(ServiceError.ORDER_NOT_FOUND.getCode());
@@ -80,11 +79,10 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderDto create(Long userId, OrderDto orderDto) {
-        User user = userRepository.findById(userId);
+        Optional<User> optionalUser = userRepository.findById(userId);
 
-        if (user == null) {
-            throw new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode());
-        }
+        User user = optionalUser.orElseThrow(() ->
+                new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
 
         Order order = orderConverter.dtoToEntity(orderDto);
 

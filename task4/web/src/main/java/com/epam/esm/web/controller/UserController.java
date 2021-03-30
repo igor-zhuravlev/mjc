@@ -8,10 +8,18 @@ import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -43,15 +51,16 @@ public class UserController {
      * @return list of users dto
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public CollectionModel<UserDto> findAll(@RequestParam(required = false) @Positive Integer size,
-                                            @RequestParam(required = false) @Positive Integer page) {
+    public Page<UserDto> findAll(@RequestParam(required = false) @Positive Integer size,
+                                       @RequestParam(required = false) @Positive Integer page) {
         PageDto pageDto = pageDtoBuilder.build(size, page);
-        List<UserDto> userDtoList = userService.findAll(pageDto);
+        Page<UserDto> userDtoPage = userService.findAll(pageDto);
         Link selfLink = linkTo(methodOn(UserController.class)
                 .findAll(pageDto.getSize(), pageDto.getPage()))
                 .withSelfRel();
-        return CollectionModel.of(userDtoList, selfLink);
+        return userDtoPage;
     }
 
     /**
@@ -60,6 +69,7 @@ public class UserController {
      * @return found user
      */
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/{id}")
     public UserDto find(@PathVariable @Positive Long id) {
         UserDto userDto = userService.findById(id);
@@ -83,6 +93,7 @@ public class UserController {
      * @return list of orders dto
      */
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/{userId}/orders")
     public CollectionModel<OrderDto> findOrders(@PathVariable @Positive Long userId,
                                                 @RequestParam(required = false) @Positive Integer size,
@@ -105,6 +116,7 @@ public class UserController {
      * @return found order dto
      */
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/{userId}/orders/{orderId}")
     public OrderDto findOrder(@PathVariable @Positive Long userId,
                               @PathVariable @Positive Long orderId) {
@@ -118,6 +130,7 @@ public class UserController {
      * @return created order dto
      */
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{userId}/orders")
     public OrderDto createOrder(@PathVariable @Positive Long userId,
                                 @RequestBody @Valid OrderDto orderDto) {

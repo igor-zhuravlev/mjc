@@ -9,8 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -75,6 +83,7 @@ public class TagController {
      * @return created tag dto
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public TagDto create(@RequestBody @Valid TagDto tagDto) {
         TagDto createdTagDto = tagService.create(tagDto);
@@ -93,6 +102,7 @@ public class TagController {
      * @return Object with code 200
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
         tagService.delete(id);
@@ -105,6 +115,7 @@ public class TagController {
      * @return found tag dto
      */
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/users/{userId}/most_used")
     public TagDto findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(@PathVariable @Positive Long userId) {
         TagDto tagDto = tagService.findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(userId);
