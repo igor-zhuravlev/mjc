@@ -8,7 +8,7 @@ import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -53,16 +53,16 @@ public class GiftCertificateController {
      */
 
     @GetMapping
-    public CollectionModel<GiftCertificateDto> findAll(@Valid GiftCertificateParamDto giftCertificateParam,
-                                                       @RequestParam(required = false) @Positive Integer size,
-                                                       @RequestParam(required = false) @Positive Integer page) {
+    public Page<GiftCertificateDto> findAll(@Valid GiftCertificateParamDto giftCertificateParam,
+                                            @RequestParam(required = false) @Positive Integer size,
+                                            @RequestParam(required = false) @Positive Integer page) {
         PageDto pageDto = pageDtoBuilder.build(size, page);
-        List<GiftCertificateDto> giftCertificateDtoList =
+        Page<GiftCertificateDto> giftCertificateDtoPage =
                 giftCertificateService.findAll(giftCertificateParam, pageDto);
         Link selfLink = linkTo(methodOn(GiftCertificateController.class)
                 .findAll(giftCertificateParam, pageDto.getSize(), pageDto.getPage()))
                 .withSelfRel();
-        return CollectionModel.of(giftCertificateDtoList, selfLink);
+        return giftCertificateDtoPage;
     }
 
     /**

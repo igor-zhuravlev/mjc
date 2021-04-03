@@ -5,7 +5,7 @@ import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.validation.constraints.Positive;
-import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -44,14 +43,14 @@ public class OrderController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public CollectionModel<OrderDto> findAll(@RequestParam(required = false) @Positive Integer size,
-                                             @RequestParam(required = false) @Positive Integer page) {
+    public Page<OrderDto> findAll(@RequestParam(required = false) @Positive Integer size,
+                                  @RequestParam(required = false) @Positive Integer page) {
         PageDto pageDto = pageDtoBuilder.build(size, page);
-        List<OrderDto> orderDtoList = orderService.findAll(pageDto);
+        Page<OrderDto> orderDtoPage = orderService.findAll(pageDto);
         Link selfLink = linkTo(methodOn(OrderController.class)
                 .findAll(pageDto.getSize(), pageDto.getPage()))
                 .withSelfRel();
-        return CollectionModel.of(orderDtoList, selfLink);
+        return orderDtoPage;
     }
 
     /**

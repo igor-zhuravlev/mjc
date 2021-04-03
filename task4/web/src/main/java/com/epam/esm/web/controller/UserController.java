@@ -9,7 +9,6 @@ import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -95,18 +93,18 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/{userId}/orders")
-    public CollectionModel<OrderDto> findOrders(@PathVariable @Positive Long userId,
+    public Page<OrderDto> findOrders(@PathVariable @Positive Long userId,
                                                 @RequestParam(required = false) @Positive Integer size,
                                                 @RequestParam(required = false) @Positive Integer page) {
         PageDto pageDto = pageDtoBuilder.build(size, page);
-        List<OrderDto> orderDtoList = orderService.findAllByUserId(userId, pageDto);
+        Page<OrderDto> orderDtoPage = orderService.findAllByUserId(userId, pageDto);
         Link selfLink = linkTo(methodOn(UserController.class)
                 .findOrders(userId, pageDto.getSize(), pageDto.getPage()))
                 .withSelfRel();
         Link findOrderLink = linkTo(methodOn(UserController.class)
                 .findOrder(userId, null))
                 .withRel(ApiConstant.FIND_ORDER);
-        return CollectionModel.of(orderDtoList, selfLink, findOrderLink);
+        return orderDtoPage;
     }
 
     /**

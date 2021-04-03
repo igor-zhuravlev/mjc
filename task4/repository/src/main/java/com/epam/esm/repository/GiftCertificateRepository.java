@@ -1,12 +1,9 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.domain.entity.GiftCertificate;
-import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.List;
-
-public interface GiftCertificateRepository extends CrudRepository<GiftCertificate, Long> {
-    List<GiftCertificate> findAll(GiftCertificateCriteria criteria, int offset, int limit);
+public interface GiftCertificateRepository extends JpaRepository<GiftCertificate, Long>, JpaSpecificationExecutor<GiftCertificate> {
     GiftCertificate findByName(String name);
-    GiftCertificate update(GiftCertificate giftCertificate);
 }
