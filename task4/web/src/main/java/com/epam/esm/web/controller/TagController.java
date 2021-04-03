@@ -6,7 +6,7 @@ import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -49,14 +48,14 @@ public class TagController {
      */
 
     @GetMapping
-    public CollectionModel<TagDto> findAll(@RequestParam(required = false) @Positive Integer size,
+    public Page<TagDto> findAll(@RequestParam(required = false) @Positive Integer size,
                                            @RequestParam(required = false) @Positive Integer page) {
         PageDto pageDto = pageDtoBuilder.build(size, page);
-        List<TagDto> tagDtoList = tagService.findAll(pageDto);
+        Page<TagDto> tagDtoPage = tagService.findAll(pageDto);
         Link selfLink = linkTo(methodOn(TagController.class)
                 .findAll(pageDto.getSize(), pageDto.getPage()))
                 .withSelfRel();
-        return CollectionModel.of(tagDtoList, selfLink);
+        return tagDtoPage;
     }
 
     /**

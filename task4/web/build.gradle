@@ -1,5 +1,7 @@
 dependencies {
     implementation project(':service')
+    implementation project(':repository')
+    implementation project(':domain')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'

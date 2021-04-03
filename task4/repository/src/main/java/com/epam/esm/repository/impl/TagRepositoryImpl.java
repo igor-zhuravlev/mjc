@@ -9,7 +9,7 @@ import com.epam.esm.domain.entity.OrderGiftCertificate_;
 import com.epam.esm.domain.entity.GiftCertificate_;
 import com.epam.esm.domain.entity.Order_;
 import com.epam.esm.domain.entity.Order;
-import com.epam.esm.repository.TagRepository;
+import com.epam.esm.repository.TagRepositoryExtra;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -27,42 +27,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class TagRepositoryImpl implements TagRepository {
+public class TagRepositoryImpl implements TagRepositoryExtra {
 
     @PersistenceContext
     private EntityManager entityManager;
-
-    @Override
-    public List<Tag> findAll(int offset, int limit) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
-        Root<Tag> root = criteriaQuery.from(Tag.class);
-
-        criteriaQuery.select(root);
-
-        return entityManager.createQuery(criteriaQuery)
-                .setFirstResult(offset)
-                .setMaxResults(limit)
-                .getResultList();
-    }
-
-    @Override
-    public Tag findById(Long id) {
-        return entityManager.find(Tag.class, id);
-    }
-
-    @Override
-    public Tag findByName(String name) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
-        Root<Tag> root = criteriaQuery.from(Tag.class);
-
-        criteriaQuery.select(root)
-                .where(criteriaBuilder.equal(root.get(Tag_.name), name));
-
-        return entityManager.createQuery(criteriaQuery).getResultStream()
-                .findFirst().orElse(null);
-    }
 
     @Override
     public Tag findMostWidelyUsedTagWithHighestCostOfOrdersByUser(User user) {
@@ -100,16 +68,5 @@ public class TagRepositoryImpl implements TagRepository {
                     tag.setName(tuple.get(giftCertificateTagJoin.get(Tag_.NAME)));
                     return tag;
                 }).findFirst().orElse(null);
-    }
-
-    @Override
-    public Tag save(Tag tag) {
-        entityManager.persist(tag);
-        return tag;
-    }
-
-    @Override
-    public void delete(Tag tag) {
-        entityManager.remove(tag);
     }
 }

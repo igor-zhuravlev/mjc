@@ -14,10 +14,11 @@ import com.epam.esm.service.exception.tag.TagNotFoundException;
 import com.epam.esm.service.exception.tag.UnableDeleteTagException;
 import com.epam.esm.service.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -32,18 +33,17 @@ public class TagServiceImpl implements TagService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<TagDto> findAll(PageDto pageDto) {
-        List<Tag> tags = tagRepository.findAll(pageDto.getOffset(), pageDto.getLimit());
-        return tagConverter.entityToDtoList(tags);
+    public Page<TagDto> findAll(PageDto pageDto) {
+        Page<Tag> tags = tagRepository.findAll(PageRequest.of(pageDto.getPage(), pageDto.getSize()));
+        return tags.map(tagConverter::entityToDto);
     }
 
     @Transactional(readOnly = true)
     @Override
     public TagDto findById(Long id) {
-        Tag tag = tagRepository.findById(id);
-        if (tag == null) {
-            throw new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode());
-        }
+        Optional<Tag> optionalTag = tagRepository.findById(id);
+        Tag tag = optionalTag.orElseThrow(() ->
+                new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode()));
         return tagConverter.entityToDto(tag);
     }
 
@@ -60,10 +60,9 @@ public class TagServiceImpl implements TagService {
     @Transactional
     @Override
     public void delete(Long id) {
-        Tag tag = tagRepository.findById(id);
-        if (tag == null) {
-            throw new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode());
-        }
+        Optional<Tag> optionalTag = tagRepository.findById(id);
+        Tag tag = optionalTag.orElseThrow(() ->
+                new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode()));
         if (!tag.getGiftCertificates().isEmpty()) {
             throw new UnableDeleteTagException(ServiceError.TAG_UNABLE_DELETE.getCode());
         }
