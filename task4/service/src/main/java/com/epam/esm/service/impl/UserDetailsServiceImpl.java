@@ -1,6 +1,5 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.domain.entity.Role;
 import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.constant.ServiceError;
@@ -29,7 +28,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .roles(user.getRoles().stream().map(Role::getName).toArray(String[]::new))
+                .roles(user.getRoles().stream()
+                        .map(userRole -> userRole.getName().toString())
+                        .toArray(String[]::new))
                 .accountExpired(false)
                 .accountLocked(false)
                 .credentialsExpired(false)

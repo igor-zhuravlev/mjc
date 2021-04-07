@@ -38,5 +38,5 @@ public class User extends AbstractEntity implements Serializable {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Role> roles;
+    private Set<UserRole> roles;
 }

@@ -49,7 +49,7 @@ public class UserController {
      * @return list of users dto
      */
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
     @GetMapping
     public Page<UserDto> findAll(@RequestParam(required = false) @Positive Integer size,
                                        @RequestParam(required = false) @Positive Integer page) {
@@ -67,7 +67,8 @@ public class UserController {
      * @return found user
      */
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN) or " +
+            "hasRole(T(com.epam.esm.domain.entity.Role).USER)")
     @GetMapping("/{id}")
     public UserDto find(@PathVariable @Positive Long id) {
         UserDto userDto = userService.findById(id);
@@ -91,7 +92,8 @@ public class UserController {
      * @return list of orders dto
      */
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN) or " +
+            "hasRole(T(com.epam.esm.domain.entity.Role).USER)")
     @GetMapping("/{userId}/orders")
     public Page<OrderDto> findOrders(@PathVariable @Positive Long userId,
                                                 @RequestParam(required = false) @Positive Integer size,
@@ -114,7 +116,8 @@ public class UserController {
      * @return found order dto
      */
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN) or " +
+            "hasRole(T(com.epam.esm.domain.entity.Role).USER)")
     @GetMapping("/{userId}/orders/{orderId}")
     public OrderDto findOrder(@PathVariable @Positive Long userId,
                               @PathVariable @Positive Long orderId) {
@@ -128,7 +131,7 @@ public class UserController {
      * @return created order dto
      */
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).USER)")
     @PostMapping("/{userId}/orders")
     public OrderDto createOrder(@PathVariable @Positive Long userId,
                                 @RequestBody @Valid OrderDto orderDto) {

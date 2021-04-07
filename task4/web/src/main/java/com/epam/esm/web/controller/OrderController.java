@@ -41,7 +41,7 @@ public class OrderController {
      * @return list of orders dto
      */
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
     @GetMapping
     public Page<OrderDto> findAll(@RequestParam(required = false) @Positive Integer size,
                                   @RequestParam(required = false) @Positive Integer page) {
@@ -59,7 +59,7 @@ public class OrderController {
      * @return found order
      */
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
     @GetMapping("/{id}")
     public OrderDto find(@PathVariable @Positive Long id) {
         OrderDto orderDto = orderService.findById(id);

@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -92,7 +91,7 @@ public class GiftCertificateController {
      * @return saved gift certificate dto
      */
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
     @PostMapping
     public GiftCertificateDto create(@RequestBody @Valid GiftCertificateDto giftCertificateDto) {
         GiftCertificateDto createdGiftCertificateDto = giftCertificateService.create(giftCertificateDto);
@@ -115,7 +114,7 @@ public class GiftCertificateController {
      * @return updated gift certificate dto
      */
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
     @PatchMapping("/{id}")
     public GiftCertificateDto update(@PathVariable @Positive Long id,
                                      @RequestBody @Valid GiftCertificateUpdateDto giftCertificateDto) {
@@ -138,7 +137,7 @@ public class GiftCertificateController {
      * @return Object with code 200
      */
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
         giftCertificateService.delete(id);

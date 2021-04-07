@@ -82,7 +82,7 @@ public class TagController {
      * @return created tag dto
      */
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
     @PostMapping
     public TagDto create(@RequestBody @Valid TagDto tagDto) {
         TagDto createdTagDto = tagService.create(tagDto);
@@ -101,7 +101,7 @@ public class TagController {
      * @return Object with code 200
      */
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
         tagService.delete(id);
@@ -114,7 +114,8 @@ public class TagController {
      * @return found tag dto
      */
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN) or " +
+            "hasRole(T(com.epam.esm.domain.entity.Role).USER)")
     @GetMapping("/users/{userId}/most_used")
     public TagDto findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(@PathVariable @Positive Long userId) {
         TagDto tagDto = tagService.findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(userId);
