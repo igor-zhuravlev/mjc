@@ -12,7 +12,6 @@ import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.GiftCertificateParamDto;
 import com.epam.esm.service.dto.GiftCertificateUpdateDto;
-import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistException;
 import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
 import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
@@ -20,6 +19,7 @@ import com.epam.esm.service.util.GiftCertificateCriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,11 +45,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<GiftCertificateDto> findAll(GiftCertificateParamDto giftCertificateParam, PageDto pageDto) {
+    public Page<GiftCertificateDto> findAll(GiftCertificateParamDto giftCertificateParam, Pageable page) {
         GiftCertificateCriteria criteria = GiftCertificateCriteriaBuilder.build(giftCertificateParam);
         Specification<GiftCertificate> specification = new GiftCertificateSpecificationImpl(criteria);
         Page<GiftCertificate> giftCertificatePage = giftCertificateRepository.findAll(specification,
-                PageRequest.of(pageDto.getPage(), pageDto.getSize(), criteria.getSort()));
+                PageRequest.of(page.getPageNumber(), page.getPageSize(), criteria.getSort()));
         return giftCertificatePage.map(giftCertificateConverter::entityToDto);
     }
 

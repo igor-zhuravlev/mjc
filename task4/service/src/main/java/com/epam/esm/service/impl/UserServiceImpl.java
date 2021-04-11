@@ -5,12 +5,11 @@ import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.UserService;
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
-import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +25,8 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<UserDto> findAll(PageDto pageDto) {
-        Page<User> users = userRepository.findAll(PageRequest.of(pageDto.getPage(), pageDto.getSize()));
+    public Page<UserDto> findAll(Pageable page) {
+        Page<User> users = userRepository.findAll(page);
         return users.map(userConverter::entityToDto);
     }
 

@@ -3,18 +3,16 @@ package com.epam.esm.web.controller;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
 import com.epam.esm.service.dto.OrderDto;
-import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.UserDto;
-import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,24 +37,19 @@ public class UserController {
     private UserService userService;
     @Autowired
     private OrderService orderService;
-    @Autowired
-    private PageDtoBuilder pageDtoBuilder;
 
     /**
      * Finds all users
-     * @param size count of users on page
-     * @param page number of page
+     * @param page requested page
      * @return list of users dto
      */
 
     @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
     @GetMapping
-    public Page<UserDto> findAll(@RequestParam(required = false) @Positive Integer size,
-                                       @RequestParam(required = false) @Positive Integer page) {
-        PageDto pageDto = pageDtoBuilder.build(size, page);
-        Page<UserDto> userDtoPage = userService.findAll(pageDto);
+    public Page<UserDto> findAll(Pageable page) {
+        Page<UserDto> userDtoPage = userService.findAll(page);
         Link selfLink = linkTo(methodOn(UserController.class)
-                .findAll(pageDto.getSize(), pageDto.getPage()))
+                .findAll(page))
                 .withSelfRel();
         return userDtoPage;
     }
@@ -76,7 +69,7 @@ public class UserController {
                 .find(id))
                 .withSelfRel());
         userDto.add(linkTo(methodOn(UserController.class)
-                .findOrders(id, null, null))
+                .findOrders(id, null))
                 .withRel(ApiConstant.FIND_ORDERS));
         userDto.add(linkTo(methodOn(UserController.class)
                 .findOrder(id, null))
@@ -87,21 +80,17 @@ public class UserController {
     /**
      * Finds all orders by user
      * @param userId identifier of the user
-     * @param size count of orders on page
-     * @param page number of page
+     * @param page requested page
      * @return list of orders dto
      */
 
     @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN) or " +
             "hasRole(T(com.epam.esm.domain.entity.Role).USER)")
     @GetMapping("/{userId}/orders")
-    public Page<OrderDto> findOrders(@PathVariable @Positive Long userId,
-                                                @RequestParam(required = false) @Positive Integer size,
-                                                @RequestParam(required = false) @Positive Integer page) {
-        PageDto pageDto = pageDtoBuilder.build(size, page);
-        Page<OrderDto> orderDtoPage = orderService.findAllByUserId(userId, pageDto);
+    public Page<OrderDto> findOrders(@PathVariable @Positive Long userId, Pageable page) {
+        Page<OrderDto> orderDtoPage = orderService.findAllByUserId(userId, page);
         Link selfLink = linkTo(methodOn(UserController.class)
-                .findOrders(userId, pageDto.getSize(), pageDto.getPage()))
+                .findOrders(userId, page))
                 .withSelfRel();
         Link findOrderLink = linkTo(methodOn(UserController.class)
                 .findOrder(userId, null))
@@ -137,7 +126,7 @@ public class UserController {
                                 @RequestBody @Valid OrderDto orderDto) {
         OrderDto createdOrderDto = orderService.create(userId, orderDto);
         createdOrderDto.add(linkTo(methodOn(UserController.class)
-                .findOrders(userId, null, null))
+                .findOrders(userId, null))
                 .withRel(ApiConstant.FIND_ORDERS));
         createdOrderDto.add(linkTo(methodOn(UserController.class)
                 .findOrder(userId, null))

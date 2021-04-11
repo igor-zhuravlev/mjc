@@ -7,7 +7,6 @@ import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
-import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.tag.TagAlreadyExistException;
 import com.epam.esm.service.exception.tag.TagNotFoundException;
@@ -15,7 +14,7 @@ import com.epam.esm.service.exception.tag.UnableDeleteTagException;
 import com.epam.esm.service.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +32,8 @@ public class TagServiceImpl implements TagService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<TagDto> findAll(PageDto pageDto) {
-        Page<Tag> tags = tagRepository.findAll(PageRequest.of(pageDto.getPage(), pageDto.getSize()));
+    public Page<TagDto> findAll(Pageable page) {
+        Page<Tag> tags = tagRepository.findAll(page);
         return tags.map(tagConverter::entityToDto);
     }
 

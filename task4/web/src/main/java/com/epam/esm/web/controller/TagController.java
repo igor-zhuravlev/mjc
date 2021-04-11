@@ -1,19 +1,17 @@
 package com.epam.esm.web.controller;
 
 import com.epam.esm.service.TagService;
-import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.dto.TagDto;
-import com.epam.esm.service.dto.builder.PageDtoBuilder;
 import com.epam.esm.web.constant.ApiConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,23 +35,18 @@ public class TagController {
 
     @Autowired
     private TagService tagService;
-    @Autowired
-    private PageDtoBuilder pageDtoBuilder;
 
     /**
      * Finds all tags
-     * @param size count of gift certificates on page
-     * @param page number of page
+     * @param page requested page
      * @return list of tags dto
      */
 
     @GetMapping
-    public Page<TagDto> findAll(@RequestParam(required = false) @Positive Integer size,
-                                           @RequestParam(required = false) @Positive Integer page) {
-        PageDto pageDto = pageDtoBuilder.build(size, page);
-        Page<TagDto> tagDtoPage = tagService.findAll(pageDto);
+    public Page<TagDto> findAll(Pageable page) {
+        Page<TagDto> tagDtoPage = tagService.findAll(page);
         Link selfLink = linkTo(methodOn(TagController.class)
-                .findAll(pageDto.getSize(), pageDto.getPage()))
+                .findAll(page))
                 .withSelfRel();
         return tagDtoPage;
     }

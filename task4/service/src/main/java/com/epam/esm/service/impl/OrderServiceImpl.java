@@ -11,12 +11,11 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.OrderDto;
-import com.epam.esm.service.dto.PageDto;
 import com.epam.esm.service.exception.order.OrderNotFoundException;
 import com.epam.esm.service.exception.user.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,8 +38,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<OrderDto> findAll(PageDto pageDto) {
-        Page<Order> orderPage = orderRepository.findAll(PageRequest.of(pageDto.getPage(), pageDto.getSize()));
+    public Page<OrderDto> findAll(Pageable page) {
+        Page<Order> orderPage = orderRepository.findAll(page);
         return orderPage.map(orderConverter::entityToDto);
     }
 
@@ -55,11 +54,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<OrderDto> findAllByUserId(Long userId, PageDto pageDto) {
+    public Page<OrderDto> findAllByUserId(Long userId, Pageable page) {
         Optional<User> optionalUser = userRepository.findById(userId);
         User user = optionalUser.orElseThrow(() ->
                 new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
-        Page<Order> orderPage = orderRepository.findAllByUser(user, PageRequest.of(pageDto.getPage(), pageDto.getSize()));
+        Page<Order> orderPage = orderRepository.findAllByUser(user, page);
         return orderPage.map(orderConverter::entityToDto);
     }
 
