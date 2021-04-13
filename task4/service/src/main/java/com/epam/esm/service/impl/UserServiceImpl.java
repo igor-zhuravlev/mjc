@@ -4,9 +4,9 @@ import com.epam.esm.domain.entity.User;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.UserService;
 import com.epam.esm.service.constant.ServiceError;
-import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.exception.ResourceNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,13 +21,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private Converter<User, UserDto> userConverter;
+    private ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
     @Override
     public Page<UserDto> findAll(Pageable page) {
         Page<User> users = userRepository.findAll(page);
-        return users.map(userConverter::entityToDto);
+        return users.map(user -> modelMapper.map(user, UserDto.class));
     }
 
     @Transactional(readOnly = true)
@@ -36,6 +36,6 @@ public class UserServiceImpl implements UserService {
         Optional<User> optionalUser = userRepository.findById(id);
         User user = optionalUser.orElseThrow(() ->
                 new ResourceNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
-        return userConverter.entityToDto(user);
+        return modelMapper.map(user, UserDto.class);
     }
 }

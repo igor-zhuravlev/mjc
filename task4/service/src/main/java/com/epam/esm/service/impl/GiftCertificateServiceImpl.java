@@ -8,7 +8,6 @@ import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
 import com.epam.esm.repository.specification.impl.GiftCertificateSpecificationImpl;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.constant.ServiceError;
-import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.GiftCertificateParamDto;
 import com.epam.esm.service.dto.GiftCertificateUpdateDto;
@@ -16,6 +15,7 @@ import com.epam.esm.service.exception.ResourceAlreadyExistException;
 import com.epam.esm.service.exception.ResourceNotFoundException;
 import com.epam.esm.service.exception.UnableDeleteResourceException;
 import com.epam.esm.service.util.GiftCertificateCriteriaBuilder;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,9 +39,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Autowired
     private TagRepository tagRepository;
     @Autowired
-    private Converter<GiftCertificate, GiftCertificateDto> giftCertificateConverter;
-    @Autowired
-    private Converter<GiftCertificate, GiftCertificateUpdateDto> giftCertificateUpdateConverter;
+    private ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
     @Override
@@ -50,7 +48,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         Specification<GiftCertificate> specification = new GiftCertificateSpecificationImpl(criteria);
         Page<GiftCertificate> giftCertificatePage = giftCertificateRepository.findAll(specification,
                 PageRequest.of(page.getPageNumber(), page.getPageSize(), criteria.getSort()));
-        return giftCertificatePage.map(giftCertificateConverter::entityToDto);
+        return giftCertificatePage.map(giftCertificate -> modelMapper.map(giftCertificate, GiftCertificateDto.class));
     }
 
     @Transactional(readOnly = true)
@@ -60,13 +58,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 giftCertificateRepository.findById(id);
         GiftCertificate giftCertificate = giftCertificateOptional.orElseThrow(() ->
                 new ResourceNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode()));
-        return giftCertificateConverter.entityToDto(giftCertificate);
+        return modelMapper.map(giftCertificate, GiftCertificateDto.class);
     }
 
     @Transactional
     @Override
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
-        GiftCertificate giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
+        GiftCertificate giftCertificate = modelMapper.map(giftCertificateDto, GiftCertificate.class);
 
         if (giftCertificateRepository.findByName(giftCertificate.getName()) != null) {
             throw new ResourceAlreadyExistException(ServiceError.GIFT_CERTIFICATE_ALREADY_EXISTS.getCode());
@@ -84,7 +82,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
         giftCertificate = giftCertificateRepository.save(giftCertificate);
 
-        return giftCertificateConverter.entityToDto(giftCertificate);
+        return modelMapper.map(giftCertificate, GiftCertificateDto.class);
+
     }
 
     @Transactional
@@ -95,7 +94,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         GiftCertificate existedGiftCertificate = existedGiftCertificateOptional.orElseThrow(() ->
                         new ResourceNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode()));
 
-        GiftCertificate giftCertificate = giftCertificateUpdateConverter.dtoToEntity(giftCertificateDto);
+        GiftCertificate giftCertificate = modelMapper.map(giftCertificateDto, GiftCertificate.class);
 
         GiftCertificate updatedGiftCertificate = mapUpdatedFields(existedGiftCertificate, giftCertificate);
         updatedGiftCertificate.setLastUpdateDate(Instant.now().truncatedTo(ChronoUnit.MICROS));
@@ -104,7 +103,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         giftCertificateRepository.findById(1L);
         giftCertificateRepository.getOne(1L);
 
-        return giftCertificateConverter.entityToDto(updatedGiftCertificate);
+        return modelMapper.map(updatedGiftCertificate, GiftCertificateDto.class);
     }
 
     @Transactional

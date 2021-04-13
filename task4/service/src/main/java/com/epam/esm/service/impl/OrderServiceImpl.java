@@ -9,9 +9,9 @@ import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.constant.ServiceError;
-import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.exception.ResourceNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,13 +33,13 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private Converter<Order, OrderDto> orderConverter;
+    private ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
     @Override
     public Page<OrderDto> findAll(Pageable page) {
         Page<Order> orderPage = orderRepository.findAll(page);
-        return orderPage.map(orderConverter::entityToDto);
+        return orderPage.map(order -> modelMapper.map(order, OrderDto.class));
     }
 
     @Transactional(readOnly = true)
@@ -48,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
         Optional<Order> orderOptional = orderRepository.findById(id);
         Order order = orderOptional.orElseThrow(() ->
                 new ResourceNotFoundException(ServiceError.ORDER_NOT_FOUND.getCode()));
-        return orderConverter.entityToDto(order);
+        return modelMapper.map(order, OrderDto.class);
     }
 
     @Transactional(readOnly = true)
@@ -58,7 +58,7 @@ public class OrderServiceImpl implements OrderService {
         User user = optionalUser.orElseThrow(() ->
                 new ResourceNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
         Page<Order> orderPage = orderRepository.findAllByUser(user, page);
-        return orderPage.map(orderConverter::entityToDto);
+        return orderPage.map(order -> modelMapper.map(order, OrderDto.class));
     }
 
     @Transactional(readOnly = true)
@@ -71,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
         if (order == null) {
             throw new ResourceNotFoundException(ServiceError.ORDER_NOT_FOUND.getCode());
         }
-        return orderConverter.entityToDto(order);
+        return modelMapper.map(order, OrderDto.class);
     }
 
     @Transactional
@@ -82,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
         User user = optionalUser.orElseThrow(() ->
                 new ResourceNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
 
-        Order order = orderConverter.dtoToEntity(orderDto);
+        Order order = modelMapper.map(orderDto, Order.class);
 
         for (OrderGiftCertificate orderGiftCertificate : order.getOrderGiftCertificates()) {
             Long giftCertificateId = orderGiftCertificate.getGiftCertificate().getId();
@@ -104,6 +104,6 @@ public class OrderServiceImpl implements OrderService {
         order.setAmount(amount);
 
         order = orderRepository.save(order);
-        return orderConverter.entityToDto(order);
+        return modelMapper.map(order, OrderDto.class);
     }
 }

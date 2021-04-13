@@ -6,11 +6,11 @@ import com.epam.esm.repository.TagRepository;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.constant.ServiceError;
-import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ResourceAlreadyExistException;
 import com.epam.esm.service.exception.ResourceNotFoundException;
 import com.epam.esm.service.exception.UnableDeleteResourceException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,13 +27,13 @@ public class TagServiceImpl implements TagService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private Converter<Tag, TagDto> tagConverter;
+    private ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
     @Override
     public Page<TagDto> findAll(Pageable page) {
         Page<Tag> tags = tagRepository.findAll(page);
-        return tags.map(tagConverter::entityToDto);
+        return tags.map(tag -> modelMapper.map(tag, TagDto.class));
     }
 
     @Transactional(readOnly = true)
@@ -42,17 +42,18 @@ public class TagServiceImpl implements TagService {
         Optional<Tag> optionalTag = tagRepository.findById(id);
         Tag tag = optionalTag.orElseThrow(() ->
                 new ResourceNotFoundException(ServiceError.TAG_NOT_FOUND.getCode()));
-        return tagConverter.entityToDto(tag);
+        return modelMapper.map(tag, TagDto.class);
     }
 
     @Transactional
     @Override
     public TagDto create(TagDto tagDto) {
-        Tag tag = tagConverter.dtoToEntity(tagDto);
+        Tag tag = modelMapper.map(tagDto, Tag.class);
         if (tagRepository.findByName(tag.getName()) != null) {
             throw new ResourceAlreadyExistException(ServiceError.TAG_ALREADY_EXISTS.getCode());
         }
-        return tagConverter.entityToDto(tagRepository.save(tag));
+        Tag createdTag = tagRepository.save(tag);
+        return modelMapper.map(createdTag, TagDto.class);
     }
 
     @Transactional
@@ -74,6 +75,6 @@ public class TagServiceImpl implements TagService {
         User user = optionalUser.orElseThrow(() ->
                 new ResourceNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
         Tag tag = tagRepository.findMostWidelyUsedTagWithHighestCostOfOrdersByUser(user);
-        return tagConverter.entityToDto(tag);
+        return modelMapper.map(tag, TagDto.class);
     }
 }
