@@ -8,10 +8,9 @@ import com.epam.esm.service.TagService;
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.TagDto;
-import com.epam.esm.service.exception.tag.TagAlreadyExistException;
-import com.epam.esm.service.exception.tag.TagNotFoundException;
-import com.epam.esm.service.exception.tag.UnableDeleteTagException;
-import com.epam.esm.service.exception.user.UserNotFoundException;
+import com.epam.esm.service.exception.ResourceAlreadyExistException;
+import com.epam.esm.service.exception.ResourceNotFoundException;
+import com.epam.esm.service.exception.UnableDeleteResourceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +41,7 @@ public class TagServiceImpl implements TagService {
     public TagDto findById(Long id) {
         Optional<Tag> optionalTag = tagRepository.findById(id);
         Tag tag = optionalTag.orElseThrow(() ->
-                new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode()));
+                new ResourceNotFoundException(ServiceError.TAG_NOT_FOUND.getCode()));
         return tagConverter.entityToDto(tag);
     }
 
@@ -51,7 +50,7 @@ public class TagServiceImpl implements TagService {
     public TagDto create(TagDto tagDto) {
         Tag tag = tagConverter.dtoToEntity(tagDto);
         if (tagRepository.findByName(tag.getName()) != null) {
-            throw new TagAlreadyExistException(ServiceError.TAG_ALREADY_EXISTS.getCode());
+            throw new ResourceAlreadyExistException(ServiceError.TAG_ALREADY_EXISTS.getCode());
         }
         return tagConverter.entityToDto(tagRepository.save(tag));
     }
@@ -61,9 +60,9 @@ public class TagServiceImpl implements TagService {
     public void delete(Long id) {
         Optional<Tag> optionalTag = tagRepository.findById(id);
         Tag tag = optionalTag.orElseThrow(() ->
-                new TagNotFoundException(ServiceError.TAG_NOT_FOUND.getCode()));
+                new ResourceNotFoundException(ServiceError.TAG_NOT_FOUND.getCode()));
         if (!tag.getGiftCertificates().isEmpty()) {
-            throw new UnableDeleteTagException(ServiceError.TAG_UNABLE_DELETE.getCode());
+            throw new UnableDeleteResourceException(ServiceError.TAG_UNABLE_DELETE.getCode());
         }
         tagRepository.delete(tag);
     }
@@ -73,7 +72,7 @@ public class TagServiceImpl implements TagService {
     public TagDto findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(Long userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
         User user = optionalUser.orElseThrow(() ->
-                new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
+                new ResourceNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
         Tag tag = tagRepository.findMostWidelyUsedTagWithHighestCostOfOrdersByUser(user);
         return tagConverter.entityToDto(tag);
     }

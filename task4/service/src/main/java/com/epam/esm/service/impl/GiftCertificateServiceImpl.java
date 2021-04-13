@@ -12,9 +12,9 @@ import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.GiftCertificateParamDto;
 import com.epam.esm.service.dto.GiftCertificateUpdateDto;
-import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistException;
-import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
-import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
+import com.epam.esm.service.exception.ResourceAlreadyExistException;
+import com.epam.esm.service.exception.ResourceNotFoundException;
+import com.epam.esm.service.exception.UnableDeleteResourceException;
 import com.epam.esm.service.util.GiftCertificateCriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -59,7 +59,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         Optional<GiftCertificate> giftCertificateOptional =
                 giftCertificateRepository.findById(id);
         GiftCertificate giftCertificate = giftCertificateOptional.orElseThrow(() ->
-                new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode()));
+                new ResourceNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode()));
         return giftCertificateConverter.entityToDto(giftCertificate);
     }
 
@@ -69,7 +69,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         GiftCertificate giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
 
         if (giftCertificateRepository.findByName(giftCertificate.getName()) != null) {
-            throw new GiftCertificateAlreadyExistException(ServiceError.GIFT_CERTIFICATE_ALREADY_EXISTS.getCode());
+            throw new ResourceAlreadyExistException(ServiceError.GIFT_CERTIFICATE_ALREADY_EXISTS.getCode());
         }
 
         Set<Tag> tags = new HashSet<>();
@@ -93,7 +93,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         Optional<GiftCertificate> existedGiftCertificateOptional = giftCertificateRepository.findById(id);
 
         GiftCertificate existedGiftCertificate = existedGiftCertificateOptional.orElseThrow(() ->
-                        new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode()));
+                        new ResourceNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode()));
 
         GiftCertificate giftCertificate = giftCertificateUpdateConverter.dtoToEntity(giftCertificateDto);
 
@@ -112,9 +112,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public void delete(Long id) {
         Optional<GiftCertificate> giftCertificateOptional = giftCertificateRepository.findById(id);
         GiftCertificate giftCertificate = giftCertificateOptional.orElseThrow(() ->
-                new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode()));
+                new ResourceNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode()));
         if (!giftCertificate.getOrderGiftCertificates().isEmpty()) {
-            throw new UnableDeleteGiftCertificateException(ServiceError.GIFT_CERTIFICATE_UNABLE_DELETE.getCode());
+            throw new UnableDeleteResourceException(ServiceError.GIFT_CERTIFICATE_UNABLE_DELETE.getCode());
         }
         giftCertificateRepository.delete(giftCertificate);
     }

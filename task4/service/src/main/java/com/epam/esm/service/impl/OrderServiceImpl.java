@@ -11,8 +11,7 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.OrderDto;
-import com.epam.esm.service.exception.order.OrderNotFoundException;
-import com.epam.esm.service.exception.user.UserNotFoundException;
+import com.epam.esm.service.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto findById(Long id) {
         Optional<Order> orderOptional = orderRepository.findById(id);
         Order order = orderOptional.orElseThrow(() ->
-                new OrderNotFoundException(ServiceError.ORDER_NOT_FOUND.getCode()));
+                new ResourceNotFoundException(ServiceError.ORDER_NOT_FOUND.getCode()));
         return orderConverter.entityToDto(order);
     }
 
@@ -57,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<OrderDto> findAllByUserId(Long userId, Pageable page) {
         Optional<User> optionalUser = userRepository.findById(userId);
         User user = optionalUser.orElseThrow(() ->
-                new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
+                new ResourceNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
         Page<Order> orderPage = orderRepository.findAllByUser(user, page);
         return orderPage.map(orderConverter::entityToDto);
     }
@@ -67,10 +66,10 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto findByUserId(Long userId, Long orderId) {
         Optional<User> optionalUser = userRepository.findById(userId);
         User user = optionalUser.orElseThrow(() ->
-                new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
+                new ResourceNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
         Order order = orderRepository.findByIdAndUser(orderId, user);
         if (order == null) {
-            throw new OrderNotFoundException(ServiceError.ORDER_NOT_FOUND.getCode());
+            throw new ResourceNotFoundException(ServiceError.ORDER_NOT_FOUND.getCode());
         }
         return orderConverter.entityToDto(order);
     }
@@ -81,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
         Optional<User> optionalUser = userRepository.findById(userId);
 
         User user = optionalUser.orElseThrow(() ->
-                new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
+                new ResourceNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
 
         Order order = orderConverter.dtoToEntity(orderDto);
 

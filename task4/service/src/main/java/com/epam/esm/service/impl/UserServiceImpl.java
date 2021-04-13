@@ -6,7 +6,7 @@ import com.epam.esm.service.UserService;
 import com.epam.esm.service.constant.ServiceError;
 import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.UserDto;
-import com.epam.esm.service.exception.user.UserNotFoundException;
+import com.epam.esm.service.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     public UserDto findById(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
         User user = optionalUser.orElseThrow(() ->
-                new UserNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
+                new ResourceNotFoundException(ServiceError.USER_NOT_FOUND.getCode()));
         return userConverter.entityToDto(user);
     }
 }
