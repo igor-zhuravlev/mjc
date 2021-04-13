@@ -3,6 +3,7 @@ package com.epam.esm.web.controller;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.web.constant.ApiConstant;
+import com.epam.esm.web.constant.SecurityExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -75,7 +76,7 @@ public class TagController {
      * @return created tag dto
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
+    @PreAuthorize(SecurityExpression.HAS_ROLE_ADMIN)
     @PostMapping
     public TagDto create(@RequestBody @Valid TagDto tagDto) {
         TagDto createdTagDto = tagService.create(tagDto);
@@ -94,7 +95,7 @@ public class TagController {
      * @return Object with code 200
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
+    @PreAuthorize(SecurityExpression.HAS_ROLE_ADMIN)
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
         tagService.delete(id);
@@ -107,8 +108,6 @@ public class TagController {
      * @return found tag dto
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN) or " +
-            "hasRole(T(com.epam.esm.domain.entity.Role).USER)")
     @GetMapping("/users/{userId}/most_used")
     public TagDto findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(@PathVariable @Positive Long userId) {
         TagDto tagDto = tagService.findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(userId);

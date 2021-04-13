@@ -5,6 +5,7 @@ import com.epam.esm.service.UserService;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.web.constant.ApiConstant;
+import com.epam.esm.web.constant.SecurityExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +45,7 @@ public class UserController {
      * @return list of users dto
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
+    @PreAuthorize(SecurityExpression.HAS_ROLE_ADMIN)
     @GetMapping
     public Page<UserDto> findAll(Pageable page) {
         Page<UserDto> userDtoPage = userService.findAll(page);
@@ -60,8 +61,6 @@ public class UserController {
      * @return found user
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN) or " +
-            "hasRole(T(com.epam.esm.domain.entity.Role).USER)")
     @GetMapping("/{id}")
     public UserDto find(@PathVariable @Positive Long id) {
         UserDto userDto = userService.findById(id);
@@ -84,8 +83,6 @@ public class UserController {
      * @return list of orders dto
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN) or " +
-            "hasRole(T(com.epam.esm.domain.entity.Role).USER)")
     @GetMapping("/{userId}/orders")
     public Page<OrderDto> findOrders(@PathVariable @Positive Long userId, Pageable page) {
         Page<OrderDto> orderDtoPage = orderService.findAllByUserId(userId, page);
@@ -105,8 +102,6 @@ public class UserController {
      * @return found order dto
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN) or " +
-            "hasRole(T(com.epam.esm.domain.entity.Role).USER)")
     @GetMapping("/{userId}/orders/{orderId}")
     public OrderDto findOrder(@PathVariable @Positive Long userId,
                               @PathVariable @Positive Long orderId) {
@@ -120,7 +115,7 @@ public class UserController {
      * @return created order dto
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).USER)")
+    @PreAuthorize(SecurityExpression.HAS_ROLE_USER)
     @PostMapping("/{userId}/orders")
     public OrderDto createOrder(@PathVariable @Positive Long userId,
                                 @RequestBody @Valid OrderDto orderDto) {

@@ -5,6 +5,7 @@ import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.GiftCertificateParamDto;
 import com.epam.esm.service.dto.GiftCertificateUpdateDto;
 import com.epam.esm.web.constant.ApiConstant;
+import com.epam.esm.web.constant.SecurityExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -83,7 +84,7 @@ public class GiftCertificateController {
      * @return saved gift certificate dto
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
+    @PreAuthorize(SecurityExpression.HAS_ROLE_ADMIN)
     @PostMapping
     public GiftCertificateDto create(@RequestBody @Valid GiftCertificateDto giftCertificateDto) {
         GiftCertificateDto createdGiftCertificateDto = giftCertificateService.create(giftCertificateDto);
@@ -106,7 +107,7 @@ public class GiftCertificateController {
      * @return updated gift certificate dto
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
+    @PreAuthorize(SecurityExpression.HAS_ROLE_ADMIN)
     @PatchMapping("/{id}")
     public GiftCertificateDto update(@PathVariable @Positive Long id,
                                      @RequestBody @Valid GiftCertificateUpdateDto giftCertificateDto) {
@@ -129,7 +130,7 @@ public class GiftCertificateController {
      * @return Object with code 200
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
+    @PreAuthorize(SecurityExpression.HAS_ROLE_ADMIN)
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable @Positive Long id) {
         giftCertificateService.delete(id);

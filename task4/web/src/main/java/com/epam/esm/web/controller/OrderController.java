@@ -2,6 +2,7 @@ package com.epam.esm.web.controller;
 
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.web.constant.SecurityExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +37,7 @@ public class OrderController {
      * @return list of orders dto
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
+    @PreAuthorize(SecurityExpression.HAS_ROLE_ADMIN)
     @GetMapping
     public Page<OrderDto> findAll(Pageable page) {
         Page<OrderDto> orderDtoPage = orderService.findAll(page);
@@ -52,7 +53,7 @@ public class OrderController {
      * @return found order
      */
 
-    @PreAuthorize("hasRole(T(com.epam.esm.domain.entity.Role).ADMIN)")
+    @PreAuthorize(SecurityExpression.HAS_ROLE_ADMIN)
     @GetMapping("/{id}")
     public OrderDto find(@PathVariable @Positive Long id) {
         OrderDto orderDto = orderService.findById(id);
