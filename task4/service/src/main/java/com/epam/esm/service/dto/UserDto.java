@@ -18,7 +18,7 @@ public class UserDto extends AbstractDto implements Serializable {
     private static final long serialVersionUID = -1733984329575838646L;
 
     @NotBlank
-    private String login;
+    private String username;
     @NotBlank
     private String firstName;
     @NotBlank

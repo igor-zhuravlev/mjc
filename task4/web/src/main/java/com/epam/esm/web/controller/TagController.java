@@ -2,12 +2,14 @@ package com.epam.esm.web.controller;
 
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDto;
-import com.epam.esm.web.constant.ApiConstant;
 import com.epam.esm.web.constant.SecurityExpression;
+import com.epam.esm.web.hateoas.TagLinkBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.hateoas.Link;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -22,9 +24,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 /**
  * The Tag Controller represents user api for Tag
  */
@@ -36,20 +35,20 @@ public class TagController {
 
     @Autowired
     private TagService tagService;
+    @Autowired
+    private TagLinkBuilder tagLinkBuilder;
 
     /**
      * Finds all tags
      * @param page requested page
+     * @param assembler {@link PagedResourcesAssembler} for convert Page into PagedResources
      * @return list of tags dto
      */
 
     @GetMapping
-    public Page<TagDto> findAll(Pageable page) {
+    public PagedModel<EntityModel<TagDto>> findAll(Pageable page, PagedResourcesAssembler<TagDto> assembler) {
         Page<TagDto> tagDtoPage = tagService.findAll(page);
-        Link selfLink = linkTo(methodOn(TagController.class)
-                .findAll(page))
-                .withSelfRel();
-        return tagDtoPage;
+        return assembler.toModel(tagDtoPage);
     }
 
     /**
@@ -58,15 +57,11 @@ public class TagController {
      * @return tag dto
      */
 
+
     @GetMapping("/{id}")
     public TagDto find(@PathVariable @Positive Long id) {
         TagDto tagDto = tagService.findById(id);
-        tagDto.add(linkTo(methodOn(TagController.class)
-                .find(id))
-                .withSelfRel());
-        tagDto.add(linkTo(methodOn(TagController.class)
-                .delete(id))
-                .withRel(ApiConstant.DELETE));
+        tagLinkBuilder.addTagLinks(tagDto);
         return tagDto;
     }
 
@@ -80,12 +75,7 @@ public class TagController {
     @PostMapping
     public TagDto create(@RequestBody @Valid TagDto tagDto) {
         TagDto createdTagDto = tagService.create(tagDto);
-        createdTagDto.add(linkTo(methodOn(TagController.class)
-                .find(createdTagDto.getId()))
-                .withRel(ApiConstant.FIND));
-        createdTagDto.add(linkTo(methodOn(TagController.class)
-                .delete(createdTagDto.getId()))
-                .withRel(ApiConstant.DELETE));
+        tagLinkBuilder.addCreatedTagLinks(createdTagDto);
         return createdTagDto;
     }
 
@@ -111,15 +101,7 @@ public class TagController {
     @GetMapping("/users/{userId}/most_used")
     public TagDto findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(@PathVariable @Positive Long userId) {
         TagDto tagDto = tagService.findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(userId);
-        tagDto.add(linkTo(methodOn(TagController.class)
-                .findMostWidelyUsedTagWithHighestCostOfOrdersByUserId(userId))
-                .withSelfRel());
-        tagDto.add(linkTo(methodOn(TagController.class)
-                .find(tagDto.getId()))
-                .withRel(ApiConstant.FIND));
-        tagDto.add(linkTo(methodOn(TagController.class)
-                .delete(tagDto.getId()))
-                .withRel(ApiConstant.DELETE));
+        tagLinkBuilder.addMostWidelyUsedTagLinks(tagDto, userId);
         return tagDto;
     }
 }

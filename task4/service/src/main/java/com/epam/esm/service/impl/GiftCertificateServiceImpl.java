@@ -18,7 +18,6 @@ import com.epam.esm.service.util.GiftCertificateCriteriaBuilder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -46,8 +45,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public Page<GiftCertificateDto> findAll(GiftCertificateParamDto giftCertificateParam, Pageable page) {
         GiftCertificateCriteria criteria = GiftCertificateCriteriaBuilder.build(giftCertificateParam);
         Specification<GiftCertificate> specification = new GiftCertificateSpecificationImpl(criteria);
-        Page<GiftCertificate> giftCertificatePage = giftCertificateRepository.findAll(specification,
-                PageRequest.of(page.getPageNumber(), page.getPageSize(), criteria.getSort()));
+        Page<GiftCertificate> giftCertificatePage = giftCertificateRepository.findAll(specification, page);
         return giftCertificatePage.map(giftCertificate -> modelMapper.map(giftCertificate, GiftCertificateDto.class));
     }
 
@@ -100,8 +98,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         updatedGiftCertificate.setLastUpdateDate(Instant.now().truncatedTo(ChronoUnit.MICROS));
 
         updatedGiftCertificate = giftCertificateRepository.save(updatedGiftCertificate);
-        giftCertificateRepository.findById(1L);
-        giftCertificateRepository.getOne(1L);
 
         return modelMapper.map(updatedGiftCertificate, GiftCertificateDto.class);
     }

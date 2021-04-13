@@ -8,6 +8,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.HashSet;
+import java.util.Set;
 
 public class GiftCertificateSpecificationImpl implements GiftCertificateSpecification {
     private static final long serialVersionUID = -7870482508990882975L;
@@ -20,10 +22,23 @@ public class GiftCertificateSpecificationImpl implements GiftCertificateSpecific
 
     @Override
     public Predicate toPredicate(Root<GiftCertificate> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-        return this
-                .and(GiftCertificateSpecification.byPartOfName(criteria.getName()))
-                .and(GiftCertificateSpecification.byPartOfDescription(criteria.getDescription()))
-                .and(GiftCertificateSpecification.byTagNames(criteria.getTagNames()))
-                .toPredicate(root, query, criteriaBuilder);
+        Set<Predicate> predicates = new HashSet<>();
+        if (criteria.getName() != null) {
+            Predicate predicateName = GiftCertificateSpecification.byPartOfName(criteria.getName())
+                    .toPredicate(root, query, criteriaBuilder);
+            predicates.add(predicateName);
+        }
+        if (criteria.getDescription() != null) {
+            Predicate predicateDescription = GiftCertificateSpecification
+                    .byPartOfDescription(criteria.getDescription())
+                    .toPredicate(root, query, criteriaBuilder);
+            predicates.add(predicateDescription);
+        }
+        if (criteria.getTagNames() != null) {
+            Predicate predicateTags = GiftCertificateSpecification.byTagNames(criteria.getTagNames())
+                    .toPredicate(root, query, criteriaBuilder);
+            predicates.add(predicateTags);
+        }
+        return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
     }
 }

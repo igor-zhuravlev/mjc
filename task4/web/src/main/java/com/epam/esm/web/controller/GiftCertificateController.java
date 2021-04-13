@@ -4,12 +4,14 @@ import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.GiftCertificateParamDto;
 import com.epam.esm.service.dto.GiftCertificateUpdateDto;
-import com.epam.esm.web.constant.ApiConstant;
 import com.epam.esm.web.constant.SecurityExpression;
+import com.epam.esm.web.hateoas.GiftCertificateLinkBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.hateoas.Link;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -25,9 +27,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 /**
  * The Gift Certificate Controller represents user api for GiftCertificate
  */
@@ -39,22 +38,24 @@ public class GiftCertificateController {
 
     @Autowired
     private GiftCertificateService giftCertificateService;
+    @Autowired
+    private GiftCertificateLinkBuilder giftCertificateLinkBuilder;
 
     /**
      * Finds all gift certificates with tags
      * @param giftCertificateParam gift certificate search parameters which passed in request
      * @param page requested page
+     * @param assembler {@link PagedResourcesAssembler} for convert Page into PagedResources
      * @return list of gift certificates dto
      */
 
     @GetMapping
-    public Page<GiftCertificateDto> findAll(@Valid GiftCertificateParamDto giftCertificateParam, Pageable page) {
+    public PagedModel<EntityModel<GiftCertificateDto>> findAll(@Valid GiftCertificateParamDto giftCertificateParam,
+                                                               Pageable page,
+                                                               PagedResourcesAssembler<GiftCertificateDto> assembler) {
         Page<GiftCertificateDto> giftCertificateDtoPage =
                 giftCertificateService.findAll(giftCertificateParam, page);
-        Link selfLink = linkTo(methodOn(GiftCertificateController.class)
-                .findAll(giftCertificateParam, page))
-                .withSelfRel();
-        return giftCertificateDtoPage;
+        return assembler.toModel(giftCertificateDtoPage);
     }
 
     /**
@@ -66,15 +67,7 @@ public class GiftCertificateController {
     @GetMapping("/{id}")
     public GiftCertificateDto find(@PathVariable @Positive Long id) {
         GiftCertificateDto giftCertificateDto = giftCertificateService.findById(id);
-        giftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
-                .find(id))
-                .withSelfRel());
-        giftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
-                .update(id, null))
-                .withRel(ApiConstant.UPDATE));
-        giftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
-                .delete(id))
-                .withRel(ApiConstant.DELETE));
+        giftCertificateLinkBuilder.addGiftCertificateLinks(giftCertificateDto);
         return giftCertificateDto;
     }
 
@@ -88,15 +81,7 @@ public class GiftCertificateController {
     @PostMapping
     public GiftCertificateDto create(@RequestBody @Valid GiftCertificateDto giftCertificateDto) {
         GiftCertificateDto createdGiftCertificateDto = giftCertificateService.create(giftCertificateDto);
-        createdGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
-                .find(createdGiftCertificateDto.getId()))
-                .withRel(ApiConstant.FIND));
-        createdGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
-                .update(createdGiftCertificateDto.getId(), null))
-                .withRel(ApiConstant.UPDATE));
-        createdGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
-                .delete(createdGiftCertificateDto.getId()))
-                .withRel(ApiConstant.DELETE));
+        giftCertificateLinkBuilder.addCretedGiftCertificateLinks(createdGiftCertificateDto);
         return createdGiftCertificateDto;
     }
 
@@ -112,15 +97,7 @@ public class GiftCertificateController {
     public GiftCertificateDto update(@PathVariable @Positive Long id,
                                      @RequestBody @Valid GiftCertificateUpdateDto giftCertificateDto) {
         GiftCertificateDto updatedGiftCertificateDto = giftCertificateService.update(id, giftCertificateDto);
-        updatedGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
-                .update(id, giftCertificateDto))
-                .withSelfRel());
-        updatedGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
-                .find(id))
-                .withRel(ApiConstant.FIND));
-        updatedGiftCertificateDto.add(linkTo(methodOn(GiftCertificateController.class)
-                .delete(id))
-                .withRel(ApiConstant.DELETE));
+        giftCertificateLinkBuilder.addUpdatedGiftCertificateLinks(updatedGiftCertificateDto);
         return updatedGiftCertificateDto;
     }
 

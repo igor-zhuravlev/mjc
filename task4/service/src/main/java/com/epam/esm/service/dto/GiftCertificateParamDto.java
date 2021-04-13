@@ -17,5 +17,4 @@ public class GiftCertificateParamDto implements Serializable {
     @NotBlankIfPresent
     private String description;
     private List<@NotBlankIfPresent String> tags;
-    private List<@NotBlankIfPresent String> sort;
 }

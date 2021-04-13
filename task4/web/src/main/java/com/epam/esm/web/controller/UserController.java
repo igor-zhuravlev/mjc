@@ -4,12 +4,15 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.UserDto;
-import com.epam.esm.web.constant.ApiConstant;
 import com.epam.esm.web.constant.SecurityExpression;
+import com.epam.esm.web.hateoas.UserLinkBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.hateoas.Link;
+
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,9 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * The User Controller represents user api for User
@@ -38,21 +38,21 @@ public class UserController {
     private UserService userService;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private UserLinkBuilder userLinkBuilder;
 
     /**
      * Finds all users
      * @param page requested page
+     * @param assembler {@link PagedResourcesAssembler} for convert Page into PagedResources
      * @return list of users dto
      */
 
     @PreAuthorize(SecurityExpression.HAS_ROLE_ADMIN)
     @GetMapping
-    public Page<UserDto> findAll(Pageable page) {
+    public PagedModel<EntityModel<UserDto>> findAll(Pageable page, PagedResourcesAssembler<UserDto> assembler) {
         Page<UserDto> userDtoPage = userService.findAll(page);
-        Link selfLink = linkTo(methodOn(UserController.class)
-                .findAll(page))
-                .withSelfRel();
-        return userDtoPage;
+        return assembler.toModel(userDtoPage);
     }
 
     /**
@@ -64,15 +64,7 @@ public class UserController {
     @GetMapping("/{id}")
     public UserDto find(@PathVariable @Positive Long id) {
         UserDto userDto = userService.findById(id);
-        userDto.add(linkTo(methodOn(UserController.class)
-                .find(id))
-                .withSelfRel());
-        userDto.add(linkTo(methodOn(UserController.class)
-                .findOrders(id, null))
-                .withRel(ApiConstant.FIND_ORDERS));
-        userDto.add(linkTo(methodOn(UserController.class)
-                .findOrder(id, null))
-                .withRel(ApiConstant.FIND_ORDER));
+        userLinkBuilder.addUserLinks(userDto);
         return userDto;
     }
 
@@ -80,19 +72,17 @@ public class UserController {
      * Finds all orders by user
      * @param userId identifier of the user
      * @param page requested page
+     * @param assembler {@link PagedResourcesAssembler} for convert Page into PagedResources
      * @return list of orders dto
      */
 
     @GetMapping("/{userId}/orders")
-    public Page<OrderDto> findOrders(@PathVariable @Positive Long userId, Pageable page) {
+    public PagedModel<EntityModel<OrderDto>> findOrders(@PathVariable @Positive Long userId, Pageable page,
+                                                        PagedResourcesAssembler<OrderDto> assembler) {
         Page<OrderDto> orderDtoPage = orderService.findAllByUserId(userId, page);
-        Link selfLink = linkTo(methodOn(UserController.class)
-                .findOrders(userId, page))
-                .withSelfRel();
-        Link findOrderLink = linkTo(methodOn(UserController.class)
-                .findOrder(userId, null))
-                .withRel(ApiConstant.FIND_ORDER);
-        return orderDtoPage;
+        PagedModel<EntityModel<OrderDto>> orderDtoPagedModel = assembler.toModel(orderDtoPage);
+        userLinkBuilder.addOrdersPagedModelLinks(userId, orderDtoPagedModel);
+        return orderDtoPagedModel;
     }
 
     /**
@@ -120,12 +110,7 @@ public class UserController {
     public OrderDto createOrder(@PathVariable @Positive Long userId,
                                 @RequestBody @Valid OrderDto orderDto) {
         OrderDto createdOrderDto = orderService.create(userId, orderDto);
-        createdOrderDto.add(linkTo(methodOn(UserController.class)
-                .findOrders(userId, null))
-                .withRel(ApiConstant.FIND_ORDERS));
-        createdOrderDto.add(linkTo(methodOn(UserController.class)
-                .findOrder(userId, null))
-                .withRel(ApiConstant.FIND_ORDER));
+        userLinkBuilder.addCreatedOrderLinks(createdOrderDto);
         return createdOrderDto;
     }
 }

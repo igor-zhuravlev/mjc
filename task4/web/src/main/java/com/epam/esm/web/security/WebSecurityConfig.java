@@ -33,7 +33,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests((requests) -> requests
-                .antMatchers(HttpMethod.GET, "/gifts").permitAll()
+                .antMatchers(HttpMethod.GET, "/gifts", "/gifts/*").permitAll()
+                .antMatchers(HttpMethod.GET, "/tags", "/tags/*").permitAll()
                 .anyRequest().authenticated());
 
         http.httpBasic();
