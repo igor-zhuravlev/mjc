@@ -1,6 +1,6 @@
 package com.epam.esm.repository.query.criteria;
 
-import com.epam.esm.domain.Sort;
+import org.springframework.data.domain.Sort;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -5,28 +5,29 @@ import com.epam.esm.domain.entity.Tag;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.repository.query.criteria.GiftCertificateCriteria;
+import com.epam.esm.repository.specification.impl.GiftCertificateSpecificationImpl;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.constant.ServiceError;
-import com.epam.esm.service.converter.Converter;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.GiftCertificateParamDto;
 import com.epam.esm.service.dto.GiftCertificateUpdateDto;
-import com.epam.esm.service.dto.PageDto;
-import com.epam.esm.service.exception.certificate.GiftCertificateAlreadyExistException;
-import com.epam.esm.service.exception.certificate.GiftCertificateNotFoundException;
-import com.epam.esm.service.exception.certificate.UnableDeleteGiftCertificateException;
+import com.epam.esm.service.exception.ResourceAlreadyExistException;
+import com.epam.esm.service.exception.ResourceNotFoundException;
+import com.epam.esm.service.exception.UnableDeleteResourceException;
 import com.epam.esm.service.util.GiftCertificateCriteriaBuilder;
-import org.modelmapper.Condition;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,50 +38,34 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Autowired
     private TagRepository tagRepository;
     @Autowired
-    private Converter<GiftCertificate, GiftCertificateDto> giftCertificateConverter;
-    @Autowired
-    private Converter<GiftCertificate, GiftCertificateUpdateDto> giftCertificateUpdateConverter;
-
-    @Autowired
     private ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
     @Override
-    public List<GiftCertificateDto> findAll(GiftCertificateParamDto giftCertificateParam, PageDto pageDto) {
+    public Page<GiftCertificateDto> findAll(GiftCertificateParamDto giftCertificateParam, Pageable page) {
         GiftCertificateCriteria criteria = GiftCertificateCriteriaBuilder.build(giftCertificateParam);
-        List<GiftCertificate> giftCertificateList = giftCertificateRepository
-                .findAll(criteria, pageDto.getOffset(), pageDto.getLimit());
-        return giftCertificateConverter.entityToDtoList(giftCertificateList);
+        Specification<GiftCertificate> specification = new GiftCertificateSpecificationImpl(criteria);
+        Page<GiftCertificate> giftCertificatePage = giftCertificateRepository.findAll(specification, page);
+        return giftCertificatePage.map(giftCertificate -> modelMapper.map(giftCertificate, GiftCertificateDto.class));
     }
 
     @Transactional(readOnly = true)
     @Override
     public GiftCertificateDto findById(Long id) {
-        GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
-        if (giftCertificate == null) {
-            throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
-        }
-
-        GiftCertificateDto giftCertificateDto = new GiftCertificateDto();
-        modelMapper.map(giftCertificate, giftCertificateDto);
-        modelMapper.typeMap(GiftCertificate.class, GiftCertificateDto.class)
-                .addMappings(mapping -> {
-                    mapping.s
-                })
-        System.out.println(giftCertificate);
-        System.out.println(giftCertificateDto);
-        return giftCertificateDto;
-
-//        return giftCertificateConverter.entityToDto(giftCertificate);
+        Optional<GiftCertificate> giftCertificateOptional =
+                giftCertificateRepository.findById(id);
+        GiftCertificate giftCertificate = giftCertificateOptional.orElseThrow(() ->
+                new ResourceNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode()));
+        return modelMapper.map(giftCertificate, GiftCertificateDto.class);
     }
 
     @Transactional
     @Override
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
-        GiftCertificate giftCertificate = giftCertificateConverter.dtoToEntity(giftCertificateDto);
+        GiftCertificate giftCertificate = modelMapper.map(giftCertificateDto, GiftCertificate.class);
 
         if (giftCertificateRepository.findByName(giftCertificate.getName()) != null) {
-            throw new GiftCertificateAlreadyExistException(ServiceError.GIFT_CERTIFICATE_ALREADY_EXISTS.getCode());
+            throw new ResourceAlreadyExistException(ServiceError.GIFT_CERTIFICATE_ALREADY_EXISTS.getCode());
         }
 
         Set<Tag> tags = new HashSet<>();
@@ -95,37 +80,36 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
         giftCertificate = giftCertificateRepository.save(giftCertificate);
 
-        return giftCertificateConverter.entityToDto(giftCertificate);
+        return modelMapper.map(giftCertificate, GiftCertificateDto.class);
+
     }
 
     @Transactional
     @Override
     public GiftCertificateDto update(Long id, GiftCertificateUpdateDto giftCertificateDto) {
-        GiftCertificate existedGiftCertificate = giftCertificateRepository.findById(id);
+        Optional<GiftCertificate> existedGiftCertificateOptional = giftCertificateRepository.findById(id);
 
-        if (existedGiftCertificate == null) {
-            throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
-        }
+        GiftCertificate existedGiftCertificate = existedGiftCertificateOptional.orElseThrow(() ->
+                        new ResourceNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode()));
 
-        GiftCertificate giftCertificate = giftCertificateUpdateConverter.dtoToEntity(giftCertificateDto);
+        GiftCertificate giftCertificate = modelMapper.map(giftCertificateDto, GiftCertificate.class);
 
         GiftCertificate updatedGiftCertificate = mapUpdatedFields(existedGiftCertificate, giftCertificate);
         updatedGiftCertificate.setLastUpdateDate(Instant.now().truncatedTo(ChronoUnit.MICROS));
 
-        updatedGiftCertificate = giftCertificateRepository.update(updatedGiftCertificate);
+        updatedGiftCertificate = giftCertificateRepository.save(updatedGiftCertificate);
 
-        return giftCertificateConverter.entityToDto(updatedGiftCertificate);
+        return modelMapper.map(updatedGiftCertificate, GiftCertificateDto.class);
     }
 
     @Transactional
     @Override
     public void delete(Long id) {
-        GiftCertificate giftCertificate = giftCertificateRepository.findById(id);
-        if (giftCertificate == null) {
-            throw new GiftCertificateNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode());
-        }
+        Optional<GiftCertificate> giftCertificateOptional = giftCertificateRepository.findById(id);
+        GiftCertificate giftCertificate = giftCertificateOptional.orElseThrow(() ->
+                new ResourceNotFoundException(ServiceError.GIFT_CERTIFICATE_NOT_FOUNT.getCode()));
         if (!giftCertificate.getOrderGiftCertificates().isEmpty()) {
-            throw new UnableDeleteGiftCertificateException(ServiceError.GIFT_CERTIFICATE_UNABLE_DELETE.getCode());
+            throw new UnableDeleteResourceException(ServiceError.GIFT_CERTIFICATE_UNABLE_DELETE.getCode());
         }
         giftCertificateRepository.delete(giftCertificate);
     }
